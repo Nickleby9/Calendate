@@ -1,0 +1,146 @@
+<resources>
+    <string name="app_name">Calendate</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_detail">אירועים</string>
+    <string name="facebook_application_id" translatable="false">1396048197146385</string>
+    <!-- Facebook Application ID, prefixed by 'fb'.  Enables Chrome Custom tabs. -->
+    <string name="facebook_login_protocol_scheme" translatable="false">fb1396048197146385</string>
+
+    <!--Create a new event-->
+    <string name="add_item_create_a_new_event">אירוע חדש</string>
+    <string name="add_item_title">שם אירוע</string>
+    <string name="add_item_description">תיאור</string>
+    <string name="add_item_event_date">תאריך:</string>
+    <string name="add_item_pick_a_date">בחר תאריך</string>
+    <string name="add_item_alert_ahead">התראה בעוד:</string>
+    <string name="add_item_repeat">חזרה:</string>
+    <string name="btn_save">שמירה</string>
+    <string name="add_item_clear">ניקוי</string>
+    <string-array name="count">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+    <string-array name="kind">
+        <item>דקות</item>
+        <item>שעות</item>
+        <item>ימים</item>
+        <item>שבועות</item>
+        <item>חודשים</item>
+    </string-array>
+    <string-array name="repeat">
+        <item>ללא</item>
+        <item>כל יום</item>
+        <item>כל שבוע</item>
+        <item>כל חודש</item>
+        <item>כל שנה</item>
+    </string-array>
+
+    <!--Forgot password-->
+    <string name="forgot_password_email_address">כתובת דוא"ל</string>
+    <string name="forgot_password_send">שלח</string>
+    <string name="forgot_password_title">אנא הזן כתובת מייל  \n ותשלח אליך הודעה עם הנחיות לאיפוס סיסמה.</string>
+
+    <!--Registration-->
+    <string name="registration_username">שם משתמש</string>
+    <string name="registration_password">סיסמה</string>
+    <string name="registration_repeat_password">חזור על הסיסמה</string>
+    <string name="registration_email_address">כתובת דוא"ל</string>
+    <string name="registration_register">הרשמה</string>
+    <string name="error_weak_password">הסיסמה חלשה מידי</string>
+    <string name="error_invalid_email">בתובת דוא"ל לא תקינה</string>
+    <string name="error_user_exists">המשתמש כבר קיים</string>
+    <string name="error_empty_fields">השדות לא יכולים להישאר ריקים</string>
+    <string name="error_mismatch_passwords">הסיסמאות לא תואמות</string>
+    <string name="other_signin">או התחבר באמצעות:</string>
+    <string name="registering">מבצע הרשמה...</string>
+
+    <!--Button change dialog-->
+    <string name="button_title_title">הזן כותרת לכפתור</string>
+    <string name="button_title_hint">כותרת</string>
+    <string name="button_title_set">קבע</string>
+    <string name="button_title_error">חרגת ממגבלת התוים</string>
+    <string name="change_button_dialog_title">מה ברצונך לבצע?</string>
+    <string-array name="buttonOptions">
+        <item>קבע כותרת לכפתור</item>
+        <item>החלף תמונה</item>
+        <item>מחיקה</item>
+    </string-array>
+    <string-array name="itemOptions">
+        <item>שיתוף</item>
+        <item>מחיקה</item>
+    </string-array>
+
+    <!--Login-->
+    <string name="login_error_title">פרטים לא מזוהים</string>
+    <string name="login_error_description">משתמש לא מוכר או סיסמה שגויה</string>
+    <string name="login_error_try">נסה שוב</string>
+    <string name="login_error_forgot">שכחתי סיסמה</string>
+    <string name="back_twice">הקש חזרה שנית כדי לצאת</string>
+    <string name="logging">מתחבר...</string>
+    <string name="btn_register">הרשמה</string>
+    <string name="btn_login">התחברות</string>
+    <string name="sign_in_with_google">התחבר באמצעות חשבון גוגל</string>
+    <string name="sign_in_with_facebook">התחבר באמצעות חשבון פייסבוק</string>
+
+
+    <!--Main activity-->
+    <string name="sign_out">התנתקות</string>
+    <string name="action_settings">הגדרות</string>
+    <string name="email">כתובת דוא"ל</string>
+    <string name="password">סיסמה</string>
+    <string name="delete_event">מחק אירוע</string>
+    <string name="confirm_delete">האם למחוק את האירוע?</string>
+    <string name="yes">כן</string>
+    <string name="no">לא</string>
+    <string name="btn_edit">עריכה</string>
+    <string name="not_in_use">לא בשימוש</string>
+    <string name="btn_set_time">קבע שעה</string>
+    <string name="add_item_time">שעת התראה:</string>
+    <string name="google_login_msg">מתחבר באמצעות חשבון גוגל...</string>
+    <string name="permission_not_granted">לא ניתנו הרשאות מתאימות</string>
+    <string name="network_error">חיבור אינטרנט לא זמין</string>
+    <string name="error">שגיאה</string>
+    <string name="facebook_login_msg">מתחבר באמצעות חשבון פייסבוק...</string>
+    <string name="loading">טוען...</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">פתח חלונית ניווט</string>
+    <string name="navigation_drawer_close">סגור חלונית ניווט</string>
+    <string name="account_managment">ניהול חשבון</string>
+    <string name="change_password">החלפת סיסמה</string>
+    <string name="categories">קטגוריות</string>
+    <string name="calendar">לוח שנה</string>
+    <string name="timeline">ציר זמן</string>
+    <string name="facebook_login">מתחבר באמצעות חשבון פייסבוק...</string>
+    <string name="str_continue">המשך</string>
+    <string name="delete_title">מחיקת אירוע</string>
+    <string name="friends">חברים</string>
+    <string name="add_friend">הוסף חבר</string>
+    <string name="approve_send_request">לשלוח בקשת חברות אל</string>
+    <string name="send_request">שלח בקשה</string>
+    <string name="cancel">ביטול</string>
+    <string name="request_sent">בקשת חברות נשלחה!</string>
+    <string name="new_shared_event">אירוע חדש שותף</string>
+    <string name="share_msg">שיתף איתך אירוע בשם</string>
+    <string name="share_msg_2">האם לקבל את האירוע?</string>
+    <string name="share_denied">דחית את האירוע</string>
+    <string name="new_friend_msg">שלח לך בקשת חברות.\nהאם לאשר את הבקשה?</string>
+    <string name="new_friend_title">בקשת חברות חדשה</string>
+    <string name="request_denied">דחית את הבקשה</string>
+    <string name="already_friends">אתם כבר חברים</string>
+    <string name="confirm">אשר</string>
+    <string name="delete_request">מחק בקשה</string>
+    <string name="note_share_msg">שיתף איתך אירוע. לחץ כאן על מנת לראות אותו</string>
+    <string name="note_new_request">בקשת חברות חדשה!</string>
+    <string name="note_friend_msg">שלח לך בקשת חברות. לחץ כאן על מנת לראות את הבקשה</string>
+    <string name="note_new_share">אירוע חדש שותף</string>
+    <string name="menu_about">אודות</string>
+    <string name="about">Thanks to Pixel Buddha from Flaticons.com for the icons.</string>
+</resources>

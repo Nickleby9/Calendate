@@ -1,0 +1,151 @@
+<resources>
+    <string name="app_name">Calendate</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="title_activity_detail">Event list</string>
+    <string name="title_detailed_item">Event</string>
+    <string name="facebook_application_id" translatable="false">1396048197146385</string>
+    <!-- Facebook Application ID, prefixed by 'fb'.  Enables Chrome Custom tabs. -->
+    <string name="facebook_login_protocol_scheme" translatable="false">fb1396048197146385</string>
+
+    <!--Create a new event-->
+    <string name="add_item_create_a_new_event">Create a new event</string>
+    <string name="add_item_title">Title</string>
+    <string name="add_item_description">Description</string>
+    <string name="add_item_event_date">Event date:</string>
+    <string name="add_item_pick_a_date">Pick a Date</string>
+    <string name="add_item_alert_ahead">Alert in:</string>
+    <string name="add_item_repeat">Repeat:</string>
+    <string name="btn_save">Save</string>
+    <string name="add_item_clear">Clear</string>
+    <string-array name="count">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+        <item>7</item>
+        <item>8</item>
+        <item>9</item>
+    </string-array>
+    <string-array name="kind">
+        <item>Minutes</item>
+        <item>Hours</item>
+        <item>Days</item>
+        <item>Weeks</item>
+        <item>Months</item>
+    </string-array>
+    <string-array name="repeat">
+        <item>None</item>
+        <item>Every day</item>
+        <item>Every week</item>
+        <item>Every month</item>
+        <item>Every year</item>
+    </string-array>
+
+    <!--Forgot password-->
+    <string name="forgot_password_email_address">Email address</string>
+    <string name="forgot_password_send">Send</string>
+    <string name="forgot_password_title">Enter your email below  \n and the password will be send to you.</string>
+
+    <!--Registration-->
+    <string name="registration_username">Username</string>
+    <string name="registration_password">Password</string>
+    <string name="registration_repeat_password">Repeat password</string>
+    <string name="registration_email_address">Email address</string>
+    <string name="registration_register">Register</string>
+    <string name="error_weak_password">Password is too weak</string>
+    <string name="error_invalid_email">Email is not valid</string>
+    <string name="error_user_exists">User already exist</string>
+    <string name="error_empty_fields">Fields can not be empty</string>
+    <string name="error_mismatch_passwords">Passwords do not match</string>
+    <string name="other_signin">Or sign in using:</string>
+    <string name="registering">Registering...</string>
+
+    <!--Button change dialog-->
+    <string name="button_title_title">Set the title for your button</string>
+    <string name="button_title_hint">Button title</string>
+    <string name="button_title_set">Set</string>
+    <string name="button_title_error">Maximum length exceeded</string>
+    <string name="change_button_dialog_title">What would you like to do?</string>
+    <string-array name="buttonOptions">
+        <item>Change title</item>
+        <item>Change Image</item>
+        <item>Delete</item>
+    </string-array>
+    <string-array name="itemOptions">
+        <item>Share</item>
+        <item>Delete</item>
+    </string-array>
+
+    <!--Login-->
+    <string name="login_error_title">Details incorrect</string>
+    <string name="login_error_description">Unknown user or bad password.</string>
+    <string name="login_error_try">Try again</string>
+    <string name="login_error_forgot">Forgot password</string>
+    <string name="back_twice">Press back again to exit</string>
+    <string name="logging">Logging in...</string>
+    <string name="btn_register">Register</string>
+    <string name="btn_login">Login</string>
+    <string name="sign_in_with_google">Sign in with Google</string>
+    <string name="sign_in_with_facebook">Sign in with Facebook</string>
+
+
+    <!--Main activity-->
+    <string name="sign_out">Sign out</string>
+    <string name="action_settings">Settings</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="delete_event">Delete event</string>
+    <string name="confirm_delete">Are you sure you want to delete the event?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="btn_edit">Edit</string>
+    <string name="not_in_use">Not in use</string>
+    <string name="btn_set_time">Set time</string>
+    <string name="add_item_time">Alert time:</string>
+    <string name="google_login_msg">Logging in using Google account</string>
+    <string name="permission_not_granted">Permissions has not been granted</string>
+    <string name="network_error">No internet connection</string>
+    <string name="error">Error</string>
+    <string name="facebook_login_msg">Logging in using Facebook account</string>
+    <string name="loading">Loading...</string>
+    <string name="title_activity_main2">Main2Activity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="account_managment">Account managment</string>
+    <string name="change_password">Change password</string>
+    <string name="categories">Categories</string>
+    <string name="calendar">Calendar</string>
+    <string name="timeline">Timeline</string>
+    <string name="facebook_login">Logging in using your Facebook account</string>
+    <string name="str_continue">Continue</string>
+    <string name="who_would_you_like_to_share_with">Who would you like to share with?</string>
+    <string name="delete_title">Delete an event</string>
+    <string name="friends">Friends</string>
+    <string name="email_or_username">Email or username</string>
+    <string name="add_friend">Add a friend</string>
+    <string name="approve_send_request">Are you sure you want to send a friend request to</string>
+    <string name="send_request">Send request</string>
+    <string name="cancel">Cancel</string>
+    <string name="request_sent">Friend request sent!</string>
+    <string name="new_shared_event">New shared event</string>
+    <string name="share_msg">has shared with you an event called</string>
+    <string name="share_msg_2">Do you accept this event?</string>
+    <string name="share_denied">You denied this event successfully</string>
+    <string name="new_friend_msg">wants to add you as a friend.\nDo you confirm this request?</string>
+    <string name="new_friend_title">New friend request</string>
+    <string name="request_denied">You denied the request</string>
+    <string name="already_friends">This user is already your friend</string>
+    <string name="confirm">Confirm</string>
+    <string name="delete_request">Delete request</string>
+    <string name="note_share_msg">has shared with you and event.  Touch here to show it.</string>
+    <string name="note_new_request">New friend request!</string>
+    <string name="note_friend_msg">wants to be your friend.  Touch here to confirm or delete the request.</string>
+    <string name="note_new_share">New shared event</string>
+    <string name="menu_about">About</string>
+    <string name="about">Thanks to Pixel Buddha from Flaticons.com for the icons.</string>
+
+
+</resources>

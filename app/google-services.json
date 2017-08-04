@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "864643408241",
+    "firebase_url": "https://calendate-21119.firebaseio.com",
+    "project_id": "calendate-21119",
+    "storage_bucket": "calendate-21119.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:864643408241:android:5ce7b6be1ff0390c",
+        "android_client_info": {
+          "package_name": "com.calendate.calendate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "864643408241-kd0q8egjhm05g49kgjajj14vv778cnj1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.calendate.calendate",
+            "certificate_hash": "e925c3e53ccd5ec5964743fc6b94b69694438881"
+          }
+        },
+        {
+          "client_id": "864643408241-icinfnglo63mfub2ft8025jfdaja8h8g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.calendate.calendate",
+            "certificate_hash": "7bf473e035b8bb4dbc29d4b64d03f11615b48b57"
+          }
+        },
+        {
+          "client_id": "864643408241-mvk4h0sje3ppkktgk3bnmf7tagg003sr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.calendate.calendate",
+            "certificate_hash": "77afcd00fd0bcced60089e7d039ef7a439cf7cfc"
+          }
+        },
+        {
+          "client_id": "864643408241-je16v57c2a8lppksmbfr7f31rbp76i9a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXng61BlSmycmyiFCc_L3A6DlHDlanlXc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "864643408241-je16v57c2a8lppksmbfr7f31rbp76i9a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
