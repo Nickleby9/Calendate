@@ -34,6 +34,7 @@ public class FriendListFragment extends Fragment {
     FirebaseDatabase mDatabase;
     FirebaseUser user;
     ArrayList<Friend> friends = new ArrayList<>();
+    TextView tvNoFriends;
 
     public FriendListFragment() {
         // Required empty public constructor
@@ -53,6 +54,8 @@ public class FriendListFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         rvFriends = (RecyclerView) view.findViewById(R.id.rvFriends);
+        tvNoFriends = (TextView) view.findViewById(R.id.tvNoFriends);
+        tvNoFriends.setVisibility(View.INVISIBLE);
         fabAdd = (FloatingActionButton) view.findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,7 +84,8 @@ public class FriendListFragment extends Fragment {
             }
         });
 
-
+        if (rvFriends.getChildCount() == 0)
+            tvNoFriends.setVisibility(View.VISIBLE);
     }
 
     public static class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>{

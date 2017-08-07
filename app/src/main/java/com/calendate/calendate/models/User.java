@@ -1,7 +1,6 @@
 package com.calendate.calendate.models;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class User {
 
@@ -9,9 +8,6 @@ public class User {
     String username;
     String email;
     String profileImage = "http://www.freeiconspng.com/uploads/profile-icon-9.png";
-
-    FirebaseDatabase mDatabase;
-    FirebaseUser user;
 
     public User() {
     }

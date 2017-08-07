@@ -35,6 +35,7 @@ public class DetailActivity extends AppCompatActivity {
     FirebaseDatabase mDatabase;
     FirebaseUser user;
     static String btnId;
+    TextView tvNoEvents;
 
     @Override
     public void onBackPressed() {
@@ -52,10 +53,11 @@ public class DetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         btnId = getIntent().getStringExtra("btnId");
-
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         recycler = (RecyclerView) findViewById(R.id.recycler);
+        tvNoEvents = (TextView) findViewById(R.id.tvNoEvents);
+        tvNoEvents.setVisibility(View.INVISIBLE);
 
 //        DatabaseReference query = mDatabase.getReference("events/" + user.getUid() + "/" + btnId);
         DatabaseReference query = mDatabase.getReference("all_events/" + user.getUid());
@@ -73,7 +75,6 @@ public class DetailActivity extends AppCompatActivity {
 
         recycler.setAdapter(adapter);
 
-
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -84,6 +85,9 @@ public class DetailActivity extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        if (recycler.getChildCount() == 0)
+            tvNoEvents.setVisibility(View.VISIBLE);
     }
 
 

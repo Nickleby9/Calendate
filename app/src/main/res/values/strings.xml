@@ -146,6 +146,8 @@
     <string name="note_new_share">New shared event</string>
     <string name="menu_about">About</string>
     <string name="about">Thanks to Pixel Buddha from Flaticons.com for the icons.</string>
+    <string name="no_events_text">You haven\'t created any events yet</string>
+    <string name="no_friends_text">No friends yet</string>
 
 
 </resources>

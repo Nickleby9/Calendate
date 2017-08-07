@@ -2,6 +2,7 @@ package com.calendate.calendate;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     private FirebaseAuth mAuth;
     TextView tvError;
     FirebaseDatabase mDatabase;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
