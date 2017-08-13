@@ -32,6 +32,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 PendingIntent pi =
                         PendingIntent.getActivity(this, 1, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+                NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
                 switch (type) {
                     case "newEvent":
@@ -41,6 +42,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setAutoCancel(true)
                                 .setDefaults(Notification.DEFAULT_ALL)
                                 .setContentIntent(pi);
+                        mgr.notify(1, builder.build());
                         break;
                     case "friendRequest":
                         builder.setContentTitle(getString(R.string.note_new_request))
@@ -49,12 +51,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setAutoCancel(true)
                                 .setDefaults(Notification.DEFAULT_ALL)
                                 .setContentIntent(pi);
+                        mgr.notify(2, builder.build());
                         break;
                 }
-
-
-                NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                mgr.notify(1, builder.build());
             }
         }
     }

@@ -16,7 +16,7 @@
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintRight_toLeftOf="@id/spnKind"
+        app:layout_constraintRight_toLeftOf="@+id/spnKind"
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <Spinner
@@ -28,8 +28,7 @@
         app:layout_constraintTop_toTopOf="@id/etCount"
         app:layout_constraintLeft_toRightOf="@id/etCount"
         app:layout_constraintRight_toLeftOf="@+id/fabRemove"
-        android:layout_marginRight="8dp"
-        app:layout_constraintVertical_bias="0.0" />
+        android:layout_marginRight="8dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fabRemove"

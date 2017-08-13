@@ -7,8 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -30,9 +30,8 @@ import android.widget.Toast;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
-import com.google.api.client.util.DateTime;
-import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.EventReminder;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,12 +39,19 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.List;
+
+import pl.aprilapps.easyphotopicker.EasyImage;
 
 import static com.calendate.calendate.R.array.kind;
 
@@ -54,7 +60,8 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     private static final int PERMISSION_CALENDAR_WRITE = 1;
     Spinner spnRepeat;
     EditText etTitle, etDescription;
-    BootstrapButton btnDate, btnSave, btnTime;
+    BootstrapButton btnDate, btnTime, btnAttach;
+    FloatingActionButton btnSave;
     LocalDateTime date = new LocalDateTime(LocalDateTime.now());
     int hours = 0, minutes = 0;
     int year = date.getYear(), month = date.getMonthOfYear(), day = date.getDayOfMonth();
@@ -67,13 +74,10 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     static AlertsAdapter adapter;
     String bundleID = "";
     String key;
+    RxPermissions rxPermissions;
+    StorageReference mStorage;
+    ArrayList<File> fileArray = new ArrayList<>();
 
-    public static final String[] EVENT_PROJECTION = new String[] {
-            CalendarContract.Calendars._ID,                           // 0
-            CalendarContract.Calendars.ACCOUNT_NAME,                  // 1
-            CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,         // 2
-            CalendarContract.Calendars.OWNER_ACCOUNT                  // 3
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,8 +93,11 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         spnRepeat = (Spinner) findViewById(R.id.spnRepeat);
         btnTime = (BootstrapButton) findViewById(R.id.btnTime);
         btnDate = (BootstrapButton) findViewById(R.id.btnDate);
-        btnSave = (BootstrapButton) findViewById(R.id.btnSave);
+        btnAttach = (BootstrapButton) findViewById(R.id.btnAttach);
+        btnSave = (FloatingActionButton) findViewById(R.id.btnSave);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
+        rxPermissions = new RxPermissions(this);
+        mStorage = FirebaseStorage.getInstance().getReference();
 
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
@@ -101,12 +108,13 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
 
         btnDate.setOnClickListener(this);
         btnTime.setOnClickListener(this);
-        btnSave.setOnClickListener(this);
         fabAdd.setOnClickListener(this);
+        btnSave.setOnClickListener(this);
+        btnAttach.setOnClickListener(this);
 
         MyUtils.fixBootstrapButton(this, btnDate);
         MyUtils.fixBootstrapButton(this, btnTime);
-        MyUtils.fixBootstrapButton(this, btnSave);
+        MyUtils.fixBootstrapButton(this, btnAttach);
 
         ArrayAdapter<CharSequence> spnRepeatAdapter = ArrayAdapter.createFromResource(this, R.array.repeat, R.layout.spinner_item);
         spnRepeatAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
@@ -195,7 +203,65 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                 alerts.add(new Alert());
                 adapter.notifyItemInserted(alerts.size() - 1);
                 break;
+            case R.id.btnAttach:
+                if (!checkStoragePermission())
+                    return;
+                EasyImage.openChooserWithDocuments(this, "Attach your document", 0);
+                break;
         }
+    }
+
+    private boolean checkStoragePermission() {
+        int resultCode = ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE);
+
+        boolean granted = resultCode == PackageManager.PERMISSION_GRANTED;
+
+        if (!granted) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 1);
+        }
+        return granted;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            onClick(btnAttach);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new EasyImage.Callbacks() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+
+            }
+
+            @Override
+            public void onImagesPicked(@NonNull final List<File> imageFiles, EasyImage.ImageSource source, int type) {
+                if (imageFiles.size() > 0) {
+                    Uri uri = Uri.fromFile(imageFiles.get(0));
+                    mStorage.child("documents").child(user.getUid()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            fileArray.add(imageFiles.get(0));
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(AddItem.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCanceled(EasyImage.ImageSource source, int type) {
+
+            }
+        });
     }
 
     public static void removeAdapter(int pos) {
@@ -220,6 +286,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     }
 
     private void addNewEvent() {
+
         alerts.clear();
 
         int size = rvAlerts.getChildCount();
@@ -239,39 +306,8 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         if (getIntent().getStringExtra("event") == null)
             key = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
-        Event event = new Event(title, description, date, alerts, hours, minutes, repeat, key, btnId, true, user.getDisplayName());
+        final Event event = new Event(title, description, date, alerts, hours, minutes, repeat, key, btnId, true, user.getDisplayName());
         mDatabase.getReference("all_events/" + user.getUid()).child(key).setValue(event);
-
-        if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_CALENDAR}, PERMISSION_CALENDAR_WRITE);
-            return;
-        }
-
-
-        EventDateTime eventDateTime = new EventDateTime();
-        DateTime dateTime = new DateTime(date.toDate());
-//        String[] recurrence = new String[] {"RRULE:FREQ=DAILY;COUNT=2"};
-        String[] recurrence = new String[] {"RRULE:FREQ=DAILY;COUNT=1"}; //TODO:change spinner values
-        EventReminder[] reminderOverrides = new EventReminder[] {
-                new EventReminder().setMethod("email").setMinutes(24 * 60),
-                new EventReminder().setMethod("popup").setMinutes(10),
-        };
-        com.google.api.services.calendar.model.Event.Reminders reminders = new com.google.api.services.calendar.model.Event.Reminders()
-                .setUseDefault(true)
-                .setOverrides(Arrays.asList(reminderOverrides));
-
-
-//        com.google.api.services.calendar.model.Event googleEvent = new com.google.api.services.calendar.model.Event();
-//        com.google.api.services.calendar.Calendar calendarService = new com.google.api.services.calendar.Calendar();
-//        googleEvent.setId(event.getEventUID())
-//                .setSummary(event.getTitle())
-//                .setDescription(event.getDescription())
-//                .setStart(eventDateTime.setDate(dateTime).setTimeZone(Locale.getDefault().toString()))
-//                .setEnd(eventDateTime.setDate(dateTime).setTimeZone(Locale.getDefault().toString()))
-//                .setRecurrence(Arrays.asList(recurrence))
-//                .setReminders(reminders);
-//        googleEvent = calendarService.events()
 
 
         alerts.clear();
@@ -279,18 +315,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         Intent intent = new Intent(AddItem.this, DetailActivity.class);
         intent.putExtra("btnId", btnId);
         startActivity(intent);
-    }
 
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == PERMISSION_CALENDAR_WRITE) {
-            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Can't continue.\n Permission hasn't been granted.", Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 
     @Override

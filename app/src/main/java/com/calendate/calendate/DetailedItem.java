@@ -3,6 +3,7 @@ package com.calendate.calendate;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -45,7 +46,8 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
 
     Spinner spnRepeat;
     EditText etTitle, etDescription;
-    BootstrapButton btnDate, btnChange, btnTime;
+    BootstrapButton btnDate, btnTime;
+    FloatingActionButton btnChange;
     LocalDateTime date;
     FirebaseDatabase mDatabase;
     FirebaseUser user;
@@ -76,7 +78,7 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
         btnDate = (BootstrapButton) findViewById(R.id.btnDate);
         btnTime = (BootstrapButton) findViewById(R.id.btnTime);
         spnRepeat = (Spinner) findViewById(R.id.spnRepeat);
-        btnChange = (BootstrapButton) findViewById(R.id.btnChange);
+        btnChange = (FloatingActionButton) findViewById(R.id.btnChange);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
 
         adapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts"));
@@ -86,7 +88,6 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
 
         MyUtils.fixBootstrapButton(this, btnDate);
         MyUtils.fixBootstrapButton(this, btnTime);
-        MyUtils.fixBootstrapButton(this, btnChange);
 
         ArrayAdapter<CharSequence> spnRepeatAdapter = ArrayAdapter.createFromResource(this, R.array.repeat, R.layout.spinner_item);
         spnRepeatAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
@@ -138,19 +139,10 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         switch (id) {
             case R.id.btnChange:
-                if (btnChange.getText().equals(getString(R.string.btn_edit))) {
-//                    changeEnabled(true);
-//                    btnChange.setText(R.string.btn_save);
-                    Intent intent = new Intent(this, AddItem.class);
-                    intent.putExtra("event", model.getEventUID());
-                    startActivity(intent);
-                } else if (btnChange.getText().equals(getString(R.string.btn_save))) {
-
-                    changeEnabled(false);
-                    btnChange.setText(R.string.btn_edit);
-//                    editEvent();
-                }
-                break;
+            Intent intent = new Intent(this, AddItem.class);
+            intent.putExtra("event", model.getEventUID());
+            startActivity(intent);
+            break;
             case R.id.btnDate:
                 if (btnDate.isClickable()) {
                     DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
@@ -183,11 +175,21 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
         spnRepeat.setEnabled(state);
         btnDate.setClickable(state);
         fabAdd.setClickable(state);
-        if (!state)
+        if (!state) {
             fabAdd.setVisibility(View.INVISIBLE);
-        else
+            etTitle.setBackgroundResource(R.color.transparent);
+            etDescription.setBackgroundResource(R.color.transparent);
+            spnRepeat.setBackgroundResource(R.color.transparent);
+        } else {
             fabAdd.setVisibility(View.VISIBLE);
-        AlertsAdapter.AlertsViewHolder.changeAdapterEnabled(state);
+            AlertsAdapter.AlertsViewHolder.changeAdapterEnabled(state);
+            fabAdd.setVisibility(View.VISIBLE);
+            btnDate.setTextColor(Color.WHITE);
+            btnTime.setTextColor(Color.WHITE);
+            etTitle.setBackgroundResource(R.color.caldroid_white);
+            etDescription.setBackgroundResource(R.color.caldroid_white);
+            spnRepeat.setBackgroundResource(R.color.caldroid_white);
+        }
     }
 
     @Override
@@ -238,7 +240,6 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
         });
 
         alerts.clear();
-        btnChange.setText(R.string.btn_edit);
         changeEnabled(false);
     }
 
@@ -293,6 +294,7 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
                 spnKind.setEnabled(false);
                 fabRemove.setClickable(false);
                 fabRemove.setVisibility(View.INVISIBLE);
+                spnKind.setBackgroundResource(R.color.transparent);
             }
 
             static void changeAdapterEnabled(Boolean state) {
@@ -301,9 +303,11 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
                     viewHolder.etCount.setEnabled(state);
                     viewHolder.spnKind.setEnabled(state);
                     viewHolder.fabRemove.setClickable(state);
-                    if (!state)
+                    if (!state) {
                         viewHolder.fabRemove.setVisibility(View.INVISIBLE);
-                    else
+//                        viewHolder.spnKind.setBackgroundResource(R.color.transparent);
+                        viewHolder.spnKind.setBackgroundColor(Color.TRANSPARENT);
+                    }else
                         viewHolder.fabRemove.setVisibility(View.VISIBLE);
                 }
             }

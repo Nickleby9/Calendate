@@ -19,7 +19,7 @@ public class CustomBootstrapStyleDark implements BootstrapBrand {
         defaultFill = context.getResources().getColor(R.color.colorPrimaryDark);
 //        defaultTextColor = Color.parseColor("#0288d1");
         defaultTextColor = Color.WHITE;
-        activeFill = Color.parseColor("#f5f5f5");
+        activeFill = context.getResources().getColor(R.color.colorPrimaryDark);
         edge = 0;
     }
 

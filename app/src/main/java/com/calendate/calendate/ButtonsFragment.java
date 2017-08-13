@@ -436,10 +436,6 @@ public class ButtonsFragment extends Fragment {
                             d.setArguments(arg);
                             d.show(getChildFragmentManager(), "f");
                             break;
-                        case 2:
-                            //Delete - are you sure? -remove title and link to data
-                            setButtonText("", btnId);
-                            break;
                     }
                 }
             });

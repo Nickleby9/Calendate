@@ -19,7 +19,7 @@ public class CustomBootstrapStyleTransparent implements BootstrapBrand {
         defaultFill = context.getResources().getColor(R.color.colorPrimaryLight);
 //        defaultTextColor = Color.parseColor("#0288d1");
         defaultTextColor = Color.WHITE;
-        activeFill = Color.parseColor("#f5f5f5");
+        activeFill = context.getResources().getColor(R.color.colorPrimaryLight);
         edge = 0;
     }
 

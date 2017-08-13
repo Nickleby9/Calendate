@@ -71,7 +71,6 @@
     <string-array name="buttonOptions">
         <item>Change title</item>
         <item>Change Image</item>
-        <item>Delete</item>
     </string-array>
     <string-array name="itemOptions">
         <item>Share</item>
@@ -148,6 +147,7 @@
     <string name="about">Thanks to Pixel Buddha from Flaticons.com for the icons.</string>
     <string name="no_events_text">You haven\'t created any events yet</string>
     <string name="no_friends_text">No friends yet</string>
+    <string name="attach">Attach document or picture</string>
 
 
 </resources>
