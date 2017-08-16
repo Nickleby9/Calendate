@@ -9,6 +9,8 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +26,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -66,8 +67,7 @@ public class AddFriendsFragment extends Fragment {
         autoTv = (AutoCompleteTextView) view.findViewById(R.id.autoTv);
         rvUsers = (RecyclerView) view.findViewById(R.id.rvUsers);
         rvUsers.setLayoutManager(new LinearLayoutManager(getContext()));
-        ivSearch = (ImageView) view.findViewById(R.id.ivSearch);
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), R.layout.spinner_item, usernames);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, usernames);
 
         mDatabase.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -76,8 +76,6 @@ public class AddFriendsFragment extends Fragment {
                     user = snapshot.getValue(User.class);
                     if (!user.getEmail().equals(currentUser.getEmail())) {
                         users.add(user);
-                        usernames.add(user.getUsername());
-                        adapter.notifyDataSetChanged();
                     }
                 }
             }
@@ -88,33 +86,39 @@ public class AddFriendsFragment extends Fragment {
             }
         });
 
-        autoTv.setAdapter(adapter);
-        ivSearch.setOnClickListener(new View.OnClickListener() {
+        autoTv.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View view) {
-                adapterUsers.clear();
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-                final String input = autoTv.getText().toString();
-                final DatabaseReference ref = mDatabase.getReference("users");
-                ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            user = snapshot.getValue(User.class);
-                            if ((user.getEmail().contains(input) || user.getUsername().contains(input)) &&
-                                    !user.getEmail().equals(currentUser.getEmail())) {
-                                adapterUsers.add(user);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                usernames.clear();
+                adapterUsers.clear();
+                UsersAdapter usersAdapter = new UsersAdapter(getContext(), adapterUsers);
+                if (charSequence.length() > 1 || charSequence.length() == 0) {
+                    for (User singleUser : users) {
+                        if (singleUser.getUsername().toLowerCase().contains(charSequence.toString().toLowerCase())) {
+                            if (usernames.contains(singleUser.getUsername().toLowerCase())) {
+                                return;
                             }
-                            UsersAdapter usersAdapter = new UsersAdapter(getContext(), adapterUsers);
-                            rvUsers.setAdapter(usersAdapter);
+                            if (charSequence.toString().isEmpty()) {
+                                rvUsers.setAdapter(usersAdapter);
+                                return;
+                            }
+                            usernames.add(singleUser.getUsername().toLowerCase());
+                            adapter.notifyDataSetChanged();
+                            adapterUsers.add(singleUser);
                         }
                     }
+                    rvUsers.setAdapter(usersAdapter);
+                }
+            }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+            @Override
+            public void afterTextChanged(Editable editable) {
 
-                    }
-                });
             }
         });
     }

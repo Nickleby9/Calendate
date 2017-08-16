@@ -96,8 +96,7 @@
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fabAdd"
             android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="0dp" />
+            android:layout_marginStart="8dp" />
 
         <Spinner
             android:id="@+id/spnRepeat"
@@ -144,20 +143,26 @@
             android:layout_gravity="bottom|end"
             app:layout_constraintLeft_toLeftOf="parent" />
 
-        <com.beardedhen.androidbootstrap.BootstrapButton
-            android:id="@+id/btnAttach"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/attach"
-            app:bootstrapBrand="regular"
-            app:bootstrapSize="lg"
-            app:buttonMode="regular"
-            app:roundedCorners="true"
-            app:showOutline="false"
+        <ImageView
+            android:id="@+id/ivAttach"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             app:layout_constraintTop_toBottomOf="@+id/spnRepeat"
+            app:srcCompat="@drawable/ic_doc_add"
+            app:layout_constraintRight_toLeftOf="@+id/rvDocs"
             android:layout_marginTop="8dp"
-            app:layout_constraintLeft_toLeftOf="@+id/etDescription"
-            app:layout_constraintRight_toRightOf="@+id/etDescription" />
+            android:layout_marginRight="8dp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvDocs"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="0dp"
+            android:layout_marginRight="23dp"
+            android:layout_marginTop="0dp"
+            app:layout_constraintBottom_toBottomOf="@+id/ivAttach"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/spnRepeat" />
 
     </android.support.constraint.ConstraintLayout>
 

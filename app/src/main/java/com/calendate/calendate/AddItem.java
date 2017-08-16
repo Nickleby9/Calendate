@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +16,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,6 +26,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -60,7 +64,8 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     private static final int PERMISSION_CALENDAR_WRITE = 1;
     Spinner spnRepeat;
     EditText etTitle, etDescription;
-    BootstrapButton btnDate, btnTime, btnAttach;
+    BootstrapButton btnDate, btnTime;
+    ImageView ivAttach;
     FloatingActionButton btnSave;
     LocalDateTime date = new LocalDateTime(LocalDateTime.now());
     int hours = 0, minutes = 0;
@@ -69,6 +74,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     FirebaseUser user;
     String btnId;
     static RecyclerView rvAlerts;
+    RecyclerView rvDocs;
     static ArrayList<Alert> alerts = new ArrayList<>();
     FloatingActionButton fabAdd;
     static AlertsAdapter adapter;
@@ -77,6 +83,8 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     RxPermissions rxPermissions;
     StorageReference mStorage;
     ArrayList<File> fileArray = new ArrayList<>();
+    ArrayList<Bitmap> images = new ArrayList<>();
+    DocsAdapter docsAdapter;
 
 
     @Override
@@ -93,11 +101,14 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         spnRepeat = (Spinner) findViewById(R.id.spnRepeat);
         btnTime = (BootstrapButton) findViewById(R.id.btnTime);
         btnDate = (BootstrapButton) findViewById(R.id.btnDate);
-        btnAttach = (BootstrapButton) findViewById(R.id.btnAttach);
+        ivAttach = (ImageView) findViewById(R.id.ivAttach);
         btnSave = (FloatingActionButton) findViewById(R.id.btnSave);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
         rxPermissions = new RxPermissions(this);
         mStorage = FirebaseStorage.getInstance().getReference();
+
+        rvDocs = (RecyclerView) findViewById(R.id.rvDocs);
+        rvDocs.setLayoutManager(new GridLayoutManager(this, 1, LinearLayoutManager.VERTICAL, false));
 
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
@@ -110,11 +121,10 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         btnTime.setOnClickListener(this);
         fabAdd.setOnClickListener(this);
         btnSave.setOnClickListener(this);
-        btnAttach.setOnClickListener(this);
+        ivAttach.setOnClickListener(this);
 
         MyUtils.fixBootstrapButton(this, btnDate);
         MyUtils.fixBootstrapButton(this, btnTime);
-        MyUtils.fixBootstrapButton(this, btnAttach);
 
         ArrayAdapter<CharSequence> spnRepeatAdapter = ArrayAdapter.createFromResource(this, R.array.repeat, R.layout.spinner_item);
         spnRepeatAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
@@ -197,13 +207,24 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                     }).show();
                 } else {
                     addNewEvent();
+                    mStorage.child("documents").child(user.getUid()).putFile(Uri.fromFile(fileArray.get(0))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(AddItem.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
                 break;
             case R.id.fabAdd:
                 alerts.add(new Alert());
                 adapter.notifyItemInserted(alerts.size() - 1);
                 break;
-            case R.id.btnAttach:
+            case R.id.ivAttach:
                 if (!checkStoragePermission())
                     return;
                 EasyImage.openChooserWithDocuments(this, "Attach your document", 0);
@@ -227,7 +248,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED)
-            onClick(btnAttach);
+            onClick(ivAttach);
     }
 
     @Override
@@ -243,17 +264,9 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
             public void onImagesPicked(@NonNull final List<File> imageFiles, EasyImage.ImageSource source, int type) {
                 if (imageFiles.size() > 0) {
                     Uri uri = Uri.fromFile(imageFiles.get(0));
-                    mStorage.child("documents").child(user.getUid()).child(uri.getLastPathSegment()).putFile(uri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                            fileArray.add(imageFiles.get(0));
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(AddItem.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFiles.get(0).getPath());
+                    images.add(bitmap);
+                    fileArray.add(imageFiles.get(0));
                 }
             }
 
@@ -400,5 +413,47 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         }
     }
 
+    private static class DocsAdapter extends RecyclerView.Adapter<DocsAdapter.DocsViewHolder> {
+
+        Context context;
+        LayoutInflater inflater;
+        ArrayList<Bitmap> data;
+
+        public DocsAdapter(Context context, ArrayList<Bitmap> data) {
+            this.context = context;
+            this.inflater =LayoutInflater.from(context);
+            this.data = data;
+        }
+
+        @Override
+        public DocsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = inflater.inflate(R.layout.doc_item, parent, false);
+            return new DocsViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(DocsViewHolder holder, int position) {
+            Bitmap bitmap = data.get(position);
+            if (bitmap != null){
+                holder.ivDoc.setImageBitmap(bitmap);
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return data.size();
+        }
+
+        static class DocsViewHolder extends RecyclerView.ViewHolder {
+
+            ImageView ivDoc;
+
+            public DocsViewHolder(View itemView) {
+                super(itemView);
+
+                ivDoc = (ImageView) itemView.findViewById(R.id.ivDoc);
+            }
+        }
+    }
 
 }

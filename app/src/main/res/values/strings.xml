@@ -123,7 +123,7 @@
     <string name="who_would_you_like_to_share_with">Who would you like to share with?</string>
     <string name="delete_title">Delete an event</string>
     <string name="friends">Friends</string>
-    <string name="email_or_username">Email or username</string>
+    <string name="email_or_username">Username</string>
     <string name="add_friend">Add a friend</string>
     <string name="approve_send_request">Are you sure you want to send a friend request to</string>
     <string name="send_request">Send request</string>

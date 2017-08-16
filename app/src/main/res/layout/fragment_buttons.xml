@@ -90,6 +90,7 @@
         android:id="@+id/divBottomRight"
         android:layout_width="0dp"
         android:layout_height="13dp"
+        android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="@+id/btnMiddleRight"
         app:layout_constraintRight_toRightOf="@+id/btnMiddleRight"
         app:layout_constraintTop_toBottomOf="@+id/btnMiddleRight"
@@ -101,52 +102,56 @@
         android:layout_height="13dp"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
+        android:layout_marginTop="0dp"
+        android:visibility="invisible"
         app:layout_constraintLeft_toLeftOf="@+id/btnTopRight"
         app:layout_constraintRight_toRightOf="@+id/btnTopRight"
         app:layout_constraintTop_toBottomOf="@+id/btnTopRight"
-        app:srcCompat="@drawable/divider"
-        android:layout_marginTop="0dp" />
+        app:srcCompat="@drawable/divider" />
 
     <ImageView
         android:id="@+id/divTopLeft"
         android:layout_width="0dp"
         android:layout_height="13dp"
+        android:layout_marginBottom="0dp"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/btnMiddleLeft"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="@+id/btnTopLeft"
         app:layout_constraintRight_toRightOf="@+id/btnTopLeft"
-        app:srcCompat="@drawable/divider"
-        app:layout_constraintHorizontal_bias="0.0"
-        android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnMiddleLeft" />
+        app:srcCompat="@drawable/divider" />
 
     <ImageView
         android:id="@+id/divBottomLeft"
         android:layout_width="0dp"
         android:layout_height="13dp"
-        app:srcCompat="@drawable/divider"
-        android:layout_marginLeft="0dp"
-        app:layout_constraintLeft_toLeftOf="@+id/btnMiddleLeft"
-        android:layout_marginRight="0dp"
-        app:layout_constraintRight_toRightOf="@+id/btnMiddleLeft"
-        app:layout_constraintHorizontal_bias="0.0"
         android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnBottomLeft" />
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/btnBottomLeft"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="@+id/btnMiddleLeft"
+        app:layout_constraintRight_toRightOf="@+id/btnMiddleLeft"
+        app:srcCompat="@drawable/divider" />
 
     <ImageView
         android:id="@+id/divTop"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        app:srcCompat="@drawable/dividervertical"
-        app:layout_constraintTop_toTopOf="@+id/btnTopRight"
-        android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/divTopRight"
-        app:layout_constraintVertical_bias="0.0"
-        android:layout_marginRight="8dp"
-        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="8dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toTopOf="@+id/divTopRight"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnTopRight"
+        app:layout_constraintVertical_bias="0.0"
+        app:srcCompat="@drawable/dividervertical" />
 
     <ImageView
         android:id="@+id/divMiddle"
@@ -156,12 +161,13 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="0dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/divBottomRight"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/divTopRight"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/dividervertical"
-        app:layout_constraintTop_toBottomOf="@+id/divTopRight" />
+        app:srcCompat="@drawable/dividervertical" />
 
     <ImageView
         android:id="@+id/divBottomMiddle"
@@ -171,12 +177,13 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="0dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="@+id/btnBottomRight"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divBottomRight"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/dividervertical"
-        app:layout_constraintBottom_toBottomOf="@+id/btnBottomRight" />
+        app:srcCompat="@drawable/dividervertical" />
 
     <ImageView
         android:id="@+id/ivTopLeft"
