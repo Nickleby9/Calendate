@@ -148,6 +148,8 @@
     <string name="no_events_text">You haven\'t created any events yet</string>
     <string name="no_friends_text">No friends yet</string>
     <string name="attach">Attach document or picture</string>
+    <string name="attach_msg">Attach your document</string>
+    <string name="documents">Documents:</string>
 
 
 </resources>

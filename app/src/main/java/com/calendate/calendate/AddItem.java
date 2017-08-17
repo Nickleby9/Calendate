@@ -8,7 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -16,7 +16,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -46,6 +45,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.joda.time.LocalDateTime;
@@ -79,13 +80,13 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
     FloatingActionButton fabAdd;
     static AlertsAdapter adapter;
     String bundleID = "";
-    String key;
     RxPermissions rxPermissions;
     StorageReference mStorage;
     ArrayList<File> fileArray = new ArrayList<>();
     ArrayList<Bitmap> images = new ArrayList<>();
     DocsAdapter docsAdapter;
-
+    Event event;
+    String eventKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,9 +107,10 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
         rxPermissions = new RxPermissions(this);
         mStorage = FirebaseStorage.getInstance().getReference();
-
         rvDocs = (RecyclerView) findViewById(R.id.rvDocs);
-        rvDocs.setLayoutManager(new GridLayoutManager(this, 1, LinearLayoutManager.VERTICAL, false));
+        rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        docsAdapter = new DocsAdapter(this, images, fileArray);
+        rvDocs.setAdapter(docsAdapter);
 
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
@@ -139,6 +141,8 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
             rvAlerts.setAdapter(adapter);
         }
 
+        if (eventKey == null)
+            eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
     }
 
     private void readOnce() {
@@ -155,7 +159,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                         LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                         btnDate.setText(dateTime.toString(MyUtils.btnDateFormat));
                         spnRepeat.setSelection(event.getRepeatPos());
-                        key = snapshot.getKey();
+//                        key = snapshot.getKey();
                         alerts = event.getAlerts();
                         date = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                         String[] split = btnTime.getText().toString().split(":");
@@ -207,17 +211,6 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                     }).show();
                 } else {
                     addNewEvent();
-                    mStorage.child("documents").child(user.getUid()).putFile(Uri.fromFile(fileArray.get(0))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(AddItem.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
                 }
                 break;
             case R.id.fabAdd:
@@ -227,7 +220,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
             case R.id.ivAttach:
                 if (!checkStoragePermission())
                     return;
-                EasyImage.openChooserWithDocuments(this, "Attach your document", 0);
+                EasyImage.openChooserWithDocuments(this, getString(R.string.attach_msg), 0);
                 break;
         }
     }
@@ -263,10 +256,39 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
             @Override
             public void onImagesPicked(@NonNull final List<File> imageFiles, EasyImage.ImageSource source, int type) {
                 if (imageFiles.size() > 0) {
-                    Uri uri = Uri.fromFile(imageFiles.get(0));
-                    Bitmap bitmap = BitmapFactory.decodeFile(imageFiles.get(0).getPath());
-                    images.add(bitmap);
+
                     fileArray.add(imageFiles.get(0));
+
+                    Picasso.with(AddItem.this).load(fileArray.get(0)).resize(35, 35).centerCrop().into(new Target() {
+                        @Override
+                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                            images.add(bitmap);
+                            docsAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onBitmapFailed(Drawable errorDrawable) {
+                            Toast.makeText(AddItem.this, "error", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                        }
+                    });
+
+
+                    mStorage.child("documents").child(user.getUid()).child(eventKey).child(fileArray.get(0).getName()).putFile(Uri.fromFile(fileArray.get(0))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(AddItem.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
             }
 
@@ -316,12 +338,11 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         int repeat = spnRepeat.getSelectedItemPosition();
         String btnId = this.btnId;
 
-        if (getIntent().getStringExtra("event") == null)
-            key = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
+//        if (getIntent().getStringExtra("event") == null)
+//            key = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
-        final Event event = new Event(title, description, date, alerts, hours, minutes, repeat, key, btnId, true, user.getDisplayName());
-        mDatabase.getReference("all_events/" + user.getUid()).child(key).setValue(event);
-
+        event = new Event(title, description, date, alerts, hours, minutes, repeat, eventKey, btnId, true, user.getDisplayName());
+        mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).setValue(event);
 
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
@@ -413,16 +434,19 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
         }
     }
 
-    private static class DocsAdapter extends RecyclerView.Adapter<DocsAdapter.DocsViewHolder> {
+    private class DocsAdapter extends RecyclerView.Adapter<DocsAdapter.DocsViewHolder> {
 
         Context context;
         LayoutInflater inflater;
         ArrayList<Bitmap> data;
+        ArrayList<File> files;
+        Bitmap bitmap;
 
-        public DocsAdapter(Context context, ArrayList<Bitmap> data) {
+        public DocsAdapter(Context context, ArrayList<Bitmap> data, ArrayList<File> fileArray) {
             this.context = context;
-            this.inflater =LayoutInflater.from(context);
+            this.inflater = LayoutInflater.from(context);
             this.data = data;
+            files = fileArray;
         }
 
         @Override
@@ -433,8 +457,9 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
 
         @Override
         public void onBindViewHolder(DocsViewHolder holder, int position) {
-            Bitmap bitmap = data.get(position);
-            if (bitmap != null){
+            bitmap = data.get(position);
+            holder.file = files.get(position);
+            if (bitmap != null) {
                 holder.ivDoc.setImageBitmap(bitmap);
             }
         }
@@ -444,14 +469,22 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
             return data.size();
         }
 
-        static class DocsViewHolder extends RecyclerView.ViewHolder {
+        class DocsViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivDoc;
+            File file;
 
             public DocsViewHolder(View itemView) {
                 super(itemView);
 
                 ivDoc = (ImageView) itemView.findViewById(R.id.ivDoc);
+
+                ivDoc.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ShowImageFragment.newInstance(file).show(getSupportFragmentManager(), "showImage");
+                    }
+                });
             }
         }
     }
