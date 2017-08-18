@@ -274,67 +274,35 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                         public void onStart() {
 
                         }
-                        @Override
                         public void onStop() {
 
                         }
-                        @Override
                         public void onDestroy() {
 
                         }
-                        @Override
                         public void onLoadStarted(@Nullable Drawable placeholder) {
 
                         }
-                        @Override
                         public void onLoadFailed(@Nullable Drawable errorDrawable) {
 
                         }
-                        @Override
                         public void onLoadCleared(@Nullable Drawable placeholder) {
 
                         }
-                        @Override
                         public void getSize(SizeReadyCallback cb) {
 
                         }
-                        @Override
                         public void removeCallback(SizeReadyCallback cb) {
 
                         }
-                        @Override
                         public void setRequest(@Nullable Request request) {
 
                         }
                         @Nullable
-                        @Override
                         public Request getRequest() {
                             return null;
                         }
                     });
-
-
-
-                    /*
-                    Picasso.with(AddItem.this).load(fileArray.get(0)).resize(35,35).into(new Target() {
-                        @Override
-                        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                            images.add(bitmap);
-                            docsAdapter.notifyDataSetChanged();
-                        }
-
-                        @Override
-                        public void onBitmapFailed(Drawable errorDrawable) {
-                            Toast.makeText(AddItem.this, "error", Toast.LENGTH_SHORT).show();
-                            docsAdapter.notifyDataSetChanged();
-                        }
-
-                        @Override
-                        public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                        }
-                    });
-*/
 
                     mStorage.child("documents").child(user.getUid()).child(eventKey).child(fileArray.get(0).getName()).putFile(Uri.fromFile(fileArray.get(0))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
