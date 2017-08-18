@@ -241,7 +241,7 @@
         app:layout_constraintLeft_toLeftOf="@+id/btnMiddleRight"
         app:layout_constraintRight_toRightOf="@+id/btnMiddleRight"
         app:layout_constraintTop_toTopOf="@+id/btnMiddleRight"
-        app:srcCompat="@drawable/default_icon" />
+        app:srcCompat="@drawable/default_icon"/>
 
     <ImageView
         android:id="@+id/ivBottomLeft"

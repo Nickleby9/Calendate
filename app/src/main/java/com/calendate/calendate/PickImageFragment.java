@@ -3,7 +3,9 @@ package com.calendate.calendate;
 
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -16,7 +18,8 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
@@ -93,10 +96,15 @@ public class PickImageFragment extends DialogFragment {
         }
 
         @Override
-        protected void populateViewHolder(ImageViewHolder viewHolder, String model, int position) {
+        protected void populateViewHolder(final ImageViewHolder viewHolder, String model, int position) {
             StorageReference mStorage = FirebaseStorage.getInstance().getReference("button-icons").child(model);
-            Glide.with(viewHolder.ivIcon.getContext()).using(new FirebaseImageLoader()).load(mStorage).into(viewHolder.ivIcon);
-//            Picasso.with(viewHolder.ivIcon.getContext()).load(model).into(viewHolder.ivIcon);
+            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    Glide.with(viewHolder.ivIcon.getContext()).load(task.getResult()).into(viewHolder.ivIcon);
+//                   Picasso.with(viewHolder.ivIcon.getContext()).load(model).into(viewHolder.ivIcon);
+                }
+            });
             viewHolder.mStorage = mStorage;
             viewHolder.dialog = dialog;
         }

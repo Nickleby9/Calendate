@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -31,6 +32,12 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.Request;
+import com.bumptech.glide.request.RequestOptions;
+import com.bumptech.glide.request.target.SizeReadyCallback;
+import com.bumptech.glide.request.target.Target;
+import com.bumptech.glide.request.transition.Transition;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -45,8 +52,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.joda.time.LocalDateTime;
@@ -259,7 +264,59 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
 
                     fileArray.add(imageFiles.get(0));
 
-                    Picasso.with(AddItem.this).load(fileArray.get(0)).resize(35, 35).centerCrop().into(new Target() {
+                    Glide.with(AddItem.this).asBitmap().load(fileArray.get(0)).apply(RequestOptions.overrideOf(35, 35).centerInside()).into(new Target<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
+                            images.add(resource);
+                            docsAdapter.notifyDataSetChanged();
+                        }
+                        @Override
+                        public void onStart() {
+
+                        }
+                        @Override
+                        public void onStop() {
+
+                        }
+                        @Override
+                        public void onDestroy() {
+
+                        }
+                        @Override
+                        public void onLoadStarted(@Nullable Drawable placeholder) {
+
+                        }
+                        @Override
+                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
+
+                        }
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+
+                        }
+                        @Override
+                        public void getSize(SizeReadyCallback cb) {
+
+                        }
+                        @Override
+                        public void removeCallback(SizeReadyCallback cb) {
+
+                        }
+                        @Override
+                        public void setRequest(@Nullable Request request) {
+
+                        }
+                        @Nullable
+                        @Override
+                        public Request getRequest() {
+                            return null;
+                        }
+                    });
+
+
+
+                    /*
+                    Picasso.with(AddItem.this).load(fileArray.get(0)).resize(35,35).into(new Target() {
                         @Override
                         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                             images.add(bitmap);
@@ -269,6 +326,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                         @Override
                         public void onBitmapFailed(Drawable errorDrawable) {
                             Toast.makeText(AddItem.this, "error", Toast.LENGTH_SHORT).show();
+                            docsAdapter.notifyDataSetChanged();
                         }
 
                         @Override
@@ -276,7 +334,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
 
                         }
                     });
-
+*/
 
                     mStorage.child("documents").child(user.getUid()).child(eventKey).child(fileArray.get(0).getName()).putFile(Uri.fromFile(fileArray.get(0))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override

@@ -141,6 +141,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:srcCompat="@drawable/ic_check"
             android:layout_gravity="bottom|end"
+            android:layout_marginBottom="8dp"
             app:layout_constraintLeft_toLeftOf="parent" />
 
         <ImageView
@@ -169,6 +170,7 @@
             android:id="@+id/tvDoc"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spnRepeat"

@@ -4,7 +4,9 @@ package com.calendate.calendate;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,7 +20,8 @@ import android.widget.ImageView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
-import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -92,14 +95,14 @@ public class ButtonsFragment extends Fragment {
         BootstrapButton btnMiddleRight;
         BootstrapButton btnBottomLeft;
         BootstrapButton btnBottomRight;
+        String btnRef = "";
+        String btnId = "";
         ImageView ivTopLeft;
         ImageView ivTopRight;
         ImageView ivMiddleLeft;
         ImageView ivMiddleRight;
         ImageView ivBottomLeft;
         ImageView ivBottomRight;
-        String btnRef = "";
-        String btnId = "";
 
         public PlaceholderFragment() {
         }
@@ -119,9 +122,8 @@ public class ButtonsFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            final View rootView = inflater.inflate(R.layout.fragment_buttons, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_buttons, container, false);
             fragNum = getArguments().getInt(ARG_SECTION_NUMBER);
-
             btnTopLeft = (BootstrapButton) rootView.findViewById(R.id.btnTopLeft);
             btnTopRight = (BootstrapButton) rootView.findViewById(R.id.btnTopRight);
             btnMiddleLeft = (BootstrapButton) rootView.findViewById(R.id.btnMiddleLeft);
@@ -229,7 +231,14 @@ public class ButtonsFragment extends Fragment {
                                 mStorage = FirebaseStorage.getInstance().getReference(ref);
 
                             }
-                            Glide.with(getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivTopLeft);
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Glide.with(getContext()).load(task.getResult()).into(ivTopLeft);
+                                    }
+                                }
+                            });
                         }
 
                         @Override
@@ -249,7 +258,14 @@ public class ButtonsFragment extends Fragment {
                                 mStorage = FirebaseStorage.getInstance().getReference(ref);
 
                             }
-                            Glide.with(getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivTopRight);
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Glide.with(getContext()).load(task.getResult()).into(ivTopRight);
+                                    }
+                                }
+                            });
                         }
 
                         @Override
@@ -269,7 +285,14 @@ public class ButtonsFragment extends Fragment {
                                 mStorage = FirebaseStorage.getInstance().getReference(ref);
 
                             }
-                            Glide.with(getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivMiddleLeft);
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Glide.with(getContext()).load(task.getResult()).into(ivMiddleLeft);
+                                    }
+                                }
+                            });
                         }
 
                         @Override
@@ -287,9 +310,15 @@ public class ButtonsFragment extends Fragment {
                                 mStorage = FirebaseStorage.getInstance().getReference("button-icons/Default.png");
                             } else {
                                 mStorage = FirebaseStorage.getInstance().getReference(ref);
-
                             }
-                            Glide.with(getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivMiddleRight);
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Glide.with(getContext()).load(task.getResult()).into(ivMiddleRight);
+                                    }
+                                }
+                            });
                         }
 
                         @Override
@@ -309,7 +338,14 @@ public class ButtonsFragment extends Fragment {
                                 mStorage = FirebaseStorage.getInstance().getReference(ref);
 
                             }
-                            Glide.with(rootView.getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivBottomLeft);
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Glide.with(getContext()).load(task.getResult()).into(ivBottomLeft);
+                                    }
+                                }
+                            });
                         }
 
                         @Override
@@ -328,8 +364,15 @@ public class ButtonsFragment extends Fragment {
                             } else {
                                 mStorage = FirebaseStorage.getInstance().getReference(ref);
                             }
-                            Glide.with(getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivBottomRight);
-                            showProgress(false, "");
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        Glide.with(getContext()).load(task.getResult()).into(ivBottomRight);
+                                        showProgress(false, "");
+                                    }
+                                }
+                            });
                         }
 
                         @Override
