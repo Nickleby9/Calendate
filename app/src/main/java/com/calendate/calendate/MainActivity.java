@@ -2,7 +2,7 @@ package com.calendate.calendate;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     int fragNum = 0;
     TextView tvUsername;
     TextView tvEmail;
-    SharedPreferences prefs;
 
 
     FirebaseAuth.AuthStateListener mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -338,9 +337,15 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     }
 
     @Override
-    public void onImageSet(final StorageReference mStorage, final String btnId) {
-        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
-        p.setButtonImage(mStorage, btnId);
+    public void onImageSet(StorageReference mStorage, String btnId, Bitmap image) {
+//        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
+//        p.setButtonImage(mStorage, btnId, image);
+        Bundle bundle = new Bundle();
+        bundle.putInt("fragNum", fragNum);
+        bundle.putParcelable("image", image);
+        ButtonsFragment buttonsFragment = new ButtonsFragment();
+        buttonsFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
     }
 
     @Override

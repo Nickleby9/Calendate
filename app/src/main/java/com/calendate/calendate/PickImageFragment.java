@@ -2,6 +2,8 @@ package com.calendate.calendate;
 
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +28,19 @@ import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
+
+import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,7 +49,6 @@ public class PickImageFragment extends DialogFragment {
 
     RecyclerView rvIcons;
     FirebaseStorage mStorage = FirebaseStorage.getInstance();
-    StorageReference mStorageRef;
     FirebaseDatabase mDatabase;
     BitmapDrawable drawable;
     ArrayList<String> imageUrls = new ArrayList<>();
@@ -46,7 +60,7 @@ public class PickImageFragment extends DialogFragment {
     }
 
     public interface OnImageSetListener {
-        void onImageSet(StorageReference mStorage, String btnId);
+        void onImageSet(StorageReference mStorage, String btnId, Bitmap image);
     }
 
     @Override
@@ -63,7 +77,7 @@ public class PickImageFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-        mListener = null;
+//        mListener = null;
     }
 
     @Override
@@ -77,22 +91,23 @@ public class PickImageFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         rvIcons = (RecyclerView) view.findViewById(R.id.rvIcons);
-        mStorageRef = FirebaseStorage.getInstance().getReference().child("button-icons/approval.png");
         mDatabase = FirebaseDatabase.getInstance();
         btnId = getArguments().getString("btnId");
 
         rvIcons.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        ImageAdapter adapter = new ImageAdapter(mDatabase.getReference("icons"), this);
+        ImageAdapter adapter = new ImageAdapter(mDatabase.getReference("icons"), this, getContext());
         rvIcons.setAdapter(adapter);
     }
 
     private static class ImageAdapter extends FirebaseRecyclerAdapter<String, ImageAdapter.ImageViewHolder> {
 
         DialogFragment dialog;
+        Context context;
 
-        public ImageAdapter(Query query, DialogFragment dialog) {
+        public ImageAdapter(Query query, DialogFragment dialog, Context context) {
             super(String.class, R.layout.icon_item, ImageViewHolder.class, query);
             this.dialog = dialog;
+            this.context = context;
         }
 
         @Override
@@ -101,33 +116,81 @@ public class PickImageFragment extends DialogFragment {
             mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
-                    Glide.with(viewHolder.ivIcon.getContext()).load(task.getResult()).into(viewHolder.ivIcon);
-//                   Picasso.with(viewHolder.ivIcon.getContext()).load(model).into(viewHolder.ivIcon);
+                    Glide.with(context).load(task.getResult()).into(viewHolder.ivIcon);
+                    viewHolder.task = task;
                 }
             });
             viewHolder.mStorage = mStorage;
             viewHolder.dialog = dialog;
         }
 
-        public static class ImageViewHolder extends RecyclerView.ViewHolder{
+        public static class ImageViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivIcon;
             String url;
             StorageReference mStorage;
             DialogFragment dialog;
+            Bitmap image;
+            Task<Uri> task;
+            SharedPreferences prefs;
 
-            public ImageViewHolder(View itemView) {
+
+            public ImageViewHolder(final View itemView) {
                 super(itemView);
                 ivIcon = (ImageView) itemView.findViewById(R.id.ivIcon);
+                prefs = itemView.getContext().getSharedPreferences("icons", MODE_PRIVATE);
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mListener.onImageSet(mStorage, btnId);
+                        CompositeDisposable disposables = new CompositeDisposable();
                         dialog.dismiss();
+
+                        disposables.add(imageDownloader(task)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(new DisposableObserver<Bitmap>() {
+                                    @Override
+                                    public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
+
+                                    }
+
+                                    @Override
+                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        mListener.onImageSet(mStorage, btnId, image);
+                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                                        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                                        byte[] b = baos.toByteArray();
+                                        String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
+                                        prefs.edit().putString(btnId, encodedImage).apply();
+                                    }
+                                }));
+                    }
+                });
+
+
+            }
+
+            Observable<Bitmap> imageDownloader(final Task<Uri> task) {
+                return Observable.defer(new Callable<ObservableSource<? extends Bitmap>>() {
+                    @Override public ObservableSource<? extends Bitmap> call() throws Exception {
+                        try {
+                            image = Glide.with(itemView.getContext()).asBitmap().load(task.getResult()).submit().get();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        } catch (ExecutionException e) {
+                            e.printStackTrace();
+                        }
+                        return Observable.just(image);
                     }
                 });
             }
+
         }
     }
 }
