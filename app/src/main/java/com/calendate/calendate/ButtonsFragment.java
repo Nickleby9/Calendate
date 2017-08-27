@@ -3,11 +3,12 @@ package com.calendate.calendate;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -15,13 +16,14 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -31,6 +33,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 
 /**
@@ -113,7 +122,6 @@ public class ButtonsFragment extends Fragment {
         ImageView ivMiddleRight;
         ImageView ivBottomLeft;
         ImageView ivBottomRight;
-        SharedPreferences prefs;
         Bitmap image;
 
         public PlaceholderFragment() {
@@ -157,7 +165,6 @@ public class ButtonsFragment extends Fragment {
             btnBottomLeft.setBootstrapBrand(new CustomBootstrapStyleTransparent(rootView.getContext()));
             btnBottomRight.setBootstrapBrand(new CustomBootstrapStyleDark(rootView.getContext()));
 
-            prefs = getContext().getSharedPreferences("icons", Context.MODE_PRIVATE);
 
 //            showProgress(true, getString(R.string.loading));
 
@@ -233,15 +240,40 @@ public class ButtonsFragment extends Fragment {
                         }
                     });
 
-            String topLeftImage = prefs.getString(IVTOPLEFT + fragNum, "default");
-            if (topLeftImage.equals("default")) {
-                ivTopLeft.setImageResource(R.drawable.default_icon);
-            } else {
-                byte[] b = Base64.decode(topLeftImage, Base64.DEFAULT);
-                Bitmap bitmap = BitmapFactory.decodeByteArray(b, 0, b.length);
-                ivTopLeft.setImageBitmap(bitmap);
+            Bitmap image;
+            image = loadImage(IVTOPLEFT);
+            if (image != null){
+                ivTopLeft.setImageBitmap(image);
             }
-/*
+            /*
+            mDatabase.getReference("button_images/" + user.getUid() + "/" + "topLeft" + fragNum)
+                    .addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String ref = dataSnapshot.getValue(String.class);
+                            StorageReference mStorage;
+                            if (ref == null) {
+                                return;
+                            } else {
+                                mStorage = FirebaseStorage.getInstance().getReference(ref);
+                            }
+//                            Glide.with(getContext()).load(mStorage.getDownloadUrl()).into(ivTopLeft);
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        saveImage(IVTOPLEFT, task.getResult());
+                                    }
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
             mDatabase.getReference("button_images/" + user.getUid() + "/" + "topRight" + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
@@ -376,7 +408,8 @@ public class ButtonsFragment extends Fragment {
 
                         }
                     });
-*/
+            */
+
             btnTopLeft.setOnClickListener(this);
             btnTopRight.setOnClickListener(this);
             btnMiddleLeft.setOnClickListener(this);
@@ -392,6 +425,45 @@ public class ButtonsFragment extends Fragment {
             btnBottomRight.setOnLongClickListener(this);
 
             return rootView;
+        }
+
+        private void saveImage(String btnId, Uri link, Context context){
+            ContextWrapper cw = new ContextWrapper(context);
+            File dir = new File("");
+            dir = cw.getDir("icons", Context.MODE_PRIVATE);
+            File myPath = new File(dir, btnId + ".png");
+            FileOutputStream fos = null;
+            try {
+                Bitmap bitmap = Glide.with(getContext()).asBitmap().load(link).submit().get();
+                fos = new FileOutputStream(myPath);
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } finally {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        private Bitmap loadImage(String buttonName){
+            ContextWrapper cw = new ContextWrapper(getContext());
+            File dir = cw.getDir("icons", Context.MODE_PRIVATE);
+            File myPath = new File(dir.getPath());
+            File file = new File(myPath, buttonName + fragNum + ".png");
+            try {
+                Bitmap bitmap = BitmapFactory.decodeStream(new FileInputStream(file));
+                return bitmap;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            return null;
         }
 
         @Override
@@ -494,9 +566,19 @@ public class ButtonsFragment extends Fragment {
             mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).setValue(text);
         }
 
-        public void setButtonImage(StorageReference mStorage, String btnId, Bitmap image) {
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + btnId).setValue(mStorage.getPath().replaceFirst("/", ""));
-//            ivTopLeft.setImageBitmap(image);
+        public void setButtonImage(final StorageReference mStorage, final String btnId, Bitmap image) {
+            mDatabase.getReference("button_images/" + user.getUid() + "/" + btnId).setValue(mStorage.getPath().replaceFirst("/", ""))
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            mStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    saveImage(btnId, uri, getContext());
+                                }
+                            });
+                        }
+                    });
         }
 
         public void onButtonPressed(String btnRef, int fragNum) {

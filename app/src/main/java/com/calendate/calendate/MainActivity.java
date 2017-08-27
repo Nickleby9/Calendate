@@ -338,14 +338,14 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
 
     @Override
     public void onImageSet(StorageReference mStorage, String btnId, Bitmap image) {
-//        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
-//        p.setButtonImage(mStorage, btnId, image);
-        Bundle bundle = new Bundle();
-        bundle.putInt("fragNum", fragNum);
-        bundle.putParcelable("image", image);
-        ButtonsFragment buttonsFragment = new ButtonsFragment();
-        buttonsFragment.setArguments(bundle);
-        getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
+        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
+        p.setButtonImage(mStorage, btnId, image);
+//        Bundle bundle = new Bundle();
+//        bundle.putInt("fragNum", fragNum);
+//        bundle.putParcelable("image", image);
+//        ButtonsFragment buttonsFragment = new ButtonsFragment();
+//        buttonsFragment.setArguments(bundle);
+//        getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.calendate.calendate;
 
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -13,7 +12,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +26,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -39,8 +36,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
-
-import static android.content.Context.MODE_PRIVATE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -132,13 +127,11 @@ public class PickImageFragment extends DialogFragment {
             DialogFragment dialog;
             Bitmap image;
             Task<Uri> task;
-            SharedPreferences prefs;
 
 
             public ImageViewHolder(final View itemView) {
                 super(itemView);
                 ivIcon = (ImageView) itemView.findViewById(R.id.ivIcon);
-                prefs = itemView.getContext().getSharedPreferences("icons", MODE_PRIVATE);
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -163,11 +156,6 @@ public class PickImageFragment extends DialogFragment {
                                     @Override
                                     public void onComplete() {
                                         mListener.onImageSet(mStorage, btnId, image);
-                                        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                        image.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                                        byte[] b = baos.toByteArray();
-                                        String encodedImage = Base64.encodeToString(b, Base64.DEFAULT);
-                                        prefs.edit().putString(btnId, encodedImage).apply();
                                     }
                                 }));
                     }
