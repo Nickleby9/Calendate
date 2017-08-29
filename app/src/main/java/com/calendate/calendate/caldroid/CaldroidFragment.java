@@ -34,7 +34,7 @@ import android.widget.Toast;
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
 import com.caldroid.R;
-import com.calendate.calendate.MyUtils;
+import com.calendate.calendate.utils.MyUtils;
 import com.calendate.calendate.models.Event;
 import com.github.nisrulz.sensey.Sensey;
 import com.github.nisrulz.sensey.TouchTypeDetector;

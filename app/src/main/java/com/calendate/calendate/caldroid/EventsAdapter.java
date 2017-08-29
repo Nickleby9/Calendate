@@ -5,8 +5,8 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
 
-import com.calendate.calendate.DetailedItem;
-import com.calendate.calendate.MyUtils;
+import com.calendate.calendate.DetailedItemActivity;
+import com.calendate.calendate.utils.MyUtils;
 import com.calendate.calendate.R;
 import com.calendate.calendate.models.EventRow;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -49,7 +49,7 @@ class EventsAdapter extends FirebaseRecyclerAdapter<EventRow, EventsAdapter.Even
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Intent intent = new Intent(v.getContext(), DetailedItem.class);
+                    Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
                     intent.putExtra("model", model);
                     v.getContext().startActivity(intent);
                 }

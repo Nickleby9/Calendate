@@ -304,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 LoginManager.getInstance().logOut();
                 break;
             case R.id.nav_about:
-                new AboutFragment().show(getSupportFragmentManager(), "aboutFragment");
+                new AboutDialog().show(getSupportFragmentManager(), "aboutFragment");
                 break;
         }
 

@@ -25,6 +25,7 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.EventRow;
+import com.calendate.calendate.utils.MyUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -42,7 +43,7 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.util.ArrayList;
 
-public class DetailedItem extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class DetailedItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     Spinner spnRepeat;
     EditText etTitle, etDescription;
@@ -139,7 +140,7 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
         int id = v.getId();
         switch (id) {
             case R.id.btnChange:
-            Intent intent = new Intent(this, AddItem.class);
+            Intent intent = new Intent(this, AddItemActivity.class);
             intent.putExtra("event", model.getEventUID());
             startActivity(intent);
             break;
@@ -235,7 +236,7 @@ public class DetailedItem extends AppCompatActivity implements View.OnClickListe
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(DetailedItem.this, "Connection error", Toast.LENGTH_SHORT).show();
+                Toast.makeText(DetailedItemActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
             }
         });
 

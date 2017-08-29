@@ -1,4 +1,4 @@
-package com.calendate.calendate;
+package com.calendate.calendate.utils;
 
 import android.app.Application;
 

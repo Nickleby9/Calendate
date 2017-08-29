@@ -1,4 +1,4 @@
-package com.calendate.calendate;
+package com.calendate.calendate.utils;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -7,22 +7,20 @@ import android.support.annotation.ColorInt;
 import com.beardedhen.androidbootstrap.api.attributes.BootstrapBrand;
 
 
-public class CustomBootstrapStyleDark implements BootstrapBrand {
+
+public class CustomBootstrapStyle implements BootstrapBrand {
 
     @ColorInt private final int defaultFill;
     @ColorInt private final int defaultTextColor;
     @ColorInt private final int activeFill;
     @ColorInt private final int edge;
 
-    @SuppressWarnings("deprecation") public CustomBootstrapStyleDark(Context context) {
-//        defaultFill = Color.TRANSPARENT;
-        defaultFill = context.getResources().getColor(R.color.colorPrimaryDark);
-//        defaultTextColor = Color.parseColor("#0288d1");
+    @SuppressWarnings("deprecation") public CustomBootstrapStyle(Context context) {
+        defaultFill = Color.parseColor("#039be5");
         defaultTextColor = Color.WHITE;
-        activeFill = context.getResources().getColor(R.color.colorPrimaryDark);
+        activeFill = Color.parseColor("#0288d1");
         edge = 0;
     }
-
 
     @Override
     public int defaultFill(Context context) {

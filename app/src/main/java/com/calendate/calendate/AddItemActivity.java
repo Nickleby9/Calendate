@@ -40,6 +40,7 @@ import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
+import com.calendate.calendate.utils.MyUtils;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -65,7 +66,7 @@ import pl.aprilapps.easyphotopicker.EasyImage;
 
 import static com.calendate.calendate.R.array.kind;
 
-public class AddItem extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
+public class AddItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private static final int PERMISSION_CALENDAR_WRITE = 1;
     Spinner spnRepeat;
@@ -171,7 +172,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                         hours = Integer.valueOf(split[0]);
                         minutes = Integer.valueOf(split[1]);
                         btnId = event.getBtnId();
-                        adapter = new AlertsAdapter(AddItem.this, alerts);
+                        adapter = new AlertsAdapter(AddItemActivity.this, alerts);
                         rvAlerts.setAdapter(adapter);
 
                     }
@@ -264,7 +265,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
 
                     fileArray.add(imageFiles.get(0));
 
-                    Glide.with(AddItem.this).asBitmap().load(fileArray.get(0)).apply(RequestOptions.overrideOf(35, 35).centerInside()).into(new Target<Bitmap>() {
+                    Glide.with(AddItemActivity.this).asBitmap().load(fileArray.get(0)).apply(RequestOptions.overrideOf(35, 35).centerInside()).into(new Target<Bitmap>() {
                         @Override
                         public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
                             images.add(resource);
@@ -312,7 +313,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
                     }).addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(AddItem.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(AddItemActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     });
                 }
@@ -372,7 +373,7 @@ public class AddItem extends AppCompatActivity implements View.OnClickListener, 
 
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
-        Intent intent = new Intent(AddItem.this, DetailActivity.class);
+        Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
         intent.putExtra("btnId", btnId);
         startActivity(intent);
 

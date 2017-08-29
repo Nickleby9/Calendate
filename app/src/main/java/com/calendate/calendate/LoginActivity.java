@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.beardedhen.androidbootstrap.BootstrapText;
 import com.calendate.calendate.models.User;
+import com.calendate.calendate.utils.CustomBootstrapStyle;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -197,7 +198,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .setNegativeButton(R.string.login_error_forgot, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        ForgotPassword f = new ForgotPassword();
+                        ForgotPasswordDialog f = new ForgotPasswordDialog();
                         f.show(getSupportFragmentManager(), "forgotPassword");
                     }
                 });

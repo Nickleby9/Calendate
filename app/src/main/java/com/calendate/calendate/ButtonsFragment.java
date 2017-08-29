@@ -23,6 +23,8 @@ import android.widget.ImageView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
+import com.calendate.calendate.utils.CustomBootstrapStyleDark;
+import com.calendate.calendate.utils.CustomBootstrapStyleLight;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;

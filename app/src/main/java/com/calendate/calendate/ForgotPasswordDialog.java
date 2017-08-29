@@ -14,7 +14,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class ForgotPassword extends DialogFragment {
+public class ForgotPasswordDialog extends DialogFragment {
 
     Button btnSend;
     EditText etEmail;

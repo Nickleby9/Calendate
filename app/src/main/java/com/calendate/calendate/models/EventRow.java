@@ -3,7 +3,7 @@ package com.calendate.calendate.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.calendate.calendate.MyUtils;
+import com.calendate.calendate.utils.MyUtils;
 
 import org.joda.time.LocalDateTime;
 

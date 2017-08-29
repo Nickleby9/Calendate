@@ -1,4 +1,4 @@
-package com.calendate.calendate;
+package com.calendate.calendate.utils;
 
 import android.content.Context;
 import com.beardedhen.androidbootstrap.BootstrapButton;

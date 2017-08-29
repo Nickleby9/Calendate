@@ -8,10 +8,10 @@ import android.view.ViewGroup;
 
 import com.calendate.calendate.R;
 
-public class AboutFragment extends DialogFragment {
+public class AboutDialog extends DialogFragment {
 
 
-    public AboutFragment() {
+    public AboutDialog() {
         // Required empty public constructor
     }
 

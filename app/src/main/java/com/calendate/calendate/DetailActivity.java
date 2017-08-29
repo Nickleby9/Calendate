@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.calendate.calendate.models.EventRow;
 import com.calendate.calendate.touchHelper.CallBack;
+import com.calendate.calendate.utils.MyUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -79,7 +80,7 @@ public class DetailActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), AddItem.class);
+                Intent intent = new Intent(view.getContext(), AddItemActivity.class);
                 intent.putExtra("btnId", btnId);
                 startActivity(intent);
             }
@@ -120,7 +121,7 @@ public class DetailActivity extends AppCompatActivity {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(v.getContext(), DetailedItem.class);
+                        Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
                         intent.putExtra("model", model);
                         v.getContext().startActivity(intent);
                     }
