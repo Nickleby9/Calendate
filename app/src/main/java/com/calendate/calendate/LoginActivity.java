@@ -44,7 +44,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.Arrays;
 
 import static com.beardedhen.androidbootstrap.font.FontAwesome.FA_SIGN_IN;
-import static com.beardedhen.androidbootstrap.font.FontAwesome.FA_USER_PLUS;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
@@ -84,14 +83,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mAuth = FirebaseAuth.getInstance();
 
         btnLogin.setBootstrapText(new BootstrapText.Builder(this)
-                .addText(getString(R.string.btn_login) + " ")
+                .addText(getString(R.string.btn_login) + "  ")
                 .addFontAwesomeIcon(FA_SIGN_IN)
                 .build()
         );
 
         btnRegister.setBootstrapText(new BootstrapText.Builder(this)
                 .addText(getString(R.string.btn_register) + " ")
-                .addFontAwesomeIcon(FA_USER_PLUS)
+//                .addFontAwesomeIcon(FA_USER_PLUS)
                 .build()
         );
 

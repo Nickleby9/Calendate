@@ -83,7 +83,7 @@
     <string name="login_error_forgot">שכחתי סיסמה</string>
     <string name="back_twice">הקש חזרה שנית כדי לצאת</string>
     <string name="logging">מתחבר...</string>
-    <string name="btn_register">הרשמה</string>
+    <string name="btn_register">אין לך חשבון? גע כאן להרשמה</string>
     <string name="btn_login">התחברות</string>
     <string name="sign_in_with_google">התחבר באמצעות חשבון גוגל</string>
     <string name="sign_in_with_facebook">התחבר באמצעות חשבון פייסבוק</string>

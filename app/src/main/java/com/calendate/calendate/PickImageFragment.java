@@ -2,6 +2,7 @@ package com.calendate.calendate;
 
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -26,6 +27,10 @@ import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -135,7 +140,7 @@ public class PickImageFragment extends DialogFragment {
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                    public void onClick(final View v) {
                         CompositeDisposable disposables = new CompositeDisposable();
                         dialog.dismiss();
 
@@ -155,6 +160,7 @@ public class PickImageFragment extends DialogFragment {
 
                                     @Override
                                     public void onComplete() {
+                                        saveImage(btnId, image, v.getContext());
                                         mListener.onImageSet(mStorage, btnId, image);
                                     }
                                 }));
@@ -177,6 +183,26 @@ public class PickImageFragment extends DialogFragment {
                         return Observable.just(image);
                     }
                 });
+            }
+
+            private void saveImage(String btnId, Bitmap bitmap, Context context){
+                ContextWrapper cw = new ContextWrapper(context);
+                File dir = new File("");
+                dir = cw.getDir("icons", Context.MODE_PRIVATE);
+                File myPath = new File(dir, btnId + ".png");
+                FileOutputStream fos = null;
+                try {
+                    fos = new FileOutputStream(myPath);
+                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } finally {
+                    try {
+                        fos.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
 
         }

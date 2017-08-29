@@ -84,7 +84,7 @@
     <string name="login_error_forgot">Forgot password</string>
     <string name="back_twice">Press back again to exit</string>
     <string name="logging">Logging in...</string>
-    <string name="btn_register">Register</string>
+    <string name="btn_register">Don\'t have an account? Register here</string>
     <string name="btn_login">Login</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="sign_in_with_facebook">Sign in with Facebook</string>

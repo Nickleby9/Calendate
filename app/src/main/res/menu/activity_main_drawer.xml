@@ -19,15 +19,26 @@
     <item android:title="@string/account_managment">
         <menu>
             <group android:checkableBehavior="single">
-            <item
-                android:id="@+id/nav_friends"
-                android:icon="@drawable/ic_friends"
-                android:title="@string/friends" />
+                <item
+                    android:id="@+id/nav_friends"
+                    android:icon="@drawable/ic_friends"
+                    android:title="@string/friends" />
 
-            <item
-                android:id="@+id/nav_sign_out"
-                android:icon="@drawable/ic_exit"
-                android:title="@string/sign_out" />
+                <item
+                    android:id="@+id/nav_sign_out"
+                    android:icon="@drawable/ic_exit"
+                    android:title="@string/sign_out" />
+            </group>
+        </menu>
+    </item>
+
+    <item android:title="@string/menu_about">
+        <menu>
+            <group>
+                <item
+                    android:id="@+id/nav_about"
+                    android:icon="@drawable/ic_about"
+                    android:title="@string/menu_about" />
             </group>
         </menu>
     </item>

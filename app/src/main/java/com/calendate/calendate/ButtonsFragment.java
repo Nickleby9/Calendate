@@ -23,7 +23,6 @@ import android.widget.ImageView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -81,7 +80,7 @@ public class ButtonsFragment extends Fragment {
         if (mAuth.getCurrentUser() != null)
             viewPager.setAdapter(mSectionsPagerAdapter);
         int fragNumToGo = getArguments().getInt("fragNum", 0);
-        if (getArguments().getParcelable("image") != null){
+        if (getArguments().getParcelable("image") != null) {
             image = getArguments().getParcelable("image");
         }
         viewPager.setCurrentItem(fragNumToGo);
@@ -90,6 +89,24 @@ public class ButtonsFragment extends Fragment {
             DatabaseReference ref = FirebaseDatabase.getInstance().getReference("all_events").child(user.getUid());
             ref.keepSynced(true);
         }
+
+        if (getArguments().getString("storage") != null){
+            PlaceholderFragment.newInstance(getArguments().getString("storage"), getArguments().getString("btnId"), (Bitmap) getArguments().getParcelable("bitmap"));
+            int frag = getArguments().getInt("fragNum", 0);
+            viewPager.setCurrentItem(frag);
+        }
+    }
+
+    public static ButtonsFragment newInstance(String path, final String btnId, Bitmap image, int fragNum) {
+
+        Bundle args = new Bundle();
+        args.putString("btnId", btnId);
+        args.putParcelable("bitmap", image);
+        args.putString("storage", path);
+        args.putInt("fragNum", fragNum);
+        ButtonsFragment fragment = new ButtonsFragment();
+        fragment.setArguments(args);
+        return fragment;
     }
 
     public static class PlaceholderFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
@@ -131,6 +148,18 @@ public class ButtonsFragment extends Fragment {
          * Returns a new instance of this fragment for the given section
          * number.
          */
+
+        public static PlaceholderFragment newInstance(String path, final String btnId, Bitmap image) {
+
+            Bundle args = new Bundle();
+            args.putString("btnId", btnId);
+            args.putParcelable("bitmap", image);
+            args.putString("storage", path);
+            PlaceholderFragment fragment = new PlaceholderFragment();
+            fragment.setArguments(args);
+            return fragment;
+        }
+
         public static PlaceholderFragment newInstance(int sectionNumber) {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
@@ -142,33 +171,41 @@ public class ButtonsFragment extends Fragment {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_buttons, container, false);
+            return inflater.inflate(R.layout.fragment_buttons, container, false);
+        }
+
+        @Override
+        public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+            super.onViewCreated(view, savedInstanceState);
             fragNum = getArguments().getInt(ARG_SECTION_NUMBER);
-            btnTopLeft = (BootstrapButton) rootView.findViewById(R.id.btnTopLeft);
-            btnTopRight = (BootstrapButton) rootView.findViewById(R.id.btnTopRight);
-            btnMiddleLeft = (BootstrapButton) rootView.findViewById(R.id.btnMiddleLeft);
-            btnMiddleRight = (BootstrapButton) rootView.findViewById(R.id.btnMiddleRight);
-            btnBottomLeft = (BootstrapButton) rootView.findViewById(R.id.btnBottomLeft);
-            btnBottomRight = (BootstrapButton) rootView.findViewById(R.id.btnBottomRight);
+            btnTopLeft = (BootstrapButton) view.findViewById(R.id.btnTopLeft);
+            btnTopRight = (BootstrapButton) view.findViewById(R.id.btnTopRight);
+            btnMiddleLeft = (BootstrapButton) view.findViewById(R.id.btnMiddleLeft);
+            btnMiddleRight = (BootstrapButton) view.findViewById(R.id.btnMiddleRight);
+            btnBottomLeft = (BootstrapButton) view.findViewById(R.id.btnBottomLeft);
+            btnBottomRight = (BootstrapButton) view.findViewById(R.id.btnBottomRight);
 
-            ivTopLeft = (ImageView) rootView.findViewById(R.id.ivTopLeft);
-            ivTopRight = (ImageView) rootView.findViewById(R.id.ivTopRight);
-            ivMiddleLeft = (ImageView) rootView.findViewById(R.id.ivMiddleLeft);
-            ivMiddleRight = (ImageView) rootView.findViewById(R.id.ivMiddleRight);
-            ivBottomLeft = (ImageView) rootView.findViewById(R.id.ivBottomLeft);
-            ivBottomRight = (ImageView) rootView.findViewById(R.id.ivBottomRight);
+            ivTopLeft = (ImageView) view.findViewById(R.id.ivTopLeft);
+            ivTopRight = (ImageView) view.findViewById(R.id.ivTopRight);
+            ivMiddleLeft = (ImageView) view.findViewById(R.id.ivMiddleLeft);
+            ivMiddleRight = (ImageView) view.findViewById(R.id.ivMiddleRight);
+            ivBottomLeft = (ImageView) view.findViewById(R.id.ivBottomLeft);
+            ivBottomRight = (ImageView) view.findViewById(R.id.ivBottomRight);
 
-            btnTopLeft.setBootstrapBrand(new CustomBootstrapStyleTransparent(rootView.getContext()));
-            btnTopRight.setBootstrapBrand(new CustomBootstrapStyleDark(rootView.getContext()));
-            btnMiddleLeft.setBootstrapBrand(new CustomBootstrapStyleDark(rootView.getContext()));
-            btnMiddleRight.setBootstrapBrand(new CustomBootstrapStyleTransparent(rootView.getContext()));
-            btnBottomLeft.setBootstrapBrand(new CustomBootstrapStyleTransparent(rootView.getContext()));
-            btnBottomRight.setBootstrapBrand(new CustomBootstrapStyleDark(rootView.getContext()));
+            btnTopLeft.setBootstrapBrand(new CustomBootstrapStyleLight(view.getContext()));
+            btnTopRight.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
+            btnMiddleLeft.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
+            btnMiddleRight.setBootstrapBrand(new CustomBootstrapStyleLight(view.getContext()));
+            btnBottomLeft.setBootstrapBrand(new CustomBootstrapStyleLight(view.getContext()));
+            btnBottomRight.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
 
+            if (getArguments().getString("storage") != null){
+                setButtonImage(getArguments().getString("storage"), getArguments().getString("btnId"), (Bitmap) getArguments().getParcelable("bitmap"));
+            }
 
-//            showProgress(true, getString(R.string.loading));
+            showProgress(true, getString(R.string.loading));
 
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + "topLeft" + fragNum)
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVTOPLEFT + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -179,7 +216,7 @@ public class ButtonsFragment extends Fragment {
                         public void onCancelled(DatabaseError databaseError) {
                         }
                     });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + "topRight" + fragNum)
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVTOPRIGHT + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -191,7 +228,7 @@ public class ButtonsFragment extends Fragment {
 
                         }
                     });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + "middleLeft" + fragNum)
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVMIDDLELEFT + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -203,7 +240,7 @@ public class ButtonsFragment extends Fragment {
 
                         }
                     });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + "middleRight" + fragNum)
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVMIDDLERIGHT + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -215,7 +252,7 @@ public class ButtonsFragment extends Fragment {
 
                         }
                     });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + "bottomLeft" + fragNum)
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVBOTTOMLEFT + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -227,7 +264,7 @@ public class ButtonsFragment extends Fragment {
 
                         }
                     });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + "bottomRight" + fragNum)
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVBOTTOMRIGHT + fragNum)
                     .addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
@@ -240,175 +277,32 @@ public class ButtonsFragment extends Fragment {
                         }
                     });
 
-            Bitmap image;
             image = loadImage(IVTOPLEFT);
-            if (image != null){
+            if (image != null) {
                 ivTopLeft.setImageBitmap(image);
             }
-            /*
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + "topLeft" + fragNum)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String ref = dataSnapshot.getValue(String.class);
-                            StorageReference mStorage;
-                            if (ref == null) {
-                                return;
-                            } else {
-                                mStorage = FirebaseStorage.getInstance().getReference(ref);
-                            }
-//                            Glide.with(getContext()).load(mStorage.getDownloadUrl()).into(ivTopLeft);
-                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        saveImage(IVTOPLEFT, task.getResult());
-                                    }
-                                }
-                            });
-                        }
+            image = loadImage(IVTOPRIGHT);
+            if (image != null) {
+                ivTopRight.setImageBitmap(image);
+            }
+            image = loadImage(IVMIDDLELEFT);
+            if (image != null) {
+                ivMiddleLeft.setImageBitmap(image);
+            }
+            image = loadImage(IVMIDDLERIGHT);
+            if (image != null) {
+                ivMiddleRight.setImageBitmap(image);
+            }
+            image = loadImage(IVBOTTOMLEFT);
+            if (image != null) {
+                ivBottomLeft.setImageBitmap(image);
+            }
+            image = loadImage(IVBOTTOMRIGHT);
+            if (image != null) {
+                ivBottomRight.setImageBitmap(image);
+            }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + "topRight" + fragNum)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String ref = dataSnapshot.getValue(String.class);
-                            StorageReference mStorage;
-                            if (ref == null) {
-                                return;
-                            } else {
-                                mStorage = FirebaseStorage.getInstance().getReference(ref);
-
-                            }
-                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        Glide.with(getContext()).load(task.getResult()).into(ivTopRight);
-                                    }
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + "middleLeft" + fragNum)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String ref = dataSnapshot.getValue(String.class);
-                            StorageReference mStorage;
-                            if (ref == null) {
-                                mStorage = FirebaseStorage.getInstance().getReference("button-icons/Default.png");
-                            } else {
-                                mStorage = FirebaseStorage.getInstance().getReference(ref);
-
-                            }
-                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        Glide.with(getContext()).load(task.getResult()).into(ivMiddleLeft);
-                                    }
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + "middleRight" + fragNum)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String ref = dataSnapshot.getValue(String.class);
-                            StorageReference mStorage;
-                            if (ref == null) {
-                                mStorage = FirebaseStorage.getInstance().getReference("button-icons/Default.png");
-                            } else {
-                                mStorage = FirebaseStorage.getInstance().getReference(ref);
-                            }
-                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        Glide.with(getContext()).load(task.getResult()).into(ivMiddleRight);
-                                    }
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + "bottomLeft" + fragNum)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String ref = dataSnapshot.getValue(String.class);
-                            StorageReference mStorage;
-                            if (ref == null) {
-                                mStorage = FirebaseStorage.getInstance().getReference("button-icons/Default.png");
-                            } else {
-                                mStorage = FirebaseStorage.getInstance().getReference(ref);
-
-                            }
-                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        Glide.with(getContext()).load(task.getResult()).into(ivBottomLeft);
-                                    }
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + "bottomRight" + fragNum)
-                    .addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            String ref = dataSnapshot.getValue(String.class);
-                            StorageReference mStorage;
-                            if (ref == null) {
-                                mStorage = FirebaseStorage.getInstance().getReference("button-icons/Default.png");
-                            } else {
-                                mStorage = FirebaseStorage.getInstance().getReference(ref);
-                            }
-                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Uri> task) {
-                                    if (task.isSuccessful()) {
-                                        Glide.with(getContext()).load(task.getResult()).into(ivBottomRight);
-                                        showProgress(false, "");
-                                    }
-                                }
-                            });
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-
-                        }
-                    });
-            */
+            showProgress(false, "");
 
             btnTopLeft.setOnClickListener(this);
             btnTopRight.setOnClickListener(this);
@@ -423,11 +317,9 @@ public class ButtonsFragment extends Fragment {
             btnMiddleRight.setOnLongClickListener(this);
             btnBottomLeft.setOnLongClickListener(this);
             btnBottomRight.setOnLongClickListener(this);
-
-            return rootView;
         }
 
-        private void saveImage(String btnId, Uri link, Context context){
+        private void saveImage(String btnId, Uri link, Context context) {
             ContextWrapper cw = new ContextWrapper(context);
             File dir = new File("");
             dir = cw.getDir("icons", Context.MODE_PRIVATE);
@@ -452,7 +344,7 @@ public class ButtonsFragment extends Fragment {
             }
         }
 
-        private Bitmap loadImage(String buttonName){
+        private Bitmap loadImage(String buttonName) {
             ContextWrapper cw = new ContextWrapper(getContext());
             File dir = cw.getDir("icons", Context.MODE_PRIVATE);
             File myPath = new File(dir.getPath());
@@ -471,22 +363,22 @@ public class ButtonsFragment extends Fragment {
             int id = v.getId();
             switch (id) {
                 case R.id.btnTopLeft:
-                    btnRef = "topLeft";
+                    btnRef = IVTOPLEFT;
                     break;
                 case R.id.btnTopRight:
-                    btnRef = "topRight";
+                    btnRef = IVTOPRIGHT;
                     break;
                 case R.id.btnMiddleLeft:
-                    btnRef = "middleLeft";
+                    btnRef = IVMIDDLELEFT;
                     break;
                 case R.id.btnMiddleRight:
-                    btnRef = "middleRight";
+                    btnRef = IVMIDDLERIGHT;
                     break;
                 case R.id.btnBottomLeft:
-                    btnRef = "bottomLeft";
+                    btnRef = IVBOTTOMLEFT;
                     break;
                 case R.id.btnBottomRight:
-                    btnRef = "bottomRight";
+                    btnRef = IVBOTTOMRIGHT;
                     break;
             }
             onButtonPressed(btnRef, fragNum);
@@ -497,22 +389,22 @@ public class ButtonsFragment extends Fragment {
             int id = v.getId();
             switch (id) {
                 case R.id.btnTopLeft:
-                    btnRef = "topLeft";
+                    btnRef = IVTOPLEFT;
                     break;
                 case R.id.btnTopRight:
-                    btnRef = "topRight";
+                    btnRef = IVTOPRIGHT;
                     break;
                 case R.id.btnMiddleLeft:
-                    btnRef = "middleLeft";
+                    btnRef = IVMIDDLELEFT;
                     break;
                 case R.id.btnMiddleRight:
-                    btnRef = "middleRight";
+                    btnRef = IVMIDDLERIGHT;
                     break;
                 case R.id.btnBottomLeft:
-                    btnRef = "bottomLeft";
+                    btnRef = IVBOTTOMLEFT;
                     break;
                 case R.id.btnBottomRight:
-                    btnRef = "bottomRight";
+                    btnRef = IVBOTTOMRIGHT;
                     break;
             }
             showButtonOptionsDialog(v, btnRef, fragNum);
@@ -553,32 +445,34 @@ public class ButtonsFragment extends Fragment {
             builder.show();
         }
 
-        public static PlaceholderFragment newInstance(int fragNum, Bitmap image) {
-
-            Bundle args = new Bundle();
-
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            fragment.setArguments(args);
-            return fragment;
-        }
 
         public void setButtonText(String text, String btnId) {
             mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).setValue(text);
         }
 
-        public void setButtonImage(final StorageReference mStorage, final String btnId, Bitmap image) {
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + btnId).setValue(mStorage.getPath().replaceFirst("/", ""))
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            mStorage.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                @Override
-                                public void onSuccess(Uri uri) {
-                                    saveImage(btnId, uri, getContext());
-                                }
-                            });
-                        }
-                    });
+        public void setButtonImage(String path, final String btnId, Bitmap image) {
+            mDatabase.getReference("button_images/" + user.getUid() + "/" + btnId).setValue(path.replaceFirst("/", ""));
+            String btn = btnId.substring(0, btnId.length() - 1);
+            switch (btn) {
+                case IVTOPLEFT:
+                    ivTopLeft.setImageBitmap(image);
+                    break;
+                case IVTOPRIGHT:
+                    ivTopRight.setImageBitmap(image);
+                    break;
+                case IVMIDDLELEFT:
+                    ivMiddleLeft.setImageBitmap(image);
+                    break;
+                case IVMIDDLERIGHT:
+                    ivMiddleRight.setImageBitmap(image);
+                    break;
+                case IVBOTTOMLEFT:
+                    ivBottomLeft.setImageBitmap(image);
+                    break;
+                case IVBOTTOMRIGHT:
+                    ivBottomRight.setImageBitmap(image);
+                    break;
+            }
         }
 
         public void onButtonPressed(String btnRef, int fragNum) {

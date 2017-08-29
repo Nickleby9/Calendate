@@ -123,8 +123,17 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             checkForNewEvent();
             checkForNewFriend();
         }
+    }
 
-
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        tvUsername = (TextView) findViewById(R.id.tvUsername);
+        tvEmail = (TextView) findViewById(R.id.tvEmail);
+        if (user != null) {
+            tvUsername.setText(user.getDisplayName());
+            tvEmail.setText(user.getEmail());
+        }
+        return true;
     }
 
     private void checkForNewEvent() {
@@ -260,36 +269,6 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        tvUsername = (TextView) findViewById(R.id.tvUsername);
-        tvEmail = (TextView) findViewById(R.id.tvEmail);
-        if (user != null) {
-            tvUsername.setText(user.getDisplayName());
-            tvEmail.setText(user.getEmail());
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_about) {
-            new AboutFragment().show(getSupportFragmentManager(), "aboutFragment");
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
@@ -324,6 +303,9 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
                 LoginManager.getInstance().logOut();
                 break;
+            case R.id.nav_about:
+                new AboutFragment().show(getSupportFragmentManager(), "aboutFragment");
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -338,14 +320,10 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
 
     @Override
     public void onImageSet(StorageReference mStorage, String btnId, Bitmap image) {
-        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
-        p.setButtonImage(mStorage, btnId, image);
-//        Bundle bundle = new Bundle();
-//        bundle.putInt("fragNum", fragNum);
-//        bundle.putParcelable("image", image);
-//        ButtonsFragment buttonsFragment = new ButtonsFragment();
-//        buttonsFragment.setArguments(bundle);
-//        getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
+//        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
+//        p.setButtonImage(mStorage.getPath(), btnId, image);
+        ButtonsFragment fragment = ButtonsFragment.newInstance(mStorage.getPath(), btnId, image, fragNum);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame, fragment).commit();
     }
 
     @Override
