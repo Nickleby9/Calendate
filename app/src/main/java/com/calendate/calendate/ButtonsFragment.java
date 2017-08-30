@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -25,6 +26,8 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
 import com.calendate.calendate.utils.CustomBootstrapStyleDark;
 import com.calendate.calendate.utils.CustomBootstrapStyleLight;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -40,7 +43,15 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 
 /**
@@ -282,29 +293,41 @@ public class ButtonsFragment extends Fragment {
             image = loadImage(IVTOPLEFT);
             if (image != null) {
                 ivTopLeft.setImageBitmap(image);
+            } else {
+                cachAndLoad(IVTOPLEFT, ivTopLeft);
             }
             image = loadImage(IVTOPRIGHT);
             if (image != null) {
                 ivTopRight.setImageBitmap(image);
+            } else {
+                cachAndLoad(IVTOPRIGHT, ivTopRight);
             }
             image = loadImage(IVMIDDLELEFT);
             if (image != null) {
                 ivMiddleLeft.setImageBitmap(image);
+            } else {
+                cachAndLoad(IVMIDDLELEFT, ivMiddleLeft);
             }
             image = loadImage(IVMIDDLERIGHT);
             if (image != null) {
                 ivMiddleRight.setImageBitmap(image);
+            } else {
+                cachAndLoad(IVMIDDLERIGHT, ivMiddleRight);
             }
             image = loadImage(IVBOTTOMLEFT);
             if (image != null) {
                 ivBottomLeft.setImageBitmap(image);
+            } else {
+                cachAndLoad(IVBOTTOMLEFT, ivBottomLeft);
             }
             image = loadImage(IVBOTTOMRIGHT);
             if (image != null) {
                 ivBottomRight.setImageBitmap(image);
+            } else {
+                cachAndLoad(IVBOTTOMRIGHT, ivBottomRight);
             }
-
             showProgress(false, "");
+
 
             btnTopLeft.setOnClickListener(this);
             btnTopRight.setOnClickListener(this);
@@ -321,21 +344,16 @@ public class ButtonsFragment extends Fragment {
             btnBottomRight.setOnLongClickListener(this);
         }
 
-        private void saveImage(String btnId, Uri link, Context context) {
+        private void saveImage(String btnId, Bitmap bitmap, Context context){
             ContextWrapper cw = new ContextWrapper(context);
             File dir = new File("");
             dir = cw.getDir("icons", Context.MODE_PRIVATE);
             File myPath = new File(dir, btnId + ".png");
             FileOutputStream fos = null;
             try {
-                Bitmap bitmap = Glide.with(getContext()).asBitmap().load(link).submit().get();
                 fos = new FileOutputStream(myPath);
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
             } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            } catch (ExecutionException e) {
                 e.printStackTrace();
             } finally {
                 try {
@@ -344,6 +362,79 @@ public class ButtonsFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
+        }
+
+        private void cachAndLoad(final String btnRef, final ImageView imageView){
+            final CompositeDisposable disposables = new CompositeDisposable();
+
+            mDatabase.getReference("button_images/" + user.getUid() + "/" + btnRef + fragNum)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            String ref = dataSnapshot.getValue(String.class);
+                            StorageReference mStorage;
+                            if (ref == null) {
+                                return;
+                            } else {
+                                mStorage = FirebaseStorage.getInstance().getReference(ref);
+                            }
+                            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Uri> task) {
+                                    if (task.isSuccessful()) {
+                                        disposables.add(imageDownloader(task)
+                                                .subscribeOn(Schedulers.io())
+                                                .observeOn(AndroidSchedulers.mainThread())
+                                                .subscribeWith(new DisposableObserver<Bitmap>() {
+                                                    Bitmap btnBitmap;
+                                                    @Override
+                                                    public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
+                                                        btnBitmap = bitmap;
+                                                    }
+
+                                                    @Override
+                                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                                    }
+
+                                                    @Override
+                                                    public void onComplete() {
+                                                        saveImage(btnRef + fragNum, btnBitmap, getContext());
+                                                        imageView.setImageBitmap(btnBitmap);
+                                                    }
+                                                }));
+                                    }
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+
+
+
+
+
+
+        }
+
+        Observable<Bitmap> imageDownloader(final Task<Uri> task) {
+            return Observable.defer(new Callable<ObservableSource<? extends Bitmap>>() {
+                @Override public ObservableSource<? extends Bitmap> call() throws Exception {
+                    Bitmap bitmap = null;
+                    try {
+                        bitmap = Glide.with(getContext()).asBitmap().load(task.getResult()).submit().get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+                    return Observable.just(bitmap);
+                }
+            });
         }
 
         private Bitmap loadImage(String buttonName) {

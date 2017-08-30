@@ -147,4 +147,5 @@
     <string name="attach">Attach document or picture</string>
     <string name="attach_msg">Attach your document</string>
     <string name="documents">Documents:</string>
+    <string name="choose_files">choose files</string>
 </resources>

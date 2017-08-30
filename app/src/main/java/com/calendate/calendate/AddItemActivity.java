@@ -8,11 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
@@ -29,20 +27,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.Request;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.SizeReadyCallback;
-import com.bumptech.glide.request.target.Target;
-import com.bumptech.glide.request.transition.Transition;
+import com.calendate.calendate.fileChooser.utils.FileUtils;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -52,7 +42,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.joda.time.LocalDateTime;
@@ -60,15 +49,13 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
-
-import pl.aprilapps.easyphotopicker.EasyImage;
 
 import static com.calendate.calendate.R.array.kind;
 
 public class AddItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
     private static final int PERMISSION_CALENDAR_WRITE = 1;
+    private static final int REQUEST_CHOOSER = 2;
     Spinner spnRepeat;
     EditText etTitle, etDescription;
     BootstrapButton btnDate, btnTime;
@@ -115,7 +102,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         mStorage = FirebaseStorage.getInstance().getReference();
         rvDocs = (RecyclerView) findViewById(R.id.rvDocs);
         rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        docsAdapter = new DocsAdapter(this, images, fileArray);
+        docsAdapter = new DocsAdapter(this, fileArray);
         rvDocs.setAdapter(docsAdapter);
 
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
@@ -226,7 +213,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.ivAttach:
                 if (!checkStoragePermission())
                     return;
-                EasyImage.openChooserWithDocuments(this, getString(R.string.attach_msg), 0);
+                Intent getContentIntent = FileUtils.createGetContentIntent();
+                Intent intent = Intent.createChooser(getContentIntent, "Choose your file");
+                startActivityForResult(intent, REQUEST_CHOOSER);
+
+//                EasyImage.openChooserWithDocuments(this, getString(R.string.attach_msg), 0);
                 break;
         }
     }
@@ -253,6 +244,21 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case REQUEST_CHOOSER:
+                final Uri uri = data.getData();
+
+                // Get the File path from the Uri
+                String path = FileUtils.getPath(this, uri);
+
+                // Alternatively, use FileUtils.getFile(Context, Uri)
+                if (path != null && FileUtils.isLocal(path)) {
+                    File file = new File(path);
+                    fileArray.add(file);
+
+                }
+        }
+        /*
         EasyImage.handleActivityResult(requestCode, resultCode, data, this, new EasyImage.Callbacks() {
             @Override
             public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
@@ -324,6 +330,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
             }
         });
+        */
     }
 
     public static void removeAdapter(int pos) {
@@ -465,15 +472,13 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         Context context;
         LayoutInflater inflater;
-        ArrayList<Bitmap> data;
-        ArrayList<File> files;
-        Bitmap bitmap;
+        ArrayList<File> data;
+        File file;
 
-        public DocsAdapter(Context context, ArrayList<Bitmap> data, ArrayList<File> fileArray) {
+        public DocsAdapter(Context context, ArrayList<File> data) {
             this.context = context;
             this.inflater = LayoutInflater.from(context);
             this.data = data;
-            files = fileArray;
         }
 
         @Override
@@ -484,10 +489,10 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         public void onBindViewHolder(DocsViewHolder holder, int position) {
-            bitmap = data.get(position);
-            holder.file = files.get(position);
-            if (bitmap != null) {
-                holder.ivDoc.setImageBitmap(bitmap);
+            file = data.get(position);
+            holder.file = data.get(position);
+            if (file != null) {
+//                holder.ivDoc.setImageBitmap();
             }
         }
 

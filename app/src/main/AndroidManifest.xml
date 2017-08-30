@@ -53,6 +53,22 @@
         <activity android:name=".AddItemActivity"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".fileChooser.FileChooserActivity"
+            android:icon="@drawable/calendate_icon"
+            android:enabled="true"
+            android:exported="true"
+            android:label="@string/choose_files" >
+            <intent-filter>
+                <action android:name="android.intent.action.GET_CONTENT" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.OPENABLE" />
+
+                <data android:mimeType="*/*" />
+            </intent-filter>
+        </activity>
+
 
         <service android:name=".MyFirebaseMessagingService">
             <intent-filter>
