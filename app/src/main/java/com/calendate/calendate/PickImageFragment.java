@@ -60,7 +60,7 @@ public class PickImageFragment extends DialogFragment {
     }
 
     public interface OnImageSetListener {
-        void onImageSet(StorageReference mStorage, String btnId, Bitmap image);
+        void onImageSet(StorageReference mStorage, String btnId, Uri uri);
     }
 
     @Override
@@ -161,7 +161,7 @@ public class PickImageFragment extends DialogFragment {
                                     @Override
                                     public void onComplete() {
                                         saveImage(btnId, image, v.getContext());
-                                        mListener.onImageSet(mStorage, btnId, image);
+                                        mListener.onImageSet(mStorage, btnId, task.getResult());
                                     }
                                 }));
                     }

@@ -2,7 +2,7 @@ package com.calendate.calendate;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -319,10 +319,10 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     }
 
     @Override
-    public void onImageSet(StorageReference mStorage, String btnId, Bitmap image) {
+    public void onImageSet(StorageReference mStorage, String btnId, Uri uri) {
 //        ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
 //        p.setButtonImage(mStorage.getPath(), btnId, image);
-        ButtonsFragment fragment = ButtonsFragment.newInstance(mStorage.getPath(), btnId, image, fragNum);
+        ButtonsFragment fragment = ButtonsFragment.newInstance(mStorage.getPath(), btnId, uri, fragNum);
         getSupportFragmentManager().beginTransaction().replace(R.id.frame, fragment).commit();
     }
 

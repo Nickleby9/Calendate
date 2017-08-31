@@ -104,17 +104,17 @@ public class ButtonsFragment extends Fragment {
         }
 
         if (getArguments().getString("storage") != null){
-            PlaceholderFragment.newInstance(getArguments().getString("storage"), getArguments().getString("btnId"), (Bitmap) getArguments().getParcelable("bitmap"));
+            PlaceholderFragment.newInstance(getArguments().getString("storage"), getArguments().getString("btnId"), (Uri) getArguments().getParcelable("uri"));
             int frag = getArguments().getInt("fragNum", 0);
             viewPager.setCurrentItem(frag);
         }
     }
 
-    public static ButtonsFragment newInstance(String path, final String btnId, Bitmap image, int fragNum) {
+    public static ButtonsFragment newInstance(String path, final String btnId, Uri uri, int fragNum) {
 
         Bundle args = new Bundle();
         args.putString("btnId", btnId);
-        args.putParcelable("bitmap", image);
+        args.putParcelable("uri", uri);
         args.putString("storage", path);
         args.putInt("fragNum", fragNum);
         ButtonsFragment fragment = new ButtonsFragment();
@@ -162,11 +162,11 @@ public class ButtonsFragment extends Fragment {
          * number.
          */
 
-        public static PlaceholderFragment newInstance(String path, final String btnId, Bitmap image) {
+        public static PlaceholderFragment newInstance(String path, final String btnId, Uri uri) {
 
             Bundle args = new Bundle();
             args.putString("btnId", btnId);
-            args.putParcelable("bitmap", image);
+            args.putParcelable("uri", uri);
             args.putString("storage", path);
             PlaceholderFragment fragment = new PlaceholderFragment();
             fragment.setArguments(args);
@@ -213,7 +213,7 @@ public class ButtonsFragment extends Fragment {
             btnBottomRight.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
 
             if (getArguments().getString("storage") != null){
-                setButtonImage(getArguments().getString("storage"), getArguments().getString("btnId"), (Bitmap) getArguments().getParcelable("bitmap"));
+                setButtonImage(getArguments().getString("storage"), getArguments().getString("btnId"), (Uri) getArguments().getParcelable("uri"));
             }
 
             showProgress(true, getString(R.string.loading));
@@ -543,27 +543,28 @@ public class ButtonsFragment extends Fragment {
             mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).setValue(text);
         }
 
-        public void setButtonImage(String path, final String btnId, Bitmap image) {
+        public void setButtonImage(String path, final String btnId, Uri uri) {
             mDatabase.getReference("button_images/" + user.getUid() + "/" + btnId).setValue(path.replaceFirst("/", ""));
+            Bitmap bitmap = loadImage(btnId.substring(0, btnId.length() - 1));
             String btn = btnId.substring(0, btnId.length() - 1);
             switch (btn) {
                 case IVTOPLEFT:
-                    ivTopLeft.setImageBitmap(image);
+                    ivTopLeft.setImageBitmap(bitmap);
                     break;
                 case IVTOPRIGHT:
-                    ivTopRight.setImageBitmap(image);
+                    ivTopRight.setImageBitmap(bitmap);
                     break;
                 case IVMIDDLELEFT:
-                    ivMiddleLeft.setImageBitmap(image);
+                    ivMiddleLeft.setImageBitmap(bitmap);
                     break;
                 case IVMIDDLERIGHT:
-                    ivMiddleRight.setImageBitmap(image);
+                    ivMiddleRight.setImageBitmap(bitmap);
                     break;
                 case IVBOTTOMLEFT:
-                    ivBottomLeft.setImageBitmap(image);
+                    ivBottomLeft.setImageBitmap(bitmap);
                     break;
                 case IVBOTTOMRIGHT:
-                    ivBottomRight.setImageBitmap(image);
+                    ivBottomRight.setImageBitmap(bitmap);
                     break;
             }
         }

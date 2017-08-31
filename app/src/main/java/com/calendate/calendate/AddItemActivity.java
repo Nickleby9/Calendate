@@ -136,6 +136,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         if (eventKey == null)
             eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
+
+        onClick(btnDate);
     }
 
     private void readOnce() {
@@ -244,7 +246,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+        switch (requestCode) {
             case REQUEST_CHOOSER:
                 final Uri uri = data.getData();
 
@@ -386,6 +388,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
+    boolean first = true;
+
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
         date = new LocalDateTime(year, month + 1, dayOfMonth, 0, 0);
@@ -393,6 +397,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         this.month = month;
         this.day = dayOfMonth;
         btnDate.setText(date.toString(MyUtils.btnDateFormat));
+        if (first)
+            onClick(btnTime);
+        first = false;
     }
 
     @Override
