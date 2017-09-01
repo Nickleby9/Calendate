@@ -3,11 +3,13 @@ package com.calendate.calendate;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -27,9 +29,12 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
-import com.calendate.calendate.fileChooser.utils.FileUtils;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.calendate.calendate.fileChooser.FileUtils;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
@@ -49,6 +54,14 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 import static com.calendate.calendate.R.array.kind;
 
@@ -218,8 +231,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 Intent getContentIntent = FileUtils.createGetContentIntent();
                 Intent intent = Intent.createChooser(getContentIntent, "Choose your file");
                 startActivityForResult(intent, REQUEST_CHOOSER);
-
-//                EasyImage.openChooserWithDocuments(this, getString(R.string.attach_msg), 0);
                 break;
         }
     }
@@ -248,7 +259,10 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQUEST_CHOOSER:
-                final Uri uri = data.getData();
+                if (data == null) {
+                    return;
+                }
+                Uri uri = data.getData();
 
                 // Get the File path from the Uri
                 String path = FileUtils.getPath(this, uri);
@@ -256,82 +270,17 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 // Alternatively, use FileUtils.getFile(Context, Uri)
                 if (path != null && FileUtils.isLocal(path)) {
                     File file = new File(path);
-                    fileArray.add(file);
+                    if (file.getPath().toLowerCase().endsWith(".jpg") || file.getPath().toLowerCase().endsWith(".pdf")) {
+                        fileArray.add(file);
+                        docsAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(this, "You can add only PDF or JPG files", Toast.LENGTH_SHORT).show();
+                    }
 
                 }
         }
         /*
-        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new EasyImage.Callbacks() {
-            @Override
-            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
-
-            }
-
-            @Override
-            public void onImagesPicked(@NonNull final List<File> imageFiles, EasyImage.ImageSource source, int type) {
-                if (imageFiles.size() > 0) {
-
-                    fileArray.add(imageFiles.get(0));
-
-                    Glide.with(AddItemActivity.this).asBitmap().load(fileArray.get(0)).apply(RequestOptions.overrideOf(35, 35).centerInside()).into(new Target<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, Transition<? super Bitmap> transition) {
-                            images.add(resource);
-                            docsAdapter.notifyDataSetChanged();
-                        }
-                        @Override
-                        public void onStart() {
-
-                        }
-                        public void onStop() {
-
-                        }
-                        public void onDestroy() {
-
-                        }
-                        public void onLoadStarted(@Nullable Drawable placeholder) {
-
-                        }
-                        public void onLoadFailed(@Nullable Drawable errorDrawable) {
-
-                        }
-                        public void onLoadCleared(@Nullable Drawable placeholder) {
-
-                        }
-                        public void getSize(SizeReadyCallback cb) {
-
-                        }
-                        public void removeCallback(SizeReadyCallback cb) {
-
-                        }
-                        public void setRequest(@Nullable Request request) {
-
-                        }
-                        @Nullable
-                        public Request getRequest() {
-                            return null;
-                        }
-                    });
-
-                    mStorage.child("documents").child(user.getUid()).child(eventKey).child(fileArray.get(0).getName()).putFile(Uri.fromFile(fileArray.get(0))).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Toast.makeText(AddItemActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                }
-            }
-
-            @Override
-            public void onCanceled(EasyImage.ImageSource source, int type) {
-
-            }
-        });
+         Glide.with(AddItemActivity.this).asBitmap().load(fileArray.get(0)).apply(RequestOptions.overrideOf(35, 35).centerInside()).into(new Target<Bitmap>()
         */
     }
 
@@ -481,6 +430,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         LayoutInflater inflater;
         ArrayList<File> data;
         File file;
+        Bitmap image;
 
         public DocsAdapter(Context context, ArrayList<File> data) {
             this.context = context;
@@ -495,17 +445,58 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         }
 
         @Override
-        public void onBindViewHolder(DocsViewHolder holder, int position) {
+        public void onBindViewHolder(final DocsViewHolder holder, int position) {
             file = data.get(position);
             holder.file = data.get(position);
             if (file != null) {
-//                holder.ivDoc.setImageBitmap();
+                if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                    holder.ivDoc.setImageResource(R.drawable.ic_pdf);
+                }
+                if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                    image = BitmapFactory.decodeFile(file.getPath());
+                    CompositeDisposable disposables = new CompositeDisposable();
+
+                    disposables.add(imageDownloader(file)
+                            .subscribeOn(Schedulers.io())
+                            .observeOn(AndroidSchedulers.mainThread())
+                            .subscribeWith(new DisposableObserver<Bitmap>() {
+                                @Override
+                                public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
+                                    image = bitmap;
+                                }
+
+                                @Override
+                                public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                }
+
+                                @Override
+                                public void onComplete() {
+                                    holder.ivDoc.setImageBitmap(image);
+                                }
+                            }));
+                }
             }
         }
 
         @Override
         public int getItemCount() {
             return data.size();
+        }
+
+        Observable<Bitmap> imageDownloader(final File file) {
+            return Observable.defer(new Callable<ObservableSource<? extends Bitmap>>() {
+                @Override
+                public ObservableSource<? extends Bitmap> call() throws Exception {
+                    try {
+                        Glide.with(AddItemActivity.this).asBitmap().load(file)
+                                .apply(RequestOptions.overrideOf(35, 35).centerInside()).submit().get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return Observable.just(image);
+                }
+            });
         }
 
         class DocsViewHolder extends RecyclerView.ViewHolder {
@@ -521,7 +512,21 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 ivDoc.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        ShowImageFragment.newInstance(file).show(getSupportFragmentManager(), "showImage");
+                        if (file.getPath().toLowerCase().endsWith(".jpg"))
+                            ShowImageFragment.newInstance(file).show(getSupportFragmentManager(), "showImage");
+                        if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                            Intent intent1 = Intent.createChooser(intent, "Open With");
+                            try{
+                                startActivity(intent1);
+                            } catch (ActivityNotFoundException e){
+                                Toast.makeText(AddItemActivity.this, "You don't have an application that can open PDF files", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+
                     }
                 });
             }

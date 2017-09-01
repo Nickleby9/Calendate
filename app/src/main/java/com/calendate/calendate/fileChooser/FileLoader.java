@@ -20,8 +20,6 @@ import android.content.Context;
 import android.os.FileObserver;
 import android.support.v4.content.AsyncTaskLoader;
 
-import com.calendate.calendate.fileChooser.utils.FileUtils;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;

@@ -1,7 +1,6 @@
 package com.calendate.calendate;
 
 
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -24,7 +23,6 @@ import java.io.File;
 public class ShowImageFragment extends DialogFragment {
 
     ImageView ivShowDoc;
-    Bitmap bitmap;
     File file;
     ProgressBar progressBar;
 
