@@ -524,6 +524,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                             } catch (ActivityNotFoundException e){
                                 Toast.makeText(AddItemActivity.this, "You don't have an application that can open PDF files", Toast.LENGTH_SHORT).show();
                             }
+
                         }
 
 
