@@ -199,7 +199,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         int id = v.getId();
         switch (id) {
             case R.id.btnDate:
-                DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
+                DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
                 pickerDialog.show();
                 break;
             case R.id.btnTime:
@@ -357,7 +357,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             btnTime.setText(String.valueOf(hourOfDay) + ":0" + String.valueOf(minute));
         else
             btnTime.setText(String.valueOf(hourOfDay) + ":" + String.valueOf(minute));
-        date = new LocalDateTime(year, month, day, hourOfDay, minute);
+        date = new LocalDateTime(year, month+1, day, hourOfDay, minute);
     }
 
     private ArrayList<Alert> getAlerts() {
