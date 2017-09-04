@@ -2,8 +2,10 @@ package com.calendate.calendate;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +19,7 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -41,6 +44,7 @@ import com.google.firebase.database.ValueEventListener;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.File;
 import java.util.ArrayList;
 
 public class DetailedItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
@@ -314,4 +318,59 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             }
         }
     }
+
+    private class DocsAdapter extends FirebaseRecyclerAdapter<Uri, DocsAdapter.DocsViewHolder> {
+
+
+        public DocsAdapter(Query query) {
+            super(Uri.class, R.layout.doc_item, DocsAdapter.DocsViewHolder.class, query);
+        }
+
+        @Override
+        protected void populateViewHolder(DocsViewHolder viewHolder, Uri model, int position) {
+
+        }
+
+        class DocsViewHolder extends RecyclerView.ViewHolder {
+
+            ImageView ivDoc;
+            File file;
+
+            public DocsViewHolder(View itemView) {
+                super(itemView);
+
+                ivDoc = (ImageView) itemView.findViewById(R.id.ivDoc);
+
+                ivDoc.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+
+                        if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                        }
+                        if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+                        }
+                        try {
+                            Intent intent1 = Intent.createChooser(intent, "Open With");
+                            startActivity(intent1);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(DetailedItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+                ivDoc.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+
+                        return false;
+                    }
+                });
+            }
+        }
+
+}
 }
