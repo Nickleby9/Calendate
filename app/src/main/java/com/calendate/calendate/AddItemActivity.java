@@ -275,7 +275,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     if (file.getPath().toLowerCase().endsWith(".jpg") || file.getPath().toLowerCase().endsWith(".pdf")) {
                         try {
                             fileArray.add(file);
-                        } catch (Exception e){
+                        } catch (Exception e) {
                             Toast.makeText(this, "Files too large!", Toast.LENGTH_SHORT).show();
                         }
                         docsAdapter.notifyDataSetChanged();
@@ -310,7 +310,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             return false;
         }
     }
+
     int i = 1;
+
     private void addNewEvent() {
 
         alerts.clear();
@@ -340,12 +342,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
                     .putFile(Uri.fromFile(file))
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot task) {
-                    mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(i)).setValue(task.getDownloadUrl().toString());
-                    i++;
-                }
-            });
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot task) {
+                            mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(i)).setValue(task.getDownloadUrl().toString());
+                            i++;
+                        }
+                    });
         }
 
         alerts.clear();
@@ -545,8 +547,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         } catch (ActivityNotFoundException e) {
                             Toast.makeText(AddItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
                         }
-
-
                     }
                 });
 
