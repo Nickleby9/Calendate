@@ -38,6 +38,7 @@ import com.calendate.calendate.fileChooser.FileUtils;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -47,6 +48,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.tbruyelle.rxpermissions.RxPermissions;
 
 import org.joda.time.LocalDateTime;
@@ -199,7 +201,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         int id = v.getId();
         switch (id) {
             case R.id.btnDate:
-                DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
+                DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
                 pickerDialog.show();
                 break;
             case R.id.btnTime:
@@ -271,7 +273,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 if (path != null && FileUtils.isLocal(path)) {
                     File file = new File(path);
                     if (file.getPath().toLowerCase().endsWith(".jpg") || file.getPath().toLowerCase().endsWith(".pdf")) {
-                        fileArray.add(file);
+                        try {
+                            fileArray.add(file);
+                        } catch (Exception e) {
+                            Toast.makeText(this, "Files too large!", Toast.LENGTH_SHORT).show();
+                        }
                         docsAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(this, "You can add only PDF or JPG files", Toast.LENGTH_SHORT).show();
@@ -305,6 +311,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    int i = 1;
+
     private void addNewEvent() {
 
         alerts.clear();
@@ -328,6 +336,19 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         event = new Event(title, description, date, alerts, hours, minutes, repeat, eventKey, btnId, true, user.getDisplayName());
         mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).setValue(event);
+
+
+        for (File file : fileArray) {
+            mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
+                    .putFile(Uri.fromFile(file))
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot task) {
+                            mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(i)).setValue(task.getDownloadUrl().toString());
+                            i++;
+                        }
+                    });
+        }
 
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
@@ -357,7 +378,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             btnTime.setText(String.valueOf(hourOfDay) + ":0" + String.valueOf(minute));
         else
             btnTime.setText(String.valueOf(hourOfDay) + ":" + String.valueOf(minute));
-        date = new LocalDateTime(year, month, day, hourOfDay, minute);
+        date = new LocalDateTime(year, month + 1, day, hourOfDay, minute);
     }
 
     private ArrayList<Alert> getAlerts() {
@@ -429,7 +450,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         Context context;
         LayoutInflater inflater;
         ArrayList<File> data;
-        File file;
         Bitmap image;
 
         public DocsAdapter(Context context, ArrayList<File> data) {
@@ -446,7 +466,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         public void onBindViewHolder(final DocsViewHolder holder, int position) {
-            file = data.get(position);
+            File file = data.get(position);
             holder.file = data.get(position);
             if (file != null) {
                 if (file.getPath().toLowerCase().endsWith(".pdf")) {
@@ -512,22 +532,29 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 ivDoc.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if (file.getPath().toLowerCase().endsWith(".jpg"))
-                            ShowImageFragment.newInstance(file).show(getSupportFragmentManager(), "showImage");
-                        if (file.getPath().toLowerCase().endsWith(".pdf")) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                            Intent intent1 = Intent.createChooser(intent, "Open With");
-                            try{
-                                startActivity(intent1);
-                            } catch (ActivityNotFoundException e){
-                                Toast.makeText(AddItemActivity.this, "You don't have an application that can open PDF files", Toast.LENGTH_SHORT).show();
-                            }
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
+                        if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
                         }
+                        if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+                        }
+                        try {
+                            Intent intent1 = Intent.createChooser(intent, "Open With");
+                            startActivity(intent1);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(AddItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
 
+                ivDoc.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
 
+                        return false;
                     }
                 });
             }
