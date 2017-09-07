@@ -38,7 +38,9 @@ import com.calendate.calendate.fileChooser.FileUtils;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -95,6 +97,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     DocsAdapter docsAdapter;
     Event event;
     String eventKey;
+    boolean isEditMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -142,6 +145,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         if (getIntent().getStringExtra("event") != null) {
             bundleID = getIntent().getStringExtra("event");
+            isEditMode = true;
             readOnce();
         } else {
             alerts.add(new Alert(1, 1));
@@ -179,6 +183,14 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         adapter = new AlertsAdapter(AddItemActivity.this, alerts);
                         rvAlerts.setAdapter(adapter);
 
+                        mStorage.child("documents").child(user.getUid()).child(event.getEventUID()).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                File file = FileUtils.getFile(AddItemActivity.this, task.getResult());
+                                fileArray.add(file);
+                                docsAdapter.notifyDataSetChanged();
+                            }
+                        });
                     }
                 }
             }
@@ -256,6 +268,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             onClick(ivAttach);
     }
 
+    File smallFile;
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -272,22 +286,56 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 // Alternatively, use FileUtils.getFile(Context, Uri)
                 if (path != null && FileUtils.isLocal(path)) {
                     File file = new File(path);
-                    if (file.getPath().toLowerCase().endsWith(".jpg") || file.getPath().toLowerCase().endsWith(".pdf")) {
+                    if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                        CompositeDisposable disposables = new CompositeDisposable();
+
+                        disposables.add(imageDownloader(file)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(new DisposableObserver<File>() {
+                                    @Override
+                                    public void onNext(@io.reactivex.annotations.NonNull File newFile) {
+                                        smallFile = newFile;
+                                    }
+
+                                    @Override
+                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        fileArray.add(smallFile);
+                                        docsAdapter.notifyDataSetChanged();
+                                    }
+                                }));
+                    } else if (file.getPath().toLowerCase().endsWith(".pdf")) {
                         try {
                             fileArray.add(file);
+                            docsAdapter.notifyDataSetChanged();
                         } catch (Exception e) {
                             Toast.makeText(this, "Files too large!", Toast.LENGTH_SHORT).show();
                         }
-                        docsAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(this, "You can add only PDF or JPG files", Toast.LENGTH_SHORT).show();
                     }
-
                 }
         }
-        /*
-         Glide.with(AddItemActivity.this).asBitmap().load(fileArray.get(0)).apply(RequestOptions.overrideOf(35, 35).centerInside()).into(new Target<Bitmap>()
-        */
+    }
+
+    Observable<File> imageDownloader(final File file) {
+        return Observable.defer(new Callable<ObservableSource<? extends File>>() {
+            @Override
+            public ObservableSource<? extends File> call() throws Exception {
+                try {
+                    Glide.with(AddItemActivity.this).asFile().load(file)
+                            .apply(RequestOptions.overrideOf(35, 35).centerInside()).submit().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return Observable.just(file);
+            }
+        });
     }
 
     public static void removeAdapter(int pos) {

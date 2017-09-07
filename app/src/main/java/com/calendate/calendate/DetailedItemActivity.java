@@ -3,6 +3,7 @@ package com.calendate.calendate;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
@@ -25,6 +26,8 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.EventRow;
@@ -40,12 +43,22 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.observers.DisposableObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class DetailedItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
@@ -60,11 +73,11 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     int hours = 0, minutes = 0;
     EventRow model;
     String btnId;
-    RecyclerView rvAlerts;
+    RecyclerView rvAlerts, rvDocs;
     FloatingActionButton fabAdd;
     static ArrayList<Alert> alerts = new ArrayList<>();
-    static AlertsAdapter adapter;
-
+    AlertsAdapter alertsAdapter;
+    DocsAdapter docsAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,10 +99,14 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         btnChange = (FloatingActionButton) findViewById(R.id.btnChange);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
 
-        adapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts"));
+        alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts"));
+        docsAdapter = new DocsAdapter(this, model.getEventUID(), mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/documents"));
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
-        rvAlerts.setAdapter(adapter);
+        rvAlerts.setAdapter(alertsAdapter);
+        rvDocs = (RecyclerView) findViewById(R.id.rvDocs);
+        rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        rvDocs.setAdapter(docsAdapter);
 
         MyUtils.fixBootstrapButton(this, btnDate);
         MyUtils.fixBootstrapButton(this, btnTime);
@@ -117,7 +134,11 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                     if (snapshot.getKey().equals(model.getEventUID())) {
                         Event event = snapshot.getValue(Event.class);
                         etTitle.setText(event.getTitle());
-                        etDescription.setText(event.getDescription());
+                        if (event.getDescription().isEmpty()){
+                            etDescription.setHint("");
+                        } else {
+                            etDescription.setText(event.getDescription());
+                        }
                         LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                         btnDate.setText(dateTime.toString(MyUtils.btnDateFormat));
                         btnTime.setText(event.getTime());
@@ -144,10 +165,10 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         int id = v.getId();
         switch (id) {
             case R.id.btnChange:
-            Intent intent = new Intent(this, AddItemActivity.class);
-            intent.putExtra("event", model.getEventUID());
-            startActivity(intent);
-            break;
+                Intent intent = new Intent(this, AddItemActivity.class);
+                intent.putExtra("event", model.getEventUID());
+                startActivity(intent);
+                break;
             case R.id.btnDate:
                 if (btnDate.isClickable()) {
                     DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
@@ -162,7 +183,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                 break;
             case R.id.fabAdd:
                 alerts.add(new Alert());
-                adapter.notifyItemInserted(alerts.size() - 1);
+                alertsAdapter.notifyItemInserted(alerts.size() - 1);
                 break;
         }
     }
@@ -170,7 +191,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     public static void removeAdapter(int pos) {
         alerts.remove(pos);
         AlertsAdapter.AlertsViewHolder.viewHolders.remove(pos);
-        adapter.notifyItemRemoved(pos);
+//        alertsAdapter.notifyItemRemoved(pos);
     }
 
     void changeEnabled(Boolean state) {
@@ -312,29 +333,76 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                         viewHolder.fabRemove.setVisibility(View.INVISIBLE);
 //                        viewHolder.spnKind.setBackgroundResource(R.color.transparent);
                         viewHolder.spnKind.setBackgroundColor(Color.TRANSPARENT);
-                    }else
+                    } else
                         viewHolder.fabRemove.setVisibility(View.VISIBLE);
                 }
             }
         }
     }
 
-    private class DocsAdapter extends FirebaseRecyclerAdapter<Uri, DocsAdapter.DocsViewHolder> {
+    private static class DocsAdapter extends FirebaseRecyclerAdapter<String, DocsAdapter.DocsViewHolder> {
 
+        Context context;
+        File file;
+        FirebaseUser user;
+        StorageReference mStorage;
 
-        public DocsAdapter(Query query) {
-            super(Uri.class, R.layout.doc_item, DocsAdapter.DocsViewHolder.class, query);
+        public DocsAdapter(Context context, String eventUid, Query query) {
+            super(String.class, R.layout.doc_item, DocsAdapter.DocsViewHolder.class, query);
+            this.context = context;
+            user = FirebaseAuth.getInstance().getCurrentUser();
+            mStorage = FirebaseStorage.getInstance().getReference("documents/" + user.getUid() + "/" + eventUid);
         }
 
         @Override
-        protected void populateViewHolder(DocsViewHolder viewHolder, Uri model, int position) {
+        protected void populateViewHolder(final DocsViewHolder viewHolder, final String model, int position) {
+            viewHolder.string = model;
+            CompositeDisposable disposables = new CompositeDisposable();
 
+            disposables.add(imageDownloader(model)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<File>() {
+                        @Override
+                        public void onNext(@io.reactivex.annotations.NonNull File newFile) {
+                            file = newFile;
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            viewHolder.file = file;
+                            if (model.contains(".jpg"))
+                                Glide.with(viewHolder.itemView.getContext()).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
+                            else if (model.contains(".pdf"))
+                                viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf);
+                        }
+                    }));
         }
 
-        class DocsViewHolder extends RecyclerView.ViewHolder {
+        Observable<File> imageDownloader(final String string) {
+            return Observable.defer(new Callable<ObservableSource<? extends File>>() {
+                @Override
+                public ObservableSource<? extends File> call() throws Exception {
+                    try {
+                        file = Glide.with(context).asFile().load(string).submit().get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    return Observable.just(file);
+                }
+            });
+        }
+
+        static class DocsViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivDoc;
             File file;
+            String string;
 
             public DocsViewHolder(View itemView) {
                 super(itemView);
@@ -347,30 +415,21 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-                        if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                        if (string.toLowerCase().contains(".jpg")) {
                             intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
                         }
-                        if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                        if (string.toLowerCase().contains(".pdf")) {
                             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
                         }
                         try {
                             Intent intent1 = Intent.createChooser(intent, "Open With");
-                            startActivity(intent1);
+                            view.getContext().startActivity(intent1);
                         } catch (ActivityNotFoundException e) {
-                            Toast.makeText(DetailedItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                });
-
-                ivDoc.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View view) {
-
-                        return false;
                     }
                 });
             }
         }
-
-}
+    }
 }
