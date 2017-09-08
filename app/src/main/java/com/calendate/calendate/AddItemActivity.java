@@ -38,9 +38,7 @@ import com.calendate.calendate.fileChooser.FileUtils;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -159,6 +157,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         onClick(btnDate);
     }
 
+    File newUriFile;
+
     private void readOnce() {
         DatabaseReference ref = mDatabase.getReference("all_events/" + user.getUid());
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -183,12 +183,38 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         adapter = new AlertsAdapter(AddItemActivity.this, alerts);
                         rvAlerts.setAdapter(adapter);
 
-                        mStorage.child("documents").child(user.getUid()).child(event.getEventUID()).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                        mDatabase.getReference("all_events/" + user.getUid() + "/" + event.getEventUID() + "/documents").addValueEventListener(new ValueEventListener() {
                             @Override
-                            public void onComplete(@NonNull Task<Uri> task) {
-                                File file = FileUtils.getFile(AddItemActivity.this, task.getResult());
-                                fileArray.add(file);
-                                docsAdapter.notifyDataSetChanged();
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                CompositeDisposable disposables = new CompositeDisposable();
+                                for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                                    String path = dataSnapshot1.getValue(String.class);
+                                    disposables.add(fileDownloader(path)
+                                            .subscribeOn(Schedulers.io())
+                                            .observeOn(AndroidSchedulers.mainThread())
+                                            .subscribeWith(new DisposableObserver<File>() {
+                                                @Override
+                                                public void onNext(@io.reactivex.annotations.NonNull File newFile) {
+                                                    newUriFile = newFile;
+                                                }
+
+                                                @Override
+                                                public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                                }
+
+                                                @Override
+                                                public void onComplete() {
+                                                    fileArray.add(newUriFile);
+                                                    docsAdapter.notifyDataSetChanged();
+                                                }
+                                            }));
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
                             }
                         });
                     }
@@ -198,6 +224,22 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+    }
+
+    File uriFile;
+
+    Observable<File> fileDownloader(final String path) {
+        return Observable.defer(new Callable<ObservableSource<? extends File>>() {
+            @Override
+            public ObservableSource<? extends File> call() throws Exception {
+                try {
+                    uriFile = Glide.with(AddItemActivity.this).asFile().load(path).submit().get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return Observable.just(uriFile);
             }
         });
     }
