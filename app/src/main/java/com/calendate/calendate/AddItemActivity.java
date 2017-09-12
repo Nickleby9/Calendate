@@ -101,7 +101,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
-
+        ((AppCompatActivity) this).getSupportActionBar().setTitle("New event");
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         btnId = getIntent().getStringExtra("btnId");

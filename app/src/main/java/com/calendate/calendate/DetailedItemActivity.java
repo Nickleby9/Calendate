@@ -134,7 +134,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                     if (snapshot.getKey().equals(model.getEventUID())) {
                         Event event = snapshot.getValue(Event.class);
                         etTitle.setText(event.getTitle());
-                        if (event.getDescription().isEmpty()){
+                        if (event.getDescription().isEmpty()) {
                             etDescription.setHint("");
                         } else {
                             etDescription.setText(event.getDescription());
@@ -346,6 +346,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         File file;
         FirebaseUser user;
         StorageReference mStorage;
+        DocsViewHolder viewHolder;
 
         public DocsAdapter(Context context, String eventUid, Query query) {
             super(String.class, R.layout.doc_item, DocsAdapter.DocsViewHolder.class, query);
@@ -356,6 +357,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
         @Override
         protected void populateViewHolder(final DocsViewHolder viewHolder, final String model, int position) {
+            this.viewHolder = viewHolder;
             viewHolder.string = model;
             CompositeDisposable disposables = new CompositeDisposable();
 
@@ -375,14 +377,15 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
                         @Override
                         public void onComplete() {
-                            viewHolder.file = file;
-                            if (model.contains(".jpg"))
+                            if (model.contains(".jpg")) {
                                 Glide.with(viewHolder.itemView.getContext()).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
-                            else if (model.contains(".pdf"))
+                            } else if (model.contains(".pdf")) {
                                 viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf);
+                            }
                         }
                     }));
         }
+
 
         Observable<File> imageDownloader(final String string) {
             return Observable.defer(new Callable<ObservableSource<? extends File>>() {
@@ -411,22 +414,61 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
                 ivDoc.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View view) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    public void onClick(final View view) {
 
-                        if (string.toLowerCase().contains(".jpg")) {
-                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-                        }
-                        if (string.toLowerCase().contains(".pdf")) {
-                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
-                        }
+                        CompositeDisposable disposables = new CompositeDisposable();
+
+                        disposables.add(imageDownloader(string, view)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .subscribeWith(new DisposableObserver<File>() {
+                                    @Override
+                                    public void onNext(@io.reactivex.annotations.NonNull File newFile) {
+                                        file = newFile;
+                                    }
+
+                                    @Override
+                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+                                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                        if (string.toLowerCase().contains(".jpg")) {
+                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                                        }
+                                        if (string.toLowerCase().contains(".pdf")) {
+                                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+                                        }
+                                        try {
+                                            Intent intent1 = Intent.createChooser(intent, "Open With");
+                                            view.getContext().startActivity(intent1);
+                                        } catch (ActivityNotFoundException e) {
+                                            Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }));
+                    }
+                });
+            }
+
+            Observable<File> imageDownloader(final String string, final View view) {
+                return Observable.defer(new Callable<ObservableSource<? extends File>>() {
+                    @Override
+                    public ObservableSource<? extends File> call() throws Exception {
                         try {
-                            Intent intent1 = Intent.createChooser(intent, "Open With");
-                            view.getContext().startActivity(intent1);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                            file = Glide.with(view.getContext()).asFile().load(string).submit().get();
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                            if (string.toLowerCase().contains(".jpg")) {
+                                intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                            }
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
+                        return Observable.just(file);
                     }
                 });
             }
