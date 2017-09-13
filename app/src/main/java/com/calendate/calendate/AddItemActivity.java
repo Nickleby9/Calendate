@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -56,6 +57,7 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
@@ -291,6 +293,34 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
+    private void createNotification(Event event) {
+        Calendar cal = Calendar.getInstance();
+        Intent intent = new Intent(Intent.ACTION_EDIT);
+        intent.setType("vnd.android.cursor.item/event");
+        intent.putExtra(CalendarContract.Events.DTSTART, date.getMillisOfSecond());
+        intent.putExtra(CalendarContract.Events.ALL_DAY, false);
+        intent.putExtra(CalendarContract.Events.DURATION, );
+        intent.putExtra(CalendarContract.Events.RRULE, );
+        intent.putExtra(CalendarContract.Events.EVENT_TIMEZONE, );
+        intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
+        intent.putExtra(CalendarContract.Events.DESCRIPTION, event.getTitle());
+        intent.putExtra(CalendarContract.Events.HAS_ALARM, 1);
+        intent.putExtra(CalendarContract.Events.CALENDAR_ID, event.getEventUID());
+        intent.putExtra(CalendarContract.Events.)
+        startActivity(intent);
+//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+//        builder.setContentTitle(event.getTitle())
+//                .setContentText(event.getDescription())
+//                .setSmallIcon(R.drawable.calendate_icon)
+//                .setDefaults(NotificationCompat.DEFAULT_ALL)
+//                .setAutoCancel(true);
+//
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+//        Intent alarmIntent = new Intent(this, BroadcastReceiver.class);
+//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+    }
+
     private boolean checkStoragePermission() {
         int resultCode = ActivityCompat.checkSelfPermission(this,
                 Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -442,9 +472,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
-        Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
-        intent.putExtra("btnId", btnId);
-        startActivity(intent);
+
+        createNotification(event);
+
+//        Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
+//        intent.putExtra("btnId", btnId);
+//        startActivity(intent);
 
     }
 

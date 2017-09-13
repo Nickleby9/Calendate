@@ -103,7 +103,7 @@ public class DetailActivity extends AppCompatActivity {
         protected void populateViewHolder(EventViewHolder viewHolder, EventRow model, int position) {
             viewHolder.tvTitle.setText(model.getTitle());
             LocalDateTime dateTime = LocalDateTime.parse(model.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
-            viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat));
+            viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat) + " - " + model.getTime());
             viewHolder.model = model;
         }
 

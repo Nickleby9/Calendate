@@ -14,14 +14,19 @@ public class EventRow implements Parcelable {
     String title;
     String date;
     String btnId;
+    String time;
 
     public EventRow() {
     }
 
-    public EventRow(String eventUID, String title, LocalDateTime date, String btnId) {
+    public EventRow(String eventUID, String title, LocalDateTime date, int hours, int minutes, String btnId) {
         this.eventUID = eventUID;
         this.title = title;
         this.date = date.toString(MyUtils.dateForamt);
+        if (minutes < 10)
+            this.time = hours + ":0" + minutes;
+        else
+            this.time = hours + ":" + minutes;
         this.btnId = btnId;
     }
 
@@ -57,7 +62,16 @@ public class EventRow implements Parcelable {
         this.btnId = btnId;
     }
 
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
     @Override
+
     public int describeContents() {
         return 0;
     }
