@@ -299,14 +299,14 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         intent.setType("vnd.android.cursor.item/event");
         intent.putExtra(CalendarContract.Events.DTSTART, date.getMillisOfSecond());
         intent.putExtra(CalendarContract.Events.ALL_DAY, false);
-        intent.putExtra(CalendarContract.Events.DURATION, );
-        intent.putExtra(CalendarContract.Events.RRULE, );
-        intent.putExtra(CalendarContract.Events.EVENT_TIMEZONE, );
+//        intent.putExtra(CalendarContract.Events.DURATION, );
+//        intent.putExtra(CalendarContract.Events.RRULE, );
+//        intent.putExtra(CalendarContract.Events.EVENT_TIMEZONE, );
         intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
         intent.putExtra(CalendarContract.Events.DESCRIPTION, event.getTitle());
         intent.putExtra(CalendarContract.Events.HAS_ALARM, 1);
         intent.putExtra(CalendarContract.Events.CALENDAR_ID, event.getEventUID());
-        intent.putExtra(CalendarContract.Events.)
+//        intent.putExtra(CalendarContract.Events.)
         startActivity(intent);
 //        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 //        builder.setContentTitle(event.getTitle())

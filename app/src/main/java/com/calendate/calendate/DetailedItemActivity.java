@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -377,6 +378,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
                         @Override
                         public void onComplete() {
+                            viewHolder.context = context;
                             if (model.contains(".jpg")) {
                                 Glide.with(viewHolder.itemView.getContext()).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
                             } else if (model.contains(".pdf")) {
@@ -406,8 +408,9 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             ImageView ivDoc;
             File file;
             String string;
+            Context context;
 
-            public DocsViewHolder(View itemView) {
+            public DocsViewHolder(final View itemView) {
                 super(itemView);
 
                 ivDoc = (ImageView) itemView.findViewById(R.id.ivDoc);
@@ -437,7 +440,12 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                         Intent intent = new Intent(Intent.ACTION_VIEW);
                                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                         if (string.toLowerCase().contains(".jpg")) {
-                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+//                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                                            ShowImageFragment s = new ShowImageFragment();
+                                            Bundle args = new Bundle();
+                                            args.putSerializable("image", file);
+                                            s.setArguments(args);
+                                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
                                         }
                                         if (string.toLowerCase().contains(".pdf")) {
                                             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
@@ -454,17 +462,14 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                 });
             }
 
+
+
             Observable<File> imageDownloader(final String string, final View view) {
                 return Observable.defer(new Callable<ObservableSource<? extends File>>() {
                     @Override
                     public ObservableSource<? extends File> call() throws Exception {
                         try {
                             file = Glide.with(view.getContext()).asFile().load(string).submit().get();
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                            if (string.toLowerCase().contains(".jpg")) {
-                                intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-                            }
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

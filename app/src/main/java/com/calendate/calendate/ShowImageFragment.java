@@ -45,7 +45,6 @@ public class ShowImageFragment extends DialogFragment {
         file = (File) getArguments().getSerializable("image");
         ivShowDoc = (ImageView) view.findViewById(R.id.ivShowDoc);
         Picasso.with(view.getContext()).load(Uri.fromFile(file)).into(ivShowDoc);
-
     }
 
     public static ShowImageFragment newInstance(File file) {
