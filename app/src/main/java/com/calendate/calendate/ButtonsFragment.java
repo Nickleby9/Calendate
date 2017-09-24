@@ -474,7 +474,8 @@ public class ButtonsFragment extends Fragment {
                     btnRef = IVBOTTOMRIGHT;
                     break;
             }
-            onButtonPressed(btnRef, fragNum);
+            BootstrapButton b = (BootstrapButton) v;
+            onButtonPressed(btnRef, fragNum, b.getText().toString());
         }
 
         @Override
@@ -569,10 +570,11 @@ public class ButtonsFragment extends Fragment {
             }
         }
 
-        public void onButtonPressed(String btnRef, int fragNum) {
+        public void onButtonPressed(String btnRef, int fragNum, String btnTitle) {
             String btnId = btnRef + fragNum;
             Intent intent = new Intent(getContext(), DetailActivity.class);
             intent.putExtra("btnId", btnId);
+            intent.putExtra("btnTitle", btnTitle);
             startActivity(intent);
         }
 

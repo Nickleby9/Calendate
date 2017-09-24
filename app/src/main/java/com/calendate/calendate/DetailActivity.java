@@ -54,6 +54,9 @@ public class DetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         btnId = getIntent().getStringExtra("btnId");
+        String btnTitle = getIntent().getStringExtra("btnTitle");
+        ((AppCompatActivity) this).getSupportActionBar().setTitle(btnTitle);
+
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         recycler = (RecyclerView) findViewById(R.id.recycler);

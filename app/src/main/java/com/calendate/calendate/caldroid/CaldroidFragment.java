@@ -29,13 +29,12 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
 import com.caldroid.R;
-import com.calendate.calendate.utils.MyUtils;
 import com.calendate.calendate.models.Event;
+import com.calendate.calendate.utils.MyUtils;
 import com.github.nisrulz.sensey.Sensey;
 import com.github.nisrulz.sensey.TouchTypeDetector;
 import com.google.firebase.auth.FirebaseAuth;
@@ -1549,7 +1548,6 @@ public class CaldroidFragment extends DialogFragment {
                     EventsAdapter adapter = new EventsAdapter(query.orderByChild("date").equalTo(formattedDate), formattedDate);
                     rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
                     rvEvents.setAdapter(adapter);
-                    Toast.makeText(getContext(), dateTime.toString(), Toast.LENGTH_SHORT).show();
                 }
             });
         }

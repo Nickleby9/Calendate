@@ -1,4 +1,4 @@
-package com.roomorama.caldroid;
+package com.calendate.calendate.caldroid;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;

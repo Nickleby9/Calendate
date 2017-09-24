@@ -13,7 +13,7 @@
     <string name="add_item_description">Description</string>
     <string name="add_item_event_date">Event date:</string>
     <string name="add_item_pick_a_date">Pick a Date</string>
-    <string name="add_item_alert_ahead">Alert in:</string>
+    <string name="add_item_alert_ahead">Reminders:</string>
     <string name="add_item_repeat">Repeat:</string>
     <string name="btn_save">Save</string>
     <string name="add_item_clear">Clear</string>

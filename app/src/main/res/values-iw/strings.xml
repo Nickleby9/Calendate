@@ -2,9 +2,16 @@
     <string name="app_name">Calendate</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_detail">אירועים</string>
-    <string name="facebook_application_id" translatable="false">1396048197146385</string>
-    <!-- Facebook Application ID, prefixed by 'fb'.  Enables Chrome Custom tabs. -->
-    <string name="facebook_login_protocol_scheme" translatable="false">fb1396048197146385</string>
+    <string name="title_detailed_item">אירוע</string>
+    <string name="who_would_you_like_to_share_with">עם מי ברונך לשתף?</string>
+    <string name="email_or_username">שם משתמש</string>
+    <string name="empty_directory">תיקייה ריקה</string>
+    <string name="storage_removed">האחסון נותק</string>
+    <string name="choose_file">בחר קובץ</string>
+    <string name="error_selecting_file">שגיאה בבחירת הקובץ</string>
+    <string name="internal_storage">אחסון פנימי</string>
+
+
 
     <!--Create a new event-->
     <string name="add_item_create_a_new_event">אירוע חדש</string>
@@ -12,7 +19,7 @@
     <string name="add_item_description">תיאור</string>
     <string name="add_item_event_date">תאריך:</string>
     <string name="add_item_pick_a_date">בחר תאריך</string>
-    <string name="add_item_alert_ahead">התראה בעוד:</string>
+    <string name="add_item_alert_ahead">תזכורות:</string>
     <string name="add_item_repeat">חזרה:</string>
     <string name="btn_save">שמירה</string>
     <string name="add_item_clear">ניקוי</string>

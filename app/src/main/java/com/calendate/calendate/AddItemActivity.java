@@ -1,7 +1,9 @@
 package com.calendate.calendate;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -12,7 +14,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -57,7 +58,6 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
@@ -294,7 +294,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void createNotification(Event event) {
-        Calendar cal = Calendar.getInstance();
+        /*
         Intent intent = new Intent(Intent.ACTION_EDIT);
         intent.setType("vnd.android.cursor.item/event");
         intent.putExtra(CalendarContract.Events.DTSTART, date.getMillisOfSecond());
@@ -306,18 +306,41 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         intent.putExtra(CalendarContract.Events.DESCRIPTION, event.getTitle());
         intent.putExtra(CalendarContract.Events.HAS_ALARM, 1);
         intent.putExtra(CalendarContract.Events.CALENDAR_ID, event.getEventUID());
-//        intent.putExtra(CalendarContract.Events.)
-        startActivity(intent);
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-//        builder.setContentTitle(event.getTitle())
-//                .setContentText(event.getDescription())
-//                .setSmallIcon(R.drawable.calendate_icon)
-//                .setDefaults(NotificationCompat.DEFAULT_ALL)
-//                .setAutoCancel(true);
-//
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-//        Intent alarmIntent = new Intent(this, BroadcastReceiver.class);
-//        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+*/
+        ArrayList<Alert> alerts = event.getAlerts();
+        int count = alerts.get(0).getCount();
+        int kind = alerts.get(0).getKind();
+
+        long newDateInMillis = 0;
+        long time = 0;
+
+        switch (kind) {
+            case 0: //minutes
+                time = 60 * 1000;
+                break;
+            case 1: //hours
+                time = 60 * 60 * 1000;
+                break;
+            case 2: //days
+                time = 24 * 60 * 60 * 1000;
+                break;
+            case 3: //weeks
+                time = 7 * 24 * 60 * 60 * 1000;
+                break;
+            case 4: //months
+                time = 604800000;
+                break;
+        }
+        time = time * count;
+        newDateInMillis = date.getMillisOfSecond() - time;
+
+        Intent intent = new Intent(this, NotificationReceiver.class);
+        alerts.remove(0);
+        intent.putExtra("event", event);
+        intent.putExtra("num", alerts.size());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, newDateInMillis, pendingIntent);
 
     }
 
