@@ -45,7 +45,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(pendingIntent)
                 .setContentTitle("Calendate event")
-                .setContentText(event.getTitle());
+                .setContentText("Touch here to see the event");
 
         notificationManagerCompat.notify(100, builder.build());
 

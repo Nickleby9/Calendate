@@ -1,9 +1,7 @@
 package com.calendate.calendate;
 
 import android.Manifest;
-import android.app.AlarmManager;
 import android.app.DatePickerDialog;
-import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
@@ -14,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -294,7 +293,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void createNotification(Event event) {
-        /*
+
         Intent intent = new Intent(Intent.ACTION_EDIT);
         intent.setType("vnd.android.cursor.item/event");
         intent.putExtra(CalendarContract.Events.DTSTART, date.getMillisOfSecond());
@@ -306,7 +305,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         intent.putExtra(CalendarContract.Events.DESCRIPTION, event.getTitle());
         intent.putExtra(CalendarContract.Events.HAS_ALARM, 1);
         intent.putExtra(CalendarContract.Events.CALENDAR_ID, event.getEventUID());
-*/
+
+        /*
         ArrayList<Alert> alerts = event.getAlerts();
         int count = alerts.get(0).getCount();
         int kind = alerts.get(0).getKind();
@@ -341,7 +341,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmManager.set(AlarmManager.RTC_WAKEUP, newDateInMillis, pendingIntent);
-
+*/
     }
 
     private boolean checkStoragePermission() {
@@ -493,10 +493,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     });
         }
 
+        createNotification(event);
+
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
 
-        createNotification(event);
 
 //        Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
 //        intent.putExtra("btnId", btnId);
