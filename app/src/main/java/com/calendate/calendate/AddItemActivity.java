@@ -16,6 +16,7 @@ import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -150,12 +151,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             alerts.add(new Alert(1, 1));
             adapter = new AlertsAdapter(this, getAlerts());
             rvAlerts.setAdapter(adapter);
+            onClick(btnDate);
         }
 
         if (eventKey == null)
             eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
-        onClick(btnDate);
     }
 
     File newUriFile;
@@ -187,8 +188,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         mDatabase.getReference("all_events/" + user.getUid() + "/" + event.getEventUID() + "/documents").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
-                                CompositeDisposable disposables = new CompositeDisposable();
                                 for (DataSnapshot dataSnapshot1 : dataSnapshot.getChildren()) {
+                                    CompositeDisposable disposables = new CompositeDisposable();
+
                                     String path = dataSnapshot1.getValue(String.class);
                                     disposables.add(fileDownloader(path)
                                             .subscribeOn(Schedulers.io())
@@ -256,7 +258,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         int id = v.getId();
         switch (id) {
             case R.id.btnDate:
-                DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear(), date.getDayOfMonth());
+                DatePickerDialog pickerDialog = new DatePickerDialog(v.getContext(), this, date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth());
                 pickerDialog.show();
                 break;
             case R.id.btnTime:
@@ -285,6 +287,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.ivAttach:
                 if (!checkStoragePermission())
                     return;
+
                 Intent getContentIntent = FileUtils.createGetContentIntent();
                 Intent intent = Intent.createChooser(getContentIntent, "Choose your file");
                 startActivityForResult(intent, REQUEST_CHOOSER);
@@ -493,15 +496,15 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     });
         }
 
-        createNotification(event);
+//        createNotification(event);
 
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
 
 
-//        Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
-//        intent.putExtra("btnId", btnId);
-//        startActivity(intent);
+        Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
+        intent.putExtra("btnId", btnId);
+        startActivity(intent);
 
     }
 
@@ -517,6 +520,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         if (first)
             onClick(btnTime);
         first = false;
+        date = LocalDateTime.now();
     }
 
     @Override
@@ -683,16 +687,21 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
                         if (file.getPath().toLowerCase().endsWith(".jpg")) {
-                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+//                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                            ShowImageFragment s = new ShowImageFragment();
+                            Bundle args = new Bundle();
+                            args.putSerializable("image", file);
+                            s.setArguments(args);
+                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
                         }
                         if (file.getPath().toLowerCase().endsWith(".pdf")) {
                             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
-                        }
-                        try {
-                            Intent intent1 = Intent.createChooser(intent, "Open With");
-                            startActivity(intent1);
-                        } catch (ActivityNotFoundException e) {
-                            Toast.makeText(AddItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                            try {
+                                Intent intent1 = Intent.createChooser(intent, "Open With");
+                                startActivity(intent1);
+                            } catch (ActivityNotFoundException e) {
+                                Toast.makeText(AddItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
                 });

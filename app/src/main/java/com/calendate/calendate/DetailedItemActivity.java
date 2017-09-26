@@ -369,6 +369,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                         @Override
                         public void onNext(@io.reactivex.annotations.NonNull File newFile) {
                             file = newFile;
+                            viewHolder.file = newFile;
                         }
 
                         @Override
@@ -382,7 +383,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                             if (model.contains(".jpg")) {
                                 Glide.with(viewHolder.itemView.getContext()).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
                             } else if (model.contains(".pdf")) {
-                                viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf);
+                                viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
                             }
                         }
                     }));
@@ -419,6 +420,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                     @Override
                     public void onClick(final View view) {
 
+
                         CompositeDisposable disposables = new CompositeDisposable();
 
                         disposables.add(imageDownloader(string, view)
@@ -438,7 +440,6 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                     @Override
                                     public void onComplete() {
                                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                                        intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                         if (string.toLowerCase().contains(".jpg")) {
 //                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
                                             ShowImageFragment s = new ShowImageFragment();
@@ -449,20 +450,20 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                         }
                                         if (string.toLowerCase().contains(".pdf")) {
                                             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
-                                        }
-                                        try {
-                                            Intent intent1 = Intent.createChooser(intent, "Open With");
-                                            view.getContext().startActivity(intent1);
-                                        } catch (ActivityNotFoundException e) {
-                                            Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                                            try {
+                                                intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                                                Intent intent1 = Intent.createChooser(intent, "Open With");
+                                                context.startActivity(intent1);
+                                            } catch (ActivityNotFoundException e) {
+                                                Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                                            }
                                         }
                                     }
                                 }));
                     }
                 });
+
             }
-
-
 
             Observable<File> imageDownloader(final String string, final View view) {
                 return Observable.defer(new Callable<ObservableSource<? extends File>>() {
