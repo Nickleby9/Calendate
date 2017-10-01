@@ -530,6 +530,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         else
             btnTime.setText(String.valueOf(hourOfDay) + ":" + String.valueOf(minute));
         date = new LocalDateTime(year, month + 1, day, hourOfDay, minute);
+        hours = hourOfDay;
+        minutes = minute;
     }
 
     private ArrayList<Alert> getAlerts() {
