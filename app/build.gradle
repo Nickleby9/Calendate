@@ -7,8 +7,8 @@ android {
         applicationId "com.calendate.calendate"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 3
-        versionName "0.1.2"
+        versionCode 5
+        versionName "0.1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true

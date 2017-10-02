@@ -145,6 +145,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         if (getIntent().getStringExtra("event") != null) {
             bundleID = getIntent().getStringExtra("event");
+            eventKey = getIntent().getStringExtra("event");
             isEditMode = true;
             readOnce();
         } else {
