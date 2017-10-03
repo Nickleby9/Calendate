@@ -22,12 +22,13 @@ public class Event implements Parcelable {
     String btnId;
     boolean own;
     String creator;
+	ArrayList<String> documents;
 
     public Event() {
 
     }
 
-    public Event(String title, String description, LocalDateTime date, ArrayList<Alert> alerts, int hours, int minutes, int repeatPos, String eventUID, String btnId, boolean own, String creator) {
+    public Event(String title, String description, LocalDateTime date, ArrayList<Alert> alerts, int hours, int minutes, int repeatPos, String eventUID, String btnId, boolean own, String creator, ArrayList<String> documents) {
         this.title = title;
         this.description = description;
         this.date = date.toString(MyUtils.dateForamt);
@@ -41,6 +42,7 @@ public class Event implements Parcelable {
         this.btnId = btnId;
         this.own = own;
         this.creator = creator;
+		this.documents = documents;
     }
 
 
@@ -129,6 +131,14 @@ public class Event implements Parcelable {
     public int describeContents() {
         return 0;
     }
+	
+	public ArrayList<String> getDocuments() {
+        return documents;
+    }
+
+    public void setDocuments(ArrayList<String> documents) {
+        this.documents = documents;
+    }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -137,6 +147,7 @@ public class Event implements Parcelable {
         dest.writeString(this.description);
         dest.writeString(this.date);
         dest.writeList(this.alerts);
+		dest.writeList(this.documents);
         dest.writeString(this.time);
         dest.writeInt(this.repeatPos);
         dest.writeString(this.btnId);
@@ -151,6 +162,8 @@ public class Event implements Parcelable {
         this.date = in.readString();
         this.alerts = new ArrayList<Alert>();
         in.readList(this.alerts, Alert.class.getClassLoader());
+		this.documents = new ArrayList<String>();
+        in.readList(this.documents, String.class.getClassLoader());
         this.time = in.readString();
         this.repeatPos = in.readInt();
         this.btnId = in.readString();
