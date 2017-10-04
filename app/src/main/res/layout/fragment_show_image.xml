@@ -1,8 +1,8 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context="com.calendate.calendate.ShowImageFragment">
 
     <ProgressBar
@@ -11,11 +11,16 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center" />
 
-    <ImageView
-        android:id="@+id/ivShowDoc"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:scaleType="fitCenter" />
+    <!--<ImageView-->
+        <!--android:id="@+id/ivShowDoc"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:scaleType="fitCenter" />-->
+
+    <WebView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/webView"/>
 
 
 </FrameLayout>

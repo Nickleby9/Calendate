@@ -16,7 +16,6 @@ import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -58,6 +57,7 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 import io.reactivex.Observable;
@@ -66,6 +66,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
+import pl.aprilapps.easyphotopicker.EasyImage;
 
 import static com.calendate.calendate.R.array.kind;
 
@@ -200,6 +201,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                                 @Override
                                                 public void onNext(@io.reactivex.annotations.NonNull File newFile) {
                                                     newUriFile = newFile;
+                                                    fileArray.add(newUriFile);
+                                                    docsAdapter.notifyDataSetChanged();
                                                 }
 
                                                 @Override
@@ -209,8 +212,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
                                                 @Override
                                                 public void onComplete() {
-                                                    fileArray.add(newUriFile);
-                                                    docsAdapter.notifyDataSetChanged();
+//                                                    fileArray.add(newUriFile);
+//                                                    docsAdapter.notifyDataSetChanged();
                                                 }
                                             }));
                                 }
@@ -289,9 +292,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 if (!checkStoragePermission())
                     return;
 
-                Intent getContentIntent = FileUtils.createGetContentIntent();
-                Intent intent = Intent.createChooser(getContentIntent, "Choose your file");
-                startActivityForResult(intent, REQUEST_CHOOSER);
+//                Intent getContentIntent = FileUtils.createGetContentIntent();
+//                Intent intent = Intent.createChooser(getContentIntent, "Choose your file");
+//                startActivityForResult(intent, REQUEST_CHOOSER);
+
+                EasyImage.openChooserWithDocuments(this, "Where is your file located?", 0);
                 break;
         }
     }
@@ -372,6 +377,27 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        EasyImage.handleActivityResult(requestCode, resultCode, data, this, new EasyImage.Callbacks() {
+            @Override
+            public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
+                Toast.makeText(AddItemActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onImagesPicked(@NonNull List<File> imageFiles, EasyImage.ImageSource source, int type) {
+                fileArray.add(imageFiles.get(0));
+                docsAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCanceled(EasyImage.ImageSource source, int type) {
+                if (source == EasyImage.ImageSource.CAMERA){
+                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(AddItemActivity.this);
+                    if (photoFile != null)
+                        photoFile.delete();
+                }
+            }
+        });
         switch (requestCode) {
             case REQUEST_CHOOSER:
                 if (data == null) {
@@ -408,15 +434,13 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                         docsAdapter.notifyDataSetChanged();
                                     }
                                 }));
-                    } else if (file.getPath().toLowerCase().endsWith(".pdf")) {
+                    } else {
                         try {
                             fileArray.add(file);
                             docsAdapter.notifyDataSetChanged();
                         } catch (Exception e) {
                             Toast.makeText(this, "Files too large!", Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Toast.makeText(this, "You can add only PDF or JPG files", Toast.LENGTH_SHORT).show();
                     }
                 }
         }
@@ -623,9 +647,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             File file = data.get(position);
             holder.file = data.get(position);
             if (file != null) {
-                if (file.getPath().toLowerCase().endsWith(".pdf")) {
-                    holder.ivDoc.setImageResource(R.drawable.ic_pdf);
-                }
                 if (file.getPath().toLowerCase().endsWith(".jpg")) {
                     image = BitmapFactory.decodeFile(file.getPath());
                     CompositeDisposable disposables = new CompositeDisposable();
@@ -649,7 +670,10 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                     holder.ivDoc.setImageBitmap(image);
                                 }
                             }));
+                } else {
+                    holder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
                 }
+
             }
         }
 
@@ -690,12 +714,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
                         if (file.getPath().toLowerCase().endsWith(".jpg")) {
-//                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-                            ShowImageFragment s = new ShowImageFragment();
-                            Bundle args = new Bundle();
-                            args.putSerializable("image", file);
-                            s.setArguments(args);
-                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
+                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
                         }
                         if (file.getPath().toLowerCase().endsWith(".pdf")) {
                             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
@@ -705,6 +724,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                             } catch (ActivityNotFoundException e) {
                                 Toast.makeText(AddItemActivity.this, "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
                             }
+                        } else {
+                            Toast.makeText(AddItemActivity.this, "For now only PDF and JPG files are supported", Toast.LENGTH_SHORT).show();
                         }
                     }
                 });

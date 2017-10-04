@@ -341,7 +341,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         }
     }
 
-    private static class DocsAdapter extends FirebaseRecyclerAdapter<String, DocsAdapter.DocsViewHolder> {
+    public static class DocsAdapter extends FirebaseRecyclerAdapter<String, DocsAdapter.DocsViewHolder> {
 
         Context context;
         File file;
@@ -380,9 +380,9 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                         @Override
                         public void onComplete() {
                             viewHolder.context = context;
-                            if (model.contains(".jpg")) {
+                            /*if (model.contains(".jpg")) {*/
                                 Glide.with(viewHolder.itemView.getContext()).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
-                            } else if (model.contains(".pdf")) {
+                            /*} else */if (model.contains(".pdf")) {
                                 viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
                             }
                         }
@@ -404,10 +404,10 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             });
         }
 
-        static class DocsViewHolder extends RecyclerView.ViewHolder {
+        public static class DocsViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivDoc;
-            File file;
+            File file, myNewFile;
             String string;
             Context context;
 
@@ -420,6 +420,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                     @Override
                     public void onClick(final View view) {
 
+                        ShowImageFragment.newInstance(string).show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
 
                         CompositeDisposable disposables = new CompositeDisposable();
 
@@ -429,7 +430,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                 .subscribeWith(new DisposableObserver<File>() {
                                     @Override
                                     public void onNext(@io.reactivex.annotations.NonNull File newFile) {
-                                        file = newFile;
+                                        myNewFile = newFile;
                                     }
 
                                     @Override
@@ -440,16 +441,16 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                     @Override
                                     public void onComplete() {
                                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                                        if (string.toLowerCase().contains(".jpg")) {
-//                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-                                            ShowImageFragment s = new ShowImageFragment();
-                                            Bundle args = new Bundle();
-                                            args.putSerializable("image", file);
-                                            s.setArguments(args);
-                                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
-                                        }
+//                                        if (string.toLowerCase().contains(".jpg")) {
+////                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+//                                            ShowImageFragment s = new ShowImageFragment();
+//                                            Bundle args = new Bundle();
+//                                            args.putSerializable("image", file);
+//                                            s.setArguments(args);
+//                                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
+//                                        }
                                         if (string.toLowerCase().contains(".pdf")) {
-                                            intent.setDataAndType(Uri.fromFile(file), "application/pdf");
+                                            intent.setDataAndType(Uri.fromFile(myNewFile), "application/pdf");
                                             try {
                                                 intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                                 Intent intent1 = Intent.createChooser(intent, "Open With");
@@ -460,6 +461,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                         }
                                     }
                                 }));
+
                     }
                 });
 

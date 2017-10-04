@@ -7,8 +7,8 @@ android {
         applicationId "com.calendate.calendate"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 5
-        versionName "0.1.5"
+        versionCode 7
+        versionName "0.1.7"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true
@@ -67,7 +67,7 @@ dependencies {
     compile 'com.firebaseui:firebase-ui-storage:2.1.0'
     compile 'joda-time:joda-time:2.9.9'
     compile 'com.facebook.android:facebook-android-sdk:4.23.0'
-    compile 'com.github.jkwiecien:EasyImage:2.0.2'
+    compile 'com.github.jkwiecien:EasyImage:2.0.3'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.github.nisrulz:sensey:1.7.0'
     compile 'com.roomorama:caldroid:3.0.1'
