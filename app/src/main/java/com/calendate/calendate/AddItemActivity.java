@@ -3,7 +3,6 @@ package com.calendate.calendate;
 import android.Manifest;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -647,7 +646,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             File file = data.get(position);
             holder.file = data.get(position);
             if (file != null) {
-                if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
                     image = BitmapFactory.decodeFile(file.getPath());
                     CompositeDisposable disposables = new CompositeDisposable();
 
@@ -670,9 +669,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                     holder.ivDoc.setImageBitmap(image);
                                 }
                             }));
-                } else {
+                /*} else {
                     holder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
-                }
+                }*/
 
             }
         }
@@ -713,9 +712,13 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         Intent intent = new Intent(Intent.ACTION_VIEW);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
-                        if (file.getPath().toLowerCase().endsWith(".jpg")) {
+                        /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
                             intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-                        }
+                            Intent intent1 = Intent.createChooser(intent, "Open with");
+                            startActivity(intent1);
+                        /*}*/
+
+                        /*
                         if (file.getPath().toLowerCase().endsWith(".pdf")) {
                             intent.setDataAndType(Uri.fromFile(file), "application/pdf");
                             try {
@@ -726,7 +729,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                             }
                         } else {
                             Toast.makeText(AddItemActivity.this, "For now only PDF and JPG files are supported", Toast.LENGTH_SHORT).show();
-                        }
+                        }*/
                     }
                 });
 
