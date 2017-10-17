@@ -149,10 +149,12 @@
     <string name="note_new_share">אירוע חדש שותף</string>
     <string name="menu_about">אודות</string>
     <string name="about">Thanks to Pixel Buddha from Flaticons.com for the icons.</string>
-    <string name="no_events_text">You haven\'t created any events yet</string>
-    <string name="no_friends_text">No friends yet</string>
-    <string name="attach">Attach document or picture</string>
-    <string name="attach_msg">Attach your document</string>
-    <string name="documents">Documents:</string>
-    <string name="choose_files">choose files</string>
+    <string name="no_events_text">עדיין לא יצרת אירועים</string>
+    <string name="no_friends_text">לא קיימים חברים</string>
+    <string name="attach">צרף קובץ או תמונה</string>
+    <string name="attach_msg">צרף מסמך</string>
+    <string name="documents">צירופים:</string>
+    <string name="choose_files">בחר קובץ</string>
+    <string name="cancel_friendship">בטל חברות</string>
+    <string name="cancel_friendship_msg">לבטל את החברות עם</string>
 </resources>

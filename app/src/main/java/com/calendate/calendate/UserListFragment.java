@@ -128,7 +128,7 @@ public class UserListFragment extends BottomSheetDialogFragment {
                                     event = snapshot.getValue(Event.class);
                                     event.setOwn(false);
                                     event.setCreator(currentUser.getDisplayName());
-                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("all_events").child(user.getSenderUid()).child(event.getEventUID());
+                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("shared_events").child(user.getSenderUid()).child(event.getEventUID());
                                     ref.setValue(event).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {

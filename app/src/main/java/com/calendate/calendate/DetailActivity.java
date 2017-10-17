@@ -37,6 +37,7 @@ public class DetailActivity extends AppCompatActivity {
     FirebaseUser user;
     static String btnId;
     TextView tvNoEvents;
+    EventAdapter adapter;
 
     @Override
     public void onBackPressed() {
@@ -65,10 +66,10 @@ public class DetailActivity extends AppCompatActivity {
 
 //        DatabaseReference query = mDatabase.getReference("events/" + user.getUid() + "/" + btnId);
         DatabaseReference query = mDatabase.getReference("all_events/" + user.getUid());
+        adapter = new EventAdapter(query.orderByChild("btnId").equalTo(btnId));
 
-        EventAdapter adapter = new EventAdapter(query.orderByChild("btnId").equalTo(btnId));
+
         recycler.setLayoutManager(new LinearLayoutManager(this));
-
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new
                 CallBack(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT, adapter); // Making the SimpleCallback
@@ -90,7 +91,7 @@ public class DetailActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (recycler.getChildCount() == 0)
+        if (adapter.getItemCount() == 0)
             tvNoEvents.setVisibility(View.VISIBLE);
     }
 

@@ -370,6 +370,12 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                         public void onNext(@io.reactivex.annotations.NonNull File newFile) {
                             file = newFile;
                             viewHolder.file = newFile;
+                            viewHolder.context = context;
+                            /*if (model.contains(".jpg")) {*/
+                            Glide.with(context).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
+                            /*} else */if (model.contains(".pdf")) {
+                                viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
+                            }
                         }
 
                         @Override
@@ -379,12 +385,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
                         @Override
                         public void onComplete() {
-                            viewHolder.context = context;
-                            /*if (model.contains(".jpg")) {*/
-                                Glide.with(viewHolder.itemView.getContext()).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
-                            /*} else */if (model.contains(".pdf")) {
-                                viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
-                            }
+
                         }
                     }));
         }
@@ -430,16 +431,6 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                 .subscribeWith(new DisposableObserver<File>() {
                                     @Override
                                     public void onNext(@io.reactivex.annotations.NonNull File newFile) {
-                                        myNewFile = newFile;
-                                    }
-
-                                    @Override
-                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
                                         Intent intent = new Intent(Intent.ACTION_VIEW);
 //                                        if (string.toLowerCase().contains(".jpg")) {
 ////                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
@@ -450,7 +441,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 //                                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
 //                                        }
                                         if (string.toLowerCase().contains(".pdf")) {
-                                            intent.setDataAndType(Uri.fromFile(myNewFile), "application/pdf");
+                                            intent.setDataAndType(Uri.fromFile(newFile), "application/pdf");
                                             try {
                                                 intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                                                 Intent intent1 = Intent.createChooser(intent, "Open With");
@@ -459,6 +450,16 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                                 Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
                                             }
                                         }
+                                    }
+
+                                    @Override
+                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
+                                    }
+
+                                    @Override
+                                    public void onComplete() {
+
                                     }
                                 }));
 

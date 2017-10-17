@@ -2,10 +2,12 @@ package com.calendate.calendate;
 
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.calendate.calendate.models.Friend;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +38,7 @@ public class FriendListFragment extends Fragment {
     FirebaseUser user;
     ArrayList<Friend> friends = new ArrayList<>();
     TextView tvNoFriends;
+    FriendsAdapter adapter;
 
     public FriendListFragment() {
         // Required empty public constructor
@@ -68,14 +72,15 @@ public class FriendListFragment extends Fragment {
         mDatabase.getReference("friends/" + user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                friends.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Friend friend = snapshot.getValue(Friend.class);
-                    if (friend.isApproved()){
+                    if (friend.isApproved()) {
                         friends.add(friend);
                     }
-                    FriendsAdapter adapter = new FriendsAdapter(getContext(), friends);
-                    rvFriends.setAdapter(adapter);
                 }
+                adapter = new FriendsAdapter(getContext(), friends, user);
+                rvFriends.setAdapter(adapter);
             }
 
             @Override
@@ -84,20 +89,23 @@ public class FriendListFragment extends Fragment {
             }
         });
 
-        if (rvFriends.getChildCount() == 0)
+        if (adapter != null && adapter.getItemCount() == 0)
             tvNoFriends.setVisibility(View.VISIBLE);
     }
 
-    public static class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder>{
+    public static class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.FriendsViewHolder> {
 
         Context context;
         LayoutInflater inflater;
         ArrayList<Friend> data;
+        FirebaseUser user;
 
-        public FriendsAdapter(Context context, ArrayList<Friend> data) {
+        public FriendsAdapter(Context context, ArrayList<Friend> data, FirebaseUser user) {
             this.context = context;
-            this.inflater = LayoutInflater.from(context);
+            if (context != null)
+                this.inflater = LayoutInflater.from(context);
             this.data = data;
+            this.user = user;
         }
 
         @Override
@@ -110,6 +118,7 @@ public class FriendListFragment extends Fragment {
         public void onBindViewHolder(FriendsViewHolder holder, int position) {
             holder.tvUsername.setText(data.get(position).getSenderUsername());
             holder.tvEmail.setText(data.get(position).getSenderEmail());
+            holder.friend = data.get(position);
         }
 
         @Override
@@ -117,43 +126,44 @@ public class FriendListFragment extends Fragment {
             return data.size();
         }
 
-        public class FriendsViewHolder extends RecyclerView.ViewHolder{
+        public class FriendsViewHolder extends RecyclerView.ViewHolder {
 
             TextView tvUsername, tvEmail;
+            Friend friend;
 
-            public FriendsViewHolder(View itemView) {
+
+            public FriendsViewHolder(final View itemView) {
                 super(itemView);
 
                 tvEmail = (TextView) itemView.findViewById(R.id.tvEmail);
                 tvUsername = (TextView) itemView.findViewById(R.id.tvUsername);
+
+                itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+                        builder.setTitle(R.string.cancel_friendship)
+                                .setMessage((context.getString(R.string.cancel_friendship_msg)) + " " + tvUsername.getText() + "?")
+                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                        dialogInterface.dismiss();
+                                    }
+                                }).setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                FirebaseDatabase.getInstance().getReference("friends/" + user.getUid() + "/" + friend.getSenderUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        FirebaseDatabase.getInstance().getReference("friends/" + friend.getSenderUid() + "/" + user.getUid()).removeValue();
+                                    }
+                                });
+                                dialogInterface.dismiss();
+                            }
+                        }).show();
+                    }
+                });
             }
         }
     }
-
-    /*
-    public static class FriendsAdapter extends FirebaseRecyclerAdapter<Friend, FriendsViewHolder> {
-
-        public FriendsAdapter(Query query) {
-            super(Friend.class, R.layout.friend_item, FriendsViewHolder.class, query);
-        }
-
-        @Override
-        protected void populateViewHolder(FriendsViewHolder viewHolder, Friend model, int position) {
-            viewHolder.tvUsername.setText(model.getSenderUsername());
-            viewHolder.tvEmail.setText(model.getSenderEmail());
-        }
-    }
-
-    private static class FriendsViewHolder extends RecyclerView.ViewHolder {
-
-        TextView tvUsername, tvEmail;
-
-        public FriendsViewHolder(View itemView) {
-            super(itemView);
-
-            tvEmail = (TextView) itemView.findViewById(R.id.tvEmail);
-            tvUsername = (TextView) itemView.findViewById(R.id.tvUsername);
-        }
-    }
-    */
 }

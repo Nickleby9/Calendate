@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     }
 
     private void checkForNewEvent() {
-        mDatabase.getReference("all_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
+        mDatabase.getReference("shared_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -162,7 +162,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
                                     String eventUID = event.getEventUID();
-                                    mDatabase.getReference("all_events/" + user.getUid() + "/" + eventUID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    mDatabase.getReference("shared_events/" + user.getUid() + "/" + eventUID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(MainActivity.this, R.string.share_denied, Toast.LENGTH_SHORT).show();

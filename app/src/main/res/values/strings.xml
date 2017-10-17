@@ -149,7 +149,7 @@
     <string name="no_friends_text">No friends yet</string>
     <string name="attach">Attach document or picture</string>
     <string name="attach_msg">Attach your document</string>
-    <string name="documents">Documents:</string>
+    <string name="documents">Attachments:</string>
     <string name="choose_files">choose files</string>
 
 
@@ -173,5 +173,7 @@
         <string name="choose_file">Select a file</string>
         <string name="error_selecting_file">Error selecting File</string>
         <string name="internal_storage">Internal storage</string>
+    <string name="cancel_friendship">Cancel friendship</string>
+    <string name="cancel_friendship_msg">Cancel friendship with</string>
 
 </resources>

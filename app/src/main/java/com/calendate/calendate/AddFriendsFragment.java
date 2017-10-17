@@ -50,7 +50,6 @@ public class AddFriendsFragment extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -121,6 +120,7 @@ public class AddFriendsFragment extends Fragment {
 
             }
         });
+
     }
 
     private static class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHolder> {

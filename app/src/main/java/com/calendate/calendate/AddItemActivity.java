@@ -80,7 +80,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     FloatingActionButton btnSave;
     LocalDateTime date = new LocalDateTime(LocalDateTime.now());
     int hours = 0, minutes = 0;
-    int year = date.getYear(), month = date.getMonthOfYear(), day = date.getDayOfMonth();
+    int year = date.getYear(), month = date.getMonthOfYear() + 1, day = date.getDayOfMonth();
     FirebaseDatabase mDatabase;
     FirebaseUser user;
     String btnId;
@@ -179,6 +179,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 //                        key = snapshot.getKey();
                         alerts = event.getAlerts();
                         date = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
+                        year = date.getYear();
+                        month = date.getMonthOfYear() + 1;
+                        day = date.getDayOfMonth();
                         String[] split = btnTime.getText().toString().split(":");
                         hours = Integer.valueOf(split[0]);
                         minutes = Integer.valueOf(split[1]);
@@ -199,8 +202,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                             .subscribeWith(new DisposableObserver<File>() {
                                                 @Override
                                                 public void onNext(@io.reactivex.annotations.NonNull File newFile) {
-                                                    newUriFile = newFile;
-                                                    fileArray.add(newUriFile);
+                                                    fileArray.add(newFile);
                                                     docsAdapter.notifyDataSetChanged();
                                                 }
 
@@ -419,7 +421,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                 .subscribeWith(new DisposableObserver<File>() {
                                     @Override
                                     public void onNext(@io.reactivex.annotations.NonNull File newFile) {
-                                        smallFile = newFile;
+                                        fileArray.add(newFile);
+                                        docsAdapter.notifyDataSetChanged();
                                     }
 
                                     @Override
@@ -429,8 +432,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
                                     @Override
                                     public void onComplete() {
-                                        fileArray.add(smallFile);
-                                        docsAdapter.notifyDataSetChanged();
+
                                     }
                                 }));
                     } else {
@@ -536,15 +538,15 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-        date = new LocalDateTime(year, month + 1, dayOfMonth, 0, 0);
-        this.year = year;
-        this.month = month;
-        this.day = dayOfMonth;
+        date = new LocalDateTime(year, month + 1, dayOfMonth, hours, minutes);
         btnDate.setText(date.toString(MyUtils.btnDateFormat));
-        if (first)
+        this.year = date.getYear();
+        this.month = date.getMonthOfYear() + 1;
+        this.day = date.getDayOfMonth();
+        if (first) {
             onClick(btnTime);
+        }
         first = false;
-        date = LocalDateTime.now();
     }
 
     @Override
@@ -553,7 +555,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             btnTime.setText(String.valueOf(hourOfDay) + ":0" + String.valueOf(minute));
         else
             btnTime.setText(String.valueOf(hourOfDay) + ":" + String.valueOf(minute));
-        date = new LocalDateTime(year, month + 1, day, hourOfDay, minute);
+        date = new LocalDateTime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), hourOfDay, minute);
         hours = hourOfDay;
         minutes = minute;
     }
@@ -648,6 +650,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             if (file != null) {
                 /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
                     image = BitmapFactory.decodeFile(file.getPath());
+                holder.ivDoc.setImageBitmap(image);
+                /*
                     CompositeDisposable disposables = new CompositeDisposable();
 
                     disposables.add(imageDownloader(file)
@@ -656,7 +660,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                             .subscribeWith(new DisposableObserver<Bitmap>() {
                                 @Override
                                 public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
-                                    image = bitmap;
+                                    holder.ivDoc.setImageBitmap(bitmap);
+                                    data.remove(holder.getAdapterPosition());
                                 }
 
                                 @Override
@@ -666,13 +671,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
                                 @Override
                                 public void onComplete() {
-                                    holder.ivDoc.setImageBitmap(image);
+
                                 }
                             }));
                 /*} else {
                     holder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
                 }*/
-
             }
         }
 

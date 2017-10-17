@@ -105,7 +105,7 @@ public class CategoriesFragment extends BottomSheetDialogFragment {
                                     String btnValue = snapshot.getValue(String.class);
                                     if (btnValue.equals(btnId)){
                                         btnId = snapshot.getKey();
-                                        FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
+                                        FirebaseDatabase.getInstance().getReference("shared_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
                                             @Override
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
@@ -113,7 +113,8 @@ public class CategoriesFragment extends BottomSheetDialogFragment {
                                                     if (event.getEventUID().equals(model.getEventUID())){
                                                         model.setBtnId(btnId);
                                                         model.setOwn(true);
-                                                        snapshot.getRef().setValue(model);
+                                                        FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid()).child(event.getEventUID()).setValue(model);
+                                                        snapshot.getRef().removeValue();
                                                         if (fragment instanceof DialogFragment){
                                                             ((DialogFragment) fragment).dismiss();
                                                         }
