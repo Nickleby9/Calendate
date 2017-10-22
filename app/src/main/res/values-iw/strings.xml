@@ -157,4 +157,5 @@
     <string name="choose_files">בחר קובץ</string>
     <string name="cancel_friendship">בטל חברות</string>
     <string name="cancel_friendship_msg">לבטל את החברות עם</string>
+    <string name="event_count">כמות אירועים:</string>
 </resources>

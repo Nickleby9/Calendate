@@ -56,6 +56,7 @@ public class DetailActivity extends AppCompatActivity {
 
         btnId = getIntent().getStringExtra("btnId");
         String btnTitle = getIntent().getStringExtra("btnTitle");
+        int tvNum = getIntent().getIntExtra("tvNum", 0);
         ((AppCompatActivity) this).getSupportActionBar().setTitle(btnTitle);
 
         mDatabase = FirebaseDatabase.getInstance();
@@ -63,6 +64,8 @@ public class DetailActivity extends AppCompatActivity {
         recycler = (RecyclerView) findViewById(R.id.recycler);
         tvNoEvents = (TextView) findViewById(R.id.tvNoEvents);
         tvNoEvents.setVisibility(View.INVISIBLE);
+        if (tvNum == 0)
+            tvNoEvents.setVisibility(View.VISIBLE);
 
 //        DatabaseReference query = mDatabase.getReference("events/" + user.getUid() + "/" + btnId);
         DatabaseReference query = mDatabase.getReference("all_events/" + user.getUid());
@@ -91,8 +94,7 @@ public class DetailActivity extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        if (adapter.getItemCount() == 0)
-            tvNoEvents.setVisibility(View.VISIBLE);
+
     }
 
 

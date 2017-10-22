@@ -85,19 +85,20 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     FirebaseUser user;
     String btnId;
     static RecyclerView rvAlerts;
-    RecyclerView rvDocs;
+    static RecyclerView rvDocs;
     static ArrayList<Alert> alerts = new ArrayList<>();
     FloatingActionButton fabAdd;
     static AlertsAdapter adapter;
     String bundleID = "";
     RxPermissions rxPermissions;
     StorageReference mStorage;
-    ArrayList<File> fileArray = new ArrayList<>();
+    static ArrayList<File> fileArray = new ArrayList<>();
     ArrayList<Bitmap> images = new ArrayList<>();
-    DocsAdapter docsAdapter;
+    static DocsAdapter docsAdapter;
     Event event;
     String eventKey;
     boolean isEditMode = false;
+    static boolean isDeleteShown = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -213,8 +214,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
                                                 @Override
                                                 public void onComplete() {
-//                                                    fileArray.add(newUriFile);
-//                                                    docsAdapter.notifyDataSetChanged();
+
                                                 }
                                             }));
                                 }
@@ -254,8 +254,14 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onBackPressed() {
+        if (isDeleteShown){
+            DocsAdapter.DocsViewHolder.hideDelete();
+            return;
+        }
         super.onBackPressed();
         alerts.clear();
+        fileArray.clear();
+
     }
 
     @Override
@@ -453,7 +459,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             public ObservableSource<? extends File> call() throws Exception {
                 try {
                     Glide.with(AddItemActivity.this).asFile().load(file)
-                            .apply(RequestOptions.overrideOf(35, 35).centerInside()).submit().get();
+                            .apply(RequestOptions.overrideOf(45, 45).centerInside()).submit().get();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -462,11 +468,18 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
-    public static void removeAdapter(int pos) {
+    public static void removeEventAdapter(int pos) {
         alerts.remove(pos);
         AlertsAdapter.AlertsViewHolder.viewHolders.remove(pos);
         rvAlerts.removeViewAt(pos);
         adapter.notifyItemRemoved(pos);
+    }
+
+    public static void removeDocAdapter(int pos) {
+        fileArray.remove(pos);
+        DocsAdapter.DocsViewHolder.viewHolders.remove(pos);
+        rvDocs.removeViewAt(pos);
+        docsAdapter.notifyItemRemoved(pos);
     }
 
     private boolean isEmptyFields() {
@@ -615,7 +628,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 fabRemove.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        removeAdapter(getAdapterPosition());
+                        removeEventAdapter(getAdapterPosition());
 
                     }
                 });
@@ -624,7 +637,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private class DocsAdapter extends RecyclerView.Adapter<DocsAdapter.DocsViewHolder> {
+    public static class DocsAdapter extends RecyclerView.Adapter<DocsAdapter.DocsViewHolder> {
 
         Context context;
         LayoutInflater inflater;
@@ -645,6 +658,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         public void onBindViewHolder(final DocsViewHolder holder, int position) {
+            DocsViewHolder.viewHolders.add(position, holder);
             File file = data.get(position);
             holder.file = data.get(position);
             if (file != null) {
@@ -690,8 +704,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 @Override
                 public ObservableSource<? extends Bitmap> call() throws Exception {
                     try {
-                        Glide.with(AddItemActivity.this).asBitmap().load(file)
-                                .apply(RequestOptions.overrideOf(35, 35).centerInside()).submit().get();
+                        Glide.with(context).asBitmap().load(file)
+                                .apply(RequestOptions.overrideOf(45, 45).centerInside()).submit().get();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -700,15 +714,19 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             });
         }
 
-        class DocsViewHolder extends RecyclerView.ViewHolder {
+        static class DocsViewHolder extends RecyclerView.ViewHolder {
 
             ImageView ivDoc;
+            static ImageView ivDelete;
             File file;
+            static ArrayList<DocsViewHolder> viewHolders = new ArrayList<>();
 
             public DocsViewHolder(View itemView) {
                 super(itemView);
 
                 ivDoc = (ImageView) itemView.findViewById(R.id.ivDoc);
+                ivDelete = (ImageView) itemView.findViewById(R.id.ivDelete);
+                ivDelete.setVisibility(View.GONE);
 
                 ivDoc.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -719,7 +737,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
                             intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
                             Intent intent1 = Intent.createChooser(intent, "Open with");
-                            startActivity(intent1);
+                            view.getContext().startActivity(intent1);
                         /*}*/
 
                         /*
@@ -737,13 +755,26 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 });
 
+                ivDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        removeDocAdapter(getAdapterPosition());
+                    }
+                });
+
                 ivDoc.setOnLongClickListener(new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View view) {
-
-                        return false;
+                        ivDelete.setVisibility(View.VISIBLE);
+                        isDeleteShown = true;
+                        return true;
                     }
                 });
+            }
+
+            public static void hideDelete() {
+                ivDelete.setVisibility(View.GONE);
+                isDeleteShown = false;
             }
         }
     }

@@ -101,10 +101,10 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
 
         alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts"));
-        docsAdapter = new DocsAdapter(this, model.getEventUID(), mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/documents"));
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
         rvAlerts.setAdapter(alertsAdapter);
+        docsAdapter = new DocsAdapter(this, model.getEventUID(), mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/documents"));
         rvDocs = (RecyclerView) findViewById(R.id.rvDocs);
         rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         rvDocs.setAdapter(docsAdapter);
@@ -372,7 +372,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                             viewHolder.file = newFile;
                             viewHolder.context = context;
                             /*if (model.contains(".jpg")) {*/
-                            Glide.with(context).asBitmap().load(file).apply(RequestOptions.overrideOf(35, 35)).into(viewHolder.ivDoc);
+                            Glide.with(context).asBitmap().load(file).apply(RequestOptions.overrideOf(45, 45)).into(viewHolder.ivDoc);
                             /*} else */if (model.contains(".pdf")) {
                                 viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
                             }

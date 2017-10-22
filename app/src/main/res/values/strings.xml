@@ -175,5 +175,6 @@
         <string name="internal_storage">Internal storage</string>
     <string name="cancel_friendship">Cancel friendship</string>
     <string name="cancel_friendship_msg">Cancel friendship with</string>
+    <string name="event_count">Event Count:</string>
 
 </resources>

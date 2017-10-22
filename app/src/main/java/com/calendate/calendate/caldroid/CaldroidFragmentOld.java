@@ -1,6 +1,5 @@
 package com.calendate.calendate.caldroid;
 
-
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
@@ -14,6 +13,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.view.ContextThemeWrapper;
@@ -28,6 +29,7 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
@@ -35,12 +37,18 @@ import com.caldroid.R;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
 import com.github.nisrulz.sensey.Sensey;
+import com.github.nisrulz.sensey.TouchTypeDetector;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.roomorama.caldroid.CaldroidGridAdapter;
+import com.roomorama.caldroid.CalendarHelper;
+import com.roomorama.caldroid.DateGridFragment;
+import com.roomorama.caldroid.MonthPagerAdapter;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -49,6 +57,7 @@ import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Formatter;
 import java.util.HashMap;
@@ -92,7 +101,11 @@ import hirondelle.date4j.DateTime;
  */
 
 @SuppressLint("DefaultLocale")
-public class CaldroidFragment extends DialogFragment {
+public class CaldroidFragmentOld extends DialogFragment {
+
+    Calendar mCalendar;
+    DateTime mDateTime;
+
     /**
      * Weekday conventions
      */
@@ -151,6 +164,7 @@ public class CaldroidFragment extends DialogFragment {
             DIALOG_TITLE = "dialogTitle",
             MONTH = "month",
             YEAR = "year",
+            DAY = "day",
             SHOW_NAVIGATION_ARROWS = "showNavigationArrows",
             DISABLE_DATES = "disableDates",
             SELECTED_DATES = "selectedDates",
@@ -176,8 +190,6 @@ public class CaldroidFragment extends DialogFragment {
      * Initial data
      */
     protected String dialogTitle;
-    protected int month = -1;
-    protected int year = -1;
     protected ArrayList<DateTime> disableDates = new ArrayList<DateTime>();
     protected ArrayList<DateTime> selectedDates = new ArrayList<DateTime>();
     protected DateTime minDateTime;
@@ -253,18 +265,22 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Retrieve current month
+     *
      * @return
      */
     public int getMonth() {
-        return month;
+//        return mCalendar.get(Calendar.MONTH);
+        return mDateTime.getMonth();
     }
 
     /**
      * Retrieve current year
+     *
      * @return
      */
     public int getYear() {
-        return year;
+//        return mCalendar.get(Calendar.YEAR);
+        return mDateTime.getYear();
     }
 
     public CaldroidListener getCaldroidListener() {
@@ -515,8 +531,10 @@ public class CaldroidFragment extends DialogFragment {
      */
     public Bundle getSavedStates() {
         Bundle bundle = new Bundle();
-        bundle.putInt(MONTH, month);
-        bundle.putInt(YEAR, year);
+//        bundle.putInt(MONTH, mCalendar.get(Calendar.MONTH));
+        bundle.putInt(MONTH, mDateTime.getMonth());
+//        bundle.putInt(YEAR, mCalendar.get(Calendar.YEAR));
+        bundle.putInt(YEAR, mDateTime.getYear());
 
         if (dialogTitle != null) {
             bundle.putString(DIALOG_TITLE, dialogTitle);
@@ -620,7 +638,7 @@ public class CaldroidFragment extends DialogFragment {
      */
     public void moveToDateTime(DateTime dateTime) {
 
-        DateTime firstOfMonth = new DateTime(year, month, 1, 0, 0, 0, 0);
+        DateTime firstOfMonth = new DateTime(getYear(), getMonth(), 1, 0, 0, 0, 0);
         DateTime lastOfMonth = firstOfMonth.getEndOfMonth();
 
         // To create a swipe effect
@@ -632,6 +650,8 @@ public class CaldroidFragment extends DialogFragment {
             // decrease
             DateTime firstDayNextMonth = dateTime.plus(0, 1, 0, 0, 0, 0, 0,
                     DateTime.DayOverflow.LastDay);
+//            mCalendar.add(Calendar.YEAR, -1);
+            mDateTime = new DateTime(getYear() + 1, getMonth(), 15, 0, 0, 0, 0);
 
             // Refresh adapters
             pageChangeListener.setCurrentDateTime(firstDayNextMonth);
@@ -639,7 +659,19 @@ public class CaldroidFragment extends DialogFragment {
             pageChangeListener.refreshAdapters(currentItem);
 
             // Swipe left
-            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem + 1);
+            refreshView();
         }
 
         // Calendar swipe right when dateTime is in the future
@@ -648,6 +680,8 @@ public class CaldroidFragment extends DialogFragment {
             // increase
             DateTime firstDayLastMonth = dateTime.minus(0, 1, 0, 0, 0, 0, 0,
                     DateTime.DayOverflow.LastDay);
+//            mCalendar.add(Calendar.YEAR, 1);
+            mDateTime = new DateTime(getYear() - 1, getMonth(), 15, 0, 0, 0, 0);
 
             // Refresh adapters
             pageChangeListener.setCurrentDateTime(firstDayLastMonth);
@@ -655,7 +689,19 @@ public class CaldroidFragment extends DialogFragment {
             pageChangeListener.refreshAdapters(currentItem);
 
             // Swipe right
-            dateViewPager.setCurrentItem(currentItem + 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            dateViewPager.setCurrentItem(currentItem - 1);
+            refreshView();
         }
 
     }
@@ -672,12 +718,11 @@ public class CaldroidFragment extends DialogFragment {
     }
 
     public void setCalendarDateTime(DateTime dateTime) {
-        month = dateTime.getMonth();
-        year = dateTime.getYear();
 
         // Notify listener
         if (caldroidListener != null) {
-            caldroidListener.onChangeMonth(month, year);
+//            caldroidListener.onChangeMonth(mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.YEAR));
+            caldroidListener.onChangeMonth(dateTime.getMonth(), dateTime.getYear());
         }
 
         refreshView();
@@ -688,17 +733,6 @@ public class CaldroidFragment extends DialogFragment {
      */
     public void prevMonth() {
         dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() - 1);
     }
 
     /**
@@ -706,18 +740,38 @@ public class CaldroidFragment extends DialogFragment {
      */
     public void nextMonth() {
         dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
-        dateViewPager.setCurrentItem(pageChangeListener.getCurrentPage() + 1);
     }
+
+    private void nextYear() {
+        mDateTime = new DateTime(getYear() + 1, getMonth(), 15, 0, 0, 0, 0);
+
+
+        // Refresh adapters
+        pageChangeListener.setCurrentDateTime(mDateTime);
+        int currentItem = dateViewPager.getCurrentItem();
+        pageChangeListener.refreshAdapters(currentItem);
+
+        // Swipe left
+        dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            dateViewPager.setCurrentItem(currentItem + 1);
+//            refreshView();
+    }
+
+    private void prevYear() {
+//        DateTime dateTime = new DateTime(getYear() - 1, getMonth(), 15, 0, 0, 0, 0);
+//        moveToDateTime(dateTime);
+    }
+
 
     /**
      * Clear all disable dates. Notice this does not refresh the calendar, need
@@ -837,6 +891,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Select single date
+     *
      * @author Alov Maxim <alovmax@yandex.ru>
      */
     public void setSelectedDate(Date date) {
@@ -849,6 +904,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Clear selection of the specified date
+     *
      * @author Alov Maxim <alovmax@yandex.ru>
      */
     public void clearSelectedDate(Date date) {
@@ -861,6 +917,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Checks whether the specified date is selected
+     *
      * @author Alov Maxim <alovmax@yandex.ru>
      */
     public boolean isSelectedDate(Date date) {
@@ -1068,8 +1125,8 @@ public class CaldroidFragment extends DialogFragment {
      */
     protected void refreshMonthTitleTextView() {
         // Refresh title view
-        firstMonthTime.year = year;
-        firstMonthTime.month = month - 1;
+        firstMonthTime.year = getYear();
+        firstMonthTime.month = getMonth() - 1;
         firstMonthTime.monthDay = 15;
         long millis = firstMonthTime.toMillis(true);
 
@@ -1089,9 +1146,9 @@ public class CaldroidFragment extends DialogFragment {
     public void refreshView() {
         // If month and year is not yet initialized, refreshView doesn't do
         // anything
-        if (month == -1 || year == -1) {
-            return;
-        }
+//        if ((mCalendar.get(Calendar.MONTH)) == -1 || (mCalendar.get(Calendar.YEAR)) == -1) {
+//            return;
+//        }
 
         refreshMonthTitleTextView();
 
@@ -1124,8 +1181,19 @@ public class CaldroidFragment extends DialogFragment {
 
         if (args != null) {
             // Get month, year
-            month = args.getInt(MONTH, -1);
-            year = args.getInt(YEAR, -1);
+//            mCalendar = Calendar.getInstance();
+
+            int month = args.getInt(MONTH, -1);
+            int year = args.getInt(YEAR, -1);
+            if (month == -1 || year == -1) {
+//                mCalendar.set(Calendar.MONTH, mCalendar.get(Calendar.MONTH));
+//                mCalendar.set(Calendar.YEAR, mCalendar.get(Calendar.YEAR));
+                mDateTime = DateTime.today(TimeZone.getDefault());
+            } else {
+//                mCalendar.set(Calendar.MONTH, month);
+//                mCalendar.set(Calendar.YEAR, year);
+                mDateTime = new DateTime(year, month, 15, 0, 0, 0, 0);
+            }
             dialogTitle = args.getString(DIALOG_TITLE);
             Dialog dialog = getDialog();
             if (dialog != null) {
@@ -1207,11 +1275,6 @@ public class CaldroidFragment extends DialogFragment {
             // Get theme
             themeResource = args.getInt(THEME_RESOURCE, R.style.CaldroidDefault);
         }
-        if (month == -1 || year == -1) {
-            DateTime dateTime = DateTime.today(TimeZone.getDefault());
-            month = dateTime.getMonth();
-            year = dateTime.getYear();
-        }
     }
 
     /**
@@ -1290,7 +1353,7 @@ public class CaldroidFragment extends DialogFragment {
         // for app that wants to change theme dynamically.
         getActivity().setTheme(themeResource);
 
-        View view = localInflater.inflate(R.layout.calendar_view, container, false);
+        View view = localInflater.inflate(com.calendate.calendate.R.layout.calendar_view, container, false);
 
         // For the monthTitleTextView
         monthTitleTextView = (TextView) view
@@ -1303,10 +1366,10 @@ public class CaldroidFragment extends DialogFragment {
 
         // Navigate to previous month when user click
         leftArrowButton.setOnClickListener(new OnClickListener() {
-
             @Override
             public void onClick(View v) {
-                prevMonth();
+//                prevMonth();
+                nextYear();
             }
         });
 
@@ -1315,7 +1378,8 @@ public class CaldroidFragment extends DialogFragment {
 
             @Override
             public void onClick(View v) {
-                nextMonth();
+//                nextMonth();
+                prevYear();
             }
         });
 
@@ -1327,8 +1391,10 @@ public class CaldroidFragment extends DialogFragment {
         WeekdayArrayAdapter weekdaysAdapter = getNewWeekdayAdapter(themeResource);
         weekdayGridView.setAdapter(weekdaysAdapter);
 
+
         // Setup all the pages of date grid views. These pages are recycled
         setupDateGridPages(view);
+
 
         // Refresh view
         refreshView();
@@ -1337,9 +1403,10 @@ public class CaldroidFragment extends DialogFragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+//        Bitmap bitmap = BitmapFactory.decodeResource(getResources(), com.calendate.calendate.R.drawable.ic_dot);
+//        BitmapDrawable drawable = new BitmapDrawable(getResources(), bitmap);
         final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final Drawable dot = view.getResources().getDrawable(com.calendate.calendate.R.drawable.dot);
@@ -1364,12 +1431,62 @@ public class CaldroidFragment extends DialogFragment {
         ColorDrawable color = new ColorDrawable(getResources().getColor(com.calendate.calendate.R.color.colorPrimary));
 
         Sensey.getInstance().init(getContext());
-
         // Inform client that all views are created and not null
         // Client should perform customization for buttons and textviews here
+
+
         if (caldroidListener != null) {
             caldroidListener.onCaldroidViewCreated();
         }
+
+    }
+
+    private void startTouchTypeDetection() {
+        Sensey.getInstance().startTouchTypeDetection(getContext(), new TouchTypeDetector.TouchTypListener() {
+            @Override
+            public void onTwoFingerSingleTap() {
+
+            }
+
+            @Override
+            public void onThreeFingerSingleTap() {
+
+            }
+
+            @Override
+            public void onDoubleTap() {
+
+            }
+
+            @Override
+            public void onScroll(int i) {
+
+            }
+
+            @Override
+            public void onSingleTap() {
+
+            }
+
+            @Override
+            public void onSwipe(int i) {
+                switch (i) {
+                    case TouchTypeDetector.SWIPE_DIR_UP:
+//                        moveToDateTime(DateTime.forDateOnly(mCalendar.get(Calendar.YEAR) + 1, mCalendar.get(Calendar.MONTH), 1));
+                        moveToDateTime(DateTime.forDateOnly(getYear() + 1, getMonth(), 1));
+                        break;
+                    case TouchTypeDetector.SWIPE_DIR_DOWN:
+//                        moveToDateTime(DateTime.forDateOnly(mCalendar.get(Calendar.YEAR) - 1, mCalendar.get(Calendar.MONTH), 1));
+                        moveToDateTime(DateTime.forDateOnly(getYear() - 1, getMonth(), 1));
+                        break;
+                }
+            }
+
+            @Override
+            public void onLongPress() {
+
+            }
+        });
     }
 
     /**
@@ -1389,7 +1506,7 @@ public class CaldroidFragment extends DialogFragment {
      */
     private void setupDateGridPages(View view) {
         // Get current date time
-        DateTime currentDateTime = new DateTime(year, month, 1, 0, 0, 0, 0);
+        DateTime currentDateTime = new DateTime(getYear(), getMonth(), 1, 0, 0, 0, 0);
 
         // Set to pageChangeListener
         pageChangeListener = new DatePageChangeListener();
@@ -1457,6 +1574,10 @@ public class CaldroidFragment extends DialogFragment {
         // view.
         fragments = pagerAdapter.getFragments();
 
+        final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final RecyclerView rvEvents = (RecyclerView) view.findViewById(com.calendate.calendate.R.id.rvEvents);
+
         for (int i = 0; i < NUMBER_OF_PAGES; i++) {
             DateGridFragment dateGridFragment = fragments.get(i);
             CaldroidGridAdapter adapter = datePagerAdapters.get(i);
@@ -1465,6 +1586,22 @@ public class CaldroidFragment extends DialogFragment {
             dateGridFragment.setOnItemClickListener(getDateItemClickListener());
             dateGridFragment
                     .setOnItemLongClickListener(getDateItemLongClickListener());
+            dateGridFragment.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    DateTime dateTime = dateInMonthsList.get(i);
+                    Integer day = dateTime.getDay();
+                    Integer month = dateTime.getMonth();
+                    Integer year = dateTime.getYear();
+                    LocalDateTime c = LocalDateTime.parse(year + "-" + month + "-" + day);
+                    String formattedDate = c.toString(MyUtils.dateForamt);
+                    Query query = mDatabase.getReference("all_events/" + user.getUid());
+                    EventsAdapter adapter = new EventsAdapter(query.orderByChild("date").equalTo(formattedDate), formattedDate);
+                    rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+                    rvEvents.setAdapter(adapter);
+                    Toast.makeText(getContext(), c.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         // Setup InfinitePagerAdapter to wrap around MonthPagerAdapter
@@ -1618,7 +1755,7 @@ public class CaldroidFragment extends DialogFragment {
             }
             // Detect if swipe right or swipe left
             // Swipe right
-            else if (position > currentPage) {
+            else if (position < currentPage) {
                 // Update current date time to next month
                 currentDateTime = currentDateTime.plus(0, 1, 0, 0, 0, 0, 0,
                         DateTime.DayOverflow.LastDay);
@@ -1669,7 +1806,7 @@ public class CaldroidFragment extends DialogFragment {
     @Override
     public void onDetach() {
         super.onDetach();
-
+        Sensey.getInstance().stop();
         try {
             Field childFragmentManager = Fragment.class
                     .getDeclaredField("mChildFragmentManager");

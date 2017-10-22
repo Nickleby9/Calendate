@@ -21,6 +21,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
@@ -64,8 +65,6 @@ public class ButtonsFragment extends Fragment {
     FirebaseDatabase mDatabase;
     FirebaseAuth mAuth;
     FirebaseUser user;
-    int fragNum = 0;
-    String imageRef = "";
     Bitmap image;
 
     public ButtonsFragment() {
@@ -103,11 +102,12 @@ public class ButtonsFragment extends Fragment {
             ref.keepSynced(true);
         }
 
-        if (getArguments().getString("storage") != null){
+        if (getArguments().getString("storage") != null) {
             PlaceholderFragment.newInstance(getArguments().getString("storage"), getArguments().getString("btnId"), (Uri) getArguments().getParcelable("uri"));
             int frag = getArguments().getInt("fragNum", 0);
             viewPager.setCurrentItem(frag);
         }
+
     }
 
     public static ButtonsFragment newInstance(String path, final String btnId, Uri uri, int fragNum) {
@@ -128,12 +128,6 @@ public class ButtonsFragment extends Fragment {
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
-        private static final String IVTOPLEFT = "topLeft";
-        private static final String IVTOPRIGHT = "topRight";
-        private static final String IVMIDDLELEFT = "middleLeft";
-        private static final String IVMIDDLERIGHT = "middleRight";
-        private static final String IVBOTTOMLEFT = "bottomLeft";
-        private static final String IVBOTTOMRIGHT = "bottomRight";
 
         FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -152,7 +146,20 @@ public class ButtonsFragment extends Fragment {
         ImageView ivMiddleRight;
         ImageView ivBottomLeft;
         ImageView ivBottomRight;
+        TextView tvTopLeft;
+        TextView tvTopRight;
+        TextView tvMiddleLeft;
+        TextView tvMiddleRight;
+        TextView tvBottomLeft;
+        TextView tvBottomRight;
         Bitmap image;
+        private static final String IVTOPLEFT = "topLeft";
+        private static final String IVTOPRIGHT = "topRight";
+        private static final String IVMIDDLELEFT = "middleLeft";
+        private static final String IVMIDDLERIGHT = "middleRight";
+        private static final String IVBOTTOMLEFT = "bottomLeft";
+        private static final String IVBOTTOMRIGHT = "bottomRight";
+        int topLeft = 0, topRight = 0, middleLeft = 0, middleRight = 0, bottomLeft = 0, bottomRight = 0;
 
         public PlaceholderFragment() {
         }
@@ -205,6 +212,13 @@ public class ButtonsFragment extends Fragment {
             ivBottomLeft = (ImageView) view.findViewById(R.id.ivBottomLeft);
             ivBottomRight = (ImageView) view.findViewById(R.id.ivBottomRight);
 
+            tvTopLeft = (TextView) view.findViewById(R.id.tvTopLeft);
+            tvTopRight = (TextView) view.findViewById(R.id.tvTopRight);
+            tvMiddleLeft = (TextView) view.findViewById(R.id.tvMiddleLeft);
+            tvMiddleRight = (TextView) view.findViewById(R.id.tvMiddleRight);
+            tvBottomLeft = (TextView) view.findViewById(R.id.tvBottomLeft);
+            tvBottomRight = (TextView) view.findViewById(R.id.tvBottomRight);
+
             btnTopLeft.setBootstrapBrand(new CustomBootstrapStyleLight(view.getContext()));
             btnTopRight.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
             btnMiddleLeft.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
@@ -212,7 +226,7 @@ public class ButtonsFragment extends Fragment {
             btnBottomLeft.setBootstrapBrand(new CustomBootstrapStyleLight(view.getContext()));
             btnBottomRight.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
 
-            if (getArguments().getString("storage") != null){
+            if (getArguments().getString("storage") != null) {
                 setButtonImage(getArguments().getString("storage"), getArguments().getString("btnId"), (Uri) getArguments().getParcelable("uri"));
             }
 
@@ -290,42 +304,165 @@ public class ButtonsFragment extends Fragment {
                         }
                     });
 
+            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVTOPLEFT + fragNum).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (fragNum == 1){
+                            topLeft++;
+                            tvTopLeft.setText(getString(R.string.event_count) + " " + topLeft);
+                        }
+                        if (fragNum == 2){
+                            topLeft++;
+                            tvTopLeft.setText(getString(R.string.event_count) + " " + topLeft);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVTOPRIGHT + fragNum).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (fragNum == 1){
+                            topRight++;
+                            tvTopRight.setText(getString(R.string.event_count) + " " + topRight);
+                        }
+                        if (fragNum == 2){
+                            topRight++;
+                            tvTopRight.setText(getString(R.string.event_count) + " " + topRight);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVMIDDLELEFT + fragNum).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (fragNum == 1){
+                            middleLeft++;
+                            tvMiddleLeft.setText(getString(R.string.event_count) + " " + middleLeft);
+                        }
+                        if (fragNum == 2){
+                            middleLeft++;
+                            tvMiddleLeft.setText(getString(R.string.event_count) + " " + middleLeft);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVMIDDLERIGHT + fragNum).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (fragNum == 1){
+                            middleRight++;
+                            tvMiddleRight.setText(getString(R.string.event_count) + " " + middleRight);
+                        }
+                        if (fragNum == 2){
+                            middleRight++;
+                            tvMiddleRight.setText(getString(R.string.event_count) + " " + middleRight);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVBOTTOMLEFT + fragNum).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (fragNum == 1){
+                            bottomLeft++;
+                            tvBottomLeft.setText(getString(R.string.event_count) + " " + bottomLeft);
+                        }
+                        if (fragNum == 2){
+                            bottomLeft++;
+                            tvBottomLeft.setText(getString(R.string.event_count) + " " + bottomLeft);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVBOTTOMRIGHT + fragNum).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        if (fragNum == 1){
+                            bottomRight++;
+                            tvBottomRight.setText(getString(R.string.event_count) + " " + bottomRight);
+                        }
+                        if (fragNum == 2){
+                            bottomRight++;
+                            tvBottomRight.setText(getString(R.string.event_count) + " " + bottomRight);
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
             image = loadImage(IVTOPLEFT);
             if (image != null) {
                 ivTopLeft.setImageBitmap(image);
             } else {
-                cachAndLoad(IVTOPLEFT, ivTopLeft);
+                cacheAndLoad(IVTOPLEFT, ivTopLeft);
             }
             image = loadImage(IVTOPRIGHT);
             if (image != null) {
                 ivTopRight.setImageBitmap(image);
             } else {
-                cachAndLoad(IVTOPRIGHT, ivTopRight);
+                cacheAndLoad(IVTOPRIGHT, ivTopRight);
             }
             image = loadImage(IVMIDDLELEFT);
             if (image != null) {
                 ivMiddleLeft.setImageBitmap(image);
             } else {
-                cachAndLoad(IVMIDDLELEFT, ivMiddleLeft);
+                cacheAndLoad(IVMIDDLELEFT, ivMiddleLeft);
             }
             image = loadImage(IVMIDDLERIGHT);
             if (image != null) {
                 ivMiddleRight.setImageBitmap(image);
             } else {
-                cachAndLoad(IVMIDDLERIGHT, ivMiddleRight);
+                cacheAndLoad(IVMIDDLERIGHT, ivMiddleRight);
             }
             image = loadImage(IVBOTTOMLEFT);
             if (image != null) {
                 ivBottomLeft.setImageBitmap(image);
             } else {
-                cachAndLoad(IVBOTTOMLEFT, ivBottomLeft);
+                cacheAndLoad(IVBOTTOMLEFT, ivBottomLeft);
             }
             image = loadImage(IVBOTTOMRIGHT);
             if (image != null) {
                 ivBottomRight.setImageBitmap(image);
             } else {
-                cachAndLoad(IVBOTTOMRIGHT, ivBottomRight);
+                cacheAndLoad(IVBOTTOMRIGHT, ivBottomRight);
             }
+
+
             showProgress(false, "");
 
 
@@ -344,7 +481,11 @@ public class ButtonsFragment extends Fragment {
             btnBottomRight.setOnLongClickListener(this);
         }
 
-        private void saveImage(String btnId, Bitmap bitmap, Context context){
+        private void readEvents() {
+
+        }
+
+        private void saveImage(String btnId, Bitmap bitmap, Context context) {
             ContextWrapper cw = new ContextWrapper(context);
             File dir = new File("");
             dir = cw.getDir("icons", Context.MODE_PRIVATE);
@@ -364,7 +505,7 @@ public class ButtonsFragment extends Fragment {
             }
         }
 
-        private void cachAndLoad(final String btnRef, final ImageView imageView){
+        private void cacheAndLoad(final String btnRef, final ImageView imageView) {
             final CompositeDisposable disposables = new CompositeDisposable();
 
             mDatabase.getReference("button_images/" + user.getUid() + "/" + btnRef + fragNum)
@@ -387,6 +528,7 @@ public class ButtonsFragment extends Fragment {
                                                 .observeOn(AndroidSchedulers.mainThread())
                                                 .subscribeWith(new DisposableObserver<Bitmap>() {
                                                     Bitmap btnBitmap;
+
                                                     @Override
                                                     public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
                                                         btnBitmap = bitmap;
@@ -415,15 +557,12 @@ public class ButtonsFragment extends Fragment {
                     });
 
 
-
-
-
-
         }
 
         Observable<Bitmap> imageDownloader(final Task<Uri> task) {
             return Observable.defer(new Callable<ObservableSource<? extends Bitmap>>() {
-                @Override public ObservableSource<? extends Bitmap> call() throws Exception {
+                @Override
+                public ObservableSource<? extends Bitmap> call() throws Exception {
                     Bitmap bitmap = null;
                     try {
                         bitmap = Glide.with(getContext()).asBitmap().load(task.getResult()).submit().get();
@@ -454,28 +593,35 @@ public class ButtonsFragment extends Fragment {
         @Override
         public void onClick(View v) {
             int id = v.getId();
+            int tvNum = 0;
             switch (id) {
                 case R.id.btnTopLeft:
                     btnRef = IVTOPLEFT;
+                    tvNum = topLeft;
                     break;
                 case R.id.btnTopRight:
                     btnRef = IVTOPRIGHT;
+                    tvNum = topRight;
                     break;
                 case R.id.btnMiddleLeft:
                     btnRef = IVMIDDLELEFT;
+                    tvNum = middleLeft;
                     break;
                 case R.id.btnMiddleRight:
                     btnRef = IVMIDDLERIGHT;
+                    tvNum = middleRight;
                     break;
                 case R.id.btnBottomLeft:
                     btnRef = IVBOTTOMLEFT;
+                    tvNum = bottomLeft;
                     break;
                 case R.id.btnBottomRight:
                     btnRef = IVBOTTOMRIGHT;
+                    tvNum = bottomRight;
                     break;
             }
             BootstrapButton b = (BootstrapButton) v;
-            onButtonPressed(btnRef, fragNum, b.getText().toString());
+            onButtonPressed(btnRef, fragNum, b.getText().toString(), tvNum);
         }
 
         @Override
@@ -570,11 +716,12 @@ public class ButtonsFragment extends Fragment {
             }
         }
 
-        public void onButtonPressed(String btnRef, int fragNum, String btnTitle) {
+        public void onButtonPressed(String btnRef, int fragNum, String btnTitle, int tvNum) {
             String btnId = btnRef + fragNum;
             Intent intent = new Intent(getContext(), DetailActivity.class);
             intent.putExtra("btnId", btnId);
             intent.putExtra("btnTitle", btnTitle);
+            intent.putExtra("tvNum", tvNum);
             startActivity(intent);
         }
 

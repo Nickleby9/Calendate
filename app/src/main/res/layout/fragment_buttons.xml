@@ -18,47 +18,46 @@
         app:layout_constraintHorizontal_weight="2"
         app:layout_constraintRight_toLeftOf="@+id/divTop"
         app:layout_constraintTop_toTopOf="@+id/divTop"
-        app:roundedCorners="true"
-        app:layout_constraintVertical_bias="0.0" />
+        app:roundedCorners="true" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/btnTopRight"
         android:layout_width="140dp"
         android:layout_height="120dp"
-        app:layout_constraintLeft_toRightOf="@+id/divTop"
-        app:roundedCorners="true"
-        android:gravity="bottom|center_horizontal"
         android:layout_marginLeft="5dp"
+        android:layout_marginTop="0dp"
+        android:gravity="bottom|center_horizontal"
         android:textStyle="bold"
         app:bootstrapSize="lg"
+        app:layout_constraintLeft_toRightOf="@+id/divTop"
         app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="0dp" />
+        app:roundedCorners="true" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/btnMiddleLeft"
         android:layout_width="140dp"
         android:layout_height="120dp"
-        android:gravity="bottom|center_horizontal"
-        app:layout_constraintLeft_toLeftOf="@+id/btnTopLeft"
-        app:roundedCorners="true"
-        app:layout_constraintRight_toLeftOf="@+id/divMiddle"
         android:layout_marginRight="8dp"
+        android:gravity="bottom|center_horizontal"
         android:textStyle="bold"
         app:bootstrapSize="lg"
-        app:layout_constraintBottom_toTopOf="@+id/divBottomLeft" />
+        app:layout_constraintBottom_toTopOf="@+id/divBottomLeft"
+        app:layout_constraintLeft_toLeftOf="@+id/btnTopLeft"
+        app:layout_constraintRight_toLeftOf="@+id/divMiddle"
+        app:roundedCorners="true" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/btnMiddleRight"
         android:layout_width="140dp"
         android:layout_height="120dp"
-        android:gravity="bottom|center_horizontal"
-        app:layout_constraintRight_toRightOf="@+id/btnTopRight"
-        app:roundedCorners="true"
-        app:layout_constraintTop_toBottomOf="@+id/divTopRight"
-        app:layout_constraintLeft_toRightOf="@+id/divMiddle"
         android:layout_marginLeft="8dp"
+        android:gravity="bottom|center_horizontal"
         android:textStyle="bold"
-        app:bootstrapSize="lg" />
+        app:bootstrapSize="lg"
+        app:layout_constraintLeft_toRightOf="@+id/divMiddle"
+        app:layout_constraintRight_toRightOf="@+id/btnTopRight"
+        app:layout_constraintTop_toBottomOf="@+id/divTopRight"
+        app:roundedCorners="true" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/btnBottomLeft"
@@ -66,25 +65,25 @@
         android:layout_height="120dp"
         android:layout_marginRight="8dp"
         android:gravity="bottom|center_horizontal"
-        app:layout_constraintLeft_toLeftOf="@+id/btnMiddleLeft"
-        app:layout_constraintRight_toLeftOf="@+id/divBottomMiddle"
-        app:roundedCorners="true"
         android:textStyle="bold"
         app:bootstrapSize="lg"
-        app:layout_constraintBottom_toBottomOf="@+id/divBottomMiddle" />
+        app:layout_constraintBottom_toBottomOf="@+id/divBottomMiddle"
+        app:layout_constraintLeft_toLeftOf="@+id/btnMiddleLeft"
+        app:layout_constraintRight_toLeftOf="@+id/divBottomMiddle"
+        app:roundedCorners="true" />
 
     <com.beardedhen.androidbootstrap.BootstrapButton
         android:id="@+id/btnBottomRight"
         android:layout_width="140dp"
         android:layout_height="120dp"
-        android:gravity="bottom|center_horizontal"
-        app:layout_constraintRight_toRightOf="@+id/btnMiddleRight"
-        app:roundedCorners="true"
-        app:layout_constraintTop_toBottomOf="@+id/divBottomRight"
-        app:layout_constraintLeft_toRightOf="@+id/divBottomMiddle"
         android:layout_marginLeft="8dp"
+        android:gravity="bottom|center_horizontal"
         android:textStyle="bold"
-        app:bootstrapSize="lg" />
+        app:bootstrapSize="lg"
+        app:layout_constraintLeft_toRightOf="@+id/divBottomMiddle"
+        app:layout_constraintRight_toRightOf="@+id/btnMiddleRight"
+        app:layout_constraintTop_toBottomOf="@+id/divBottomRight"
+        app:roundedCorners="true" />
 
     <ImageView
         android:id="@+id/divBottomRight"
@@ -289,5 +288,83 @@
         app:layout_constraintRight_toRightOf="@+id/btnBottomRight"
         app:layout_constraintTop_toTopOf="@+id/btnBottomRight"
         app:srcCompat="@drawable/default_icon" />
+
+    <TextView
+        android:id="@+id/tvTopLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnTopLeft"
+        app:layout_constraintRight_toRightOf="@+id/btnTopLeft"
+        app:layout_constraintTop_toTopOf="@+id/btnTopLeft" />
+
+    <TextView
+        android:id="@+id/tvTopRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnTopRight"
+        app:layout_constraintRight_toRightOf="@+id/btnTopRight"
+        app:layout_constraintTop_toTopOf="@+id/btnTopRight" />
+
+    <TextView
+        android:id="@+id/tvMiddleLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnMiddleLeft"
+        app:layout_constraintRight_toRightOf="@+id/btnMiddleLeft"
+        app:layout_constraintTop_toTopOf="@+id/btnMiddleLeft" />
+
+    <TextView
+        android:id="@+id/tvMiddleRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnMiddleRight"
+        app:layout_constraintRight_toRightOf="@+id/btnMiddleRight"
+        app:layout_constraintTop_toTopOf="@+id/btnMiddleRight" />
+
+    <TextView
+        android:id="@+id/tvBottomLeft"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="2dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnBottomLeft"
+        app:layout_constraintRight_toRightOf="@+id/btnBottomLeft"
+        app:layout_constraintTop_toTopOf="@+id/btnBottomLeft" />
+
+    <TextView
+        android:id="@+id/tvBottomRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="0dp"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintLeft_toLeftOf="@+id/btnBottomRight"
+        app:layout_constraintRight_toRightOf="@+id/btnBottomRight"
+        app:layout_constraintTop_toTopOf="@+id/btnBottomRight" />
 
 </android.support.constraint.ConstraintLayout>

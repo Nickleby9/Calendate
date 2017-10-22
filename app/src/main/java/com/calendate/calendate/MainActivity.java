@@ -36,7 +36,9 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.Calendar;
+import java.util.TimeZone;
+
+import hirondelle.date4j.DateTime;
 
 public class MainActivity extends AppCompatActivity implements SetButtonTitleDialog.OnTitleSetListener,
         NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener,
@@ -267,7 +269,6 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
         }
     }
-
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -284,9 +285,9 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             case R.id.nav_calendar:
                 CaldroidFragment caldroid = new CaldroidFragment();
                 Bundle args = new Bundle();
-                Calendar c = Calendar.getInstance();
-                args.putInt("month", c.get(Calendar.MONTH)+1);
-                args.putInt("year", c.get(Calendar.YEAR));
+                DateTime dateTime = DateTime.today(TimeZone.getDefault());
+                args.putInt(CaldroidFragment.MONTH, dateTime.getMonth());
+                args.putInt(CaldroidFragment.YEAR, dateTime.getYear());
                 caldroid.setArguments(args);
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, caldroid).commit();
                 break;

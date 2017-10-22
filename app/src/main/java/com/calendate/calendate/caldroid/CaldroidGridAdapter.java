@@ -14,7 +14,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.caldroid.R;
+import com.calendate.calendate.R;
 
 import java.util.ArrayList;
 import java.util.Date;

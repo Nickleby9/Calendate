@@ -3,7 +3,7 @@ package com.calendate.calendate.caldroid;
 import android.content.Context;
 import android.util.AttributeSet;
 
-public class SquareTextView extends com.roomorama.caldroid.CellView {
+public class SquareTextView extends CellView {
 
     public SquareTextView(Context context) {
         super(context);
