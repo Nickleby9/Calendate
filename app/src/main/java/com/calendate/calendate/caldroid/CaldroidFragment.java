@@ -14,6 +14,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.text.format.Time;
 import android.view.ContextThemeWrapper;
@@ -40,6 +42,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.LocalDateTime;
@@ -1457,6 +1460,10 @@ public class CaldroidFragment extends DialogFragment {
         // view.
         fragments = pagerAdapter.getFragments();
 
+        final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        final RecyclerView rvEvents = (RecyclerView) view.findViewById(com.calendate.calendate.R.id.rvEvents);
+
         for (int i = 0; i < NUMBER_OF_PAGES; i++) {
             DateGridFragment dateGridFragment = fragments.get(i);
             CaldroidGridAdapter adapter = datePagerAdapters.get(i);
@@ -1465,6 +1472,21 @@ public class CaldroidFragment extends DialogFragment {
             dateGridFragment.setOnItemClickListener(getDateItemClickListener());
             dateGridFragment
                     .setOnItemLongClickListener(getDateItemLongClickListener());
+            dateGridFragment.setOnItemClickListener(new OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    DateTime dateTime = dateInMonthsList.get(i);
+                    Integer day = dateTime.getDay();
+                    Integer month = dateTime.getMonth();
+                    Integer year = dateTime.getYear();
+                    LocalDateTime c = LocalDateTime.parse(year + "-" + month + "-" + day);
+                    String formattedDate = c.toString(MyUtils.dateForamt);
+                    Query query = mDatabase.getReference("all_events/" + user.getUid());
+                    EventsAdapter adapter = new EventsAdapter(query.orderByChild("date").equalTo(formattedDate), formattedDate);
+                    rvEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+                    rvEvents.setAdapter(adapter);
+                }
+            });
         }
 
         // Setup InfinitePagerAdapter to wrap around MonthPagerAdapter

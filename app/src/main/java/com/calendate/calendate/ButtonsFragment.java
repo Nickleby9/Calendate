@@ -25,8 +25,10 @@ import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
+import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.CustomBootstrapStyleDark;
 import com.calendate.calendate.utils.CustomBootstrapStyleLight;
+import com.calendate.calendate.utils.MyUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,6 +40,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import org.joda.time.LocalDateTime;
+import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -316,6 +321,9 @@ public class ButtonsFragment extends Fragment {
                             topLeft++;
                             tvTopLeft.setText(getString(R.string.event_count) + " " + topLeft);
                         }
+                        Event event = snapshot.getValue(Event.class);
+                        LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
+                        LocalDateTime today = LocalDateTime.now();
                     }
                 }
 
