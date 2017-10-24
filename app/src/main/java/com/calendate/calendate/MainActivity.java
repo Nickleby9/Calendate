@@ -1,5 +1,7 @@
 package com.calendate.calendate;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -34,8 +36,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.util.TimeZone;
 
 import hirondelle.date4j.DateTime;
@@ -269,6 +273,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
         }
     }
+
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -299,19 +304,75 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new FriendListFragment()).commit();
                 break;
             case R.id.nav_sign_out:
-                mAuth.signOut();
-                Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient);
-                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-                LoginManager.getInstance().logOut();
-                break;
+                signOut();
             case R.id.nav_about:
                 new AboutDialog().show(getSupportFragmentManager(), "aboutFragment");
                 break;
+            case R.id.nav_delete:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.delete_account_title)
+                        .setMessage(R.string.delete_warning)
+                        .setPositiveButton(getString(R.string.procceed), new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                mDatabase.getReference("all_events").child(user.getUid()).removeValue();
+                                mDatabase.getReference("button_images").child(user.getUid()).removeValue();
+                                mDatabase.getReference("buttons").child(user.getUid()).removeValue();
+                                mDatabase.getReference("documents").child(user.getUid()).removeValue();
+                                mDatabase.getReference("friends").child(user.getUid()).removeValue();
+                                mDatabase.getReference("friends").addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot allUsers) {
+                                        for (DataSnapshot userKey : allUsers.getChildren()) {
+                                            for (DataSnapshot oneFriend : userKey.getChildren()) {
+                                                Friend friend = oneFriend.getValue(Friend.class);
+                                                if (friend.getSenderUid().equals(user.getUid())){
+                                                    oneFriend.getRef().removeValue();
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                                mDatabase.getReference("users").child(user.getUid()).removeValue();
+                                FirebaseStorage.getInstance().getReference("documents/" + user.getUid()).delete();
+                                user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Toast.makeText(MainActivity.this, R.string.success_delete, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                        navigationView.getMenu().getItem(0).setChecked(true);
+                    }
+                }).show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    private void signOut(){
+        ContextWrapper cw = new ContextWrapper(this);
+        File dir = cw.getDir("icons", Context.MODE_PRIVATE);
+        File[] files = dir.listFiles();
+        for (File file : files) {
+            file.delete();
+        }
+        mAuth.signOut();
+        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient);
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+        LoginManager.getInstance().logOut();
     }
 
     @Override

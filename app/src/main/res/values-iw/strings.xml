@@ -158,4 +158,12 @@
     <string name="cancel_friendship">בטל חברות</string>
     <string name="cancel_friendship_msg">לבטל את החברות עם</string>
     <string name="event_count">כמות אירועים:</string>
+    <string name="terms_error">לא אישרת את תנאי השימוש</string>
+    <string name="delete_account">מחיקת חשבון</string>
+    <string name="success_delete">המשתמש נמחק בהצלחה</string>
+    <string name="accept_terms">קראתי ואני מאשר את תנאי השימוש</string>
+    <string name="terms">תנאי השימוש</string>
+    <string name="procceed">המשך</string>
+    <string name="delete_warning">שים לב!\n\n הפעולה תביא למחיקת כל נתוני החשבון שלך הקיימים ב- Calendate. \nלא ניתן לבטל זאת.</string>
+    <string name="delete_account_title">מחיקת חשבון</string>
 </resources>

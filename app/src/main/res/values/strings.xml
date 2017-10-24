@@ -176,5 +176,13 @@
     <string name="cancel_friendship">Cancel friendship</string>
     <string name="cancel_friendship_msg">Cancel friendship with</string>
     <string name="event_count">Event Count:</string>
+    <string name="terms_error">You must accept the terms of use</string>
+    <string name="delete_account">Delete account</string>
+    <string name="success_delete">User deleted successfully</string>
+    <string name="accept_terms">I read and accept the terms of use</string>
+    <string name="terms">Our terms of use</string>
+    <string name="procceed">Continue</string>
+    <string name="delete_warning">Pay attention! \n\n Proceeding will remove all of your data from Calendate.\n This is irreversible.</string>
+    <string name="delete_account_title">Delete account</string>
 
 </resources>

@@ -56,5 +56,4 @@
             <item name="android:paddingRight">@dimen/list_item_padding</item>
             <item name="android:textAppearance">?android:attr/textAppearanceMedium</item>
         </style>
-
 </resources>

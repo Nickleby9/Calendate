@@ -25,6 +25,11 @@
                     android:title="@string/friends" />
 
                 <item
+                    android:id="@+id/nav_delete"
+                    android:icon="@drawable/ic_delete"
+                    android:title="@string/delete_account" />
+
+                <item
                     android:id="@+id/nav_sign_out"
                     android:icon="@drawable/ic_exit"
                     android:title="@string/sign_out" />
