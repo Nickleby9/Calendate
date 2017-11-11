@@ -46,7 +46,7 @@ import hirondelle.date4j.DateTime;
 
 public class MainActivity extends AppCompatActivity implements SetButtonTitleDialog.OnTitleSetListener,
         NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener,
-        PickImageFragment.OnImageSetListener {
+        PickImageFragment.OnImageSetListener, FriendListFragment.OnRemainAnonymous {
 
     private static final int RC_FIREBASE_SIGNIN = 2;
     FirebaseDatabase mDatabase;
@@ -265,13 +265,17 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 pressed = true;
             }
         } else {
-            navigationView.getMenu().getItem(0).setChecked(true);
-            Bundle bundle = new Bundle();
-            bundle.putInt("fragNum", fragNum);
-            ButtonsFragment buttonsFragment = new ButtonsFragment();
-            buttonsFragment.setArguments(bundle);
-            getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
+            goToCategoriesFragment();
         }
+    }
+
+    private void goToCategoriesFragment() {
+        navigationView.getMenu().getItem(0).setChecked(true);
+        Bundle bundle = new Bundle();
+        bundle.putInt("fragNum", fragNum);
+        ButtonsFragment buttonsFragment = new ButtonsFragment();
+        buttonsFragment.setArguments(bundle);
+        getSupportFragmentManager().beginTransaction().replace(R.id.frame, buttonsFragment).commit();
     }
 
     @Override
@@ -392,5 +396,10 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     public void onTitleSet(String title, String btnId) {
         ButtonsFragment.PlaceholderFragment p = new ButtonsFragment.PlaceholderFragment();
         p.setButtonText(title, btnId);
+    }
+
+    @Override
+    public void onRemainAnonymous() {
+        goToCategoriesFragment();
     }
 }

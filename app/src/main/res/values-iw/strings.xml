@@ -1,9 +1,13 @@
 <resources>
     <string name="app_name">Calendate</string>
+    <string name="facebook_application_id" translatable="false">1396048197146385</string>
+    <!-- Facebook Application ID, prefixed by 'fb'.  Enables Chrome Custom tabs. -->
+    <string name="facebook_login_protocol_scheme" translatable="false">fb1396048197146385</string>
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_detail">אירועים</string>
     <string name="title_detailed_item">אירוע</string>
-    <string name="who_would_you_like_to_share_with">עם מי ברונך לשתף?</string>
+    <string name="who_would_you_like_to_share_with">עם מי ברצונך לשתף?</string>
     <string name="email_or_username">שם משתמש</string>
     <string name="empty_directory">תיקייה ריקה</string>
     <string name="storage_removed">האחסון נותק</string>
@@ -61,7 +65,7 @@
     <string name="registration_email_address">כתובת דוא"ל</string>
     <string name="registration_register">הרשמה</string>
     <string name="error_weak_password">הסיסמה חלשה מידי</string>
-    <string name="error_invalid_email">בתובת דוא"ל לא תקינה</string>
+    <string name="error_invalid_email">כתובת דוא"ל לא תקינה</string>
     <string name="error_user_exists">המשתמש כבר קיים</string>
     <string name="error_empty_fields">השדות לא יכולים להישאר ריקים</string>
     <string name="error_mismatch_passwords">הסיסמאות לא תואמות</string>
@@ -69,14 +73,14 @@
     <string name="registering">מבצע הרשמה...</string>
 
     <!--Button change dialog-->
-    <string name="button_title_title">הזן כותרת לכפתור</string>
+    <string name="button_title_title">הזן כותרת לקטגוריה</string>
     <string name="button_title_hint">כותרת</string>
-    <string name="button_title_set">קבע</string>
+    <string name="button_title_set">קבע כותרת</string>
     <string name="button_title_error">חרגת ממגבלת התוים</string>
     <string name="change_button_dialog_title">מה ברצונך לבצע?</string>
     <string-array name="buttonOptions">
-        <item>קבע כותרת לכפתור</item>
-        <item>החלף תמונה</item>
+        <item>קבע כותרת לקטגוריה</item>
+        <item>בחר תמונה</item>
     </string-array>
     <string-array name="itemOptions">
         <item>שיתוף</item>
@@ -92,8 +96,8 @@
     <string name="logging">מתחבר...</string>
     <string name="btn_register">אין לך חשבון? גע כאן להרשמה</string>
     <string name="btn_login">התחברות</string>
-    <string name="sign_in_with_google">התחבר באמצעות חשבון גוגל</string>
-    <string name="sign_in_with_facebook">התחבר באמצעות חשבון פייסבוק</string>
+    <string name="sign_in_with_google">התחבר עם גוגל</string>
+    <string name="sign_in_with_facebook">התחבר עם פייסבוק</string>
 
 
     <!--Main activity-->
@@ -166,4 +170,10 @@
     <string name="procceed">המשך</string>
     <string name="delete_warning">שים לב!\n\n הפעולה תביא למחיקת כל נתוני החשבון שלך הקיימים ב- Calendate. \nלא ניתן לבטל זאת.</string>
     <string name="delete_account_title">מחיקת חשבון</string>
+    <string name="decline_terms">אני מסרב</string>
+    <string name="attention">שים לב</string>
+    <string name="anonymous_warning">התחברות בחשבון אנונימי לא מאפשרת את גיבוי המידע שלך במקרה של התקנה מחדש של האפליקציה. n\ בנוסף, חלק מהאפשרויות שלנו לא יעבדו.</string>
+    <string name="anonymous_accept">הבנתי, אני רוצה להמשיך</string>
+    <string name="anonymous_decline">חזרה</string>
+    <string name="anonymous_sign_in">התחברות אנונימית</string>
 </resources>

@@ -39,11 +39,33 @@ public class FriendListFragment extends Fragment {
     ArrayList<Friend> friends = new ArrayList<>();
     TextView tvNoFriends;
     FriendsAdapter adapter;
+    private OnRemainAnonymous mListener;
+
 
     public FriendListFragment() {
         // Required empty public constructor
     }
 
+    public interface OnRemainAnonymous{
+        void onRemainAnonymous();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnRemainAnonymous) {
+            mListener = (OnRemainAnonymous) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnRemainAnonymous");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -57,6 +79,27 @@ public class FriendListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (user.isAnonymous()){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Oops");
+            builder.setMessage("You logged in as an anonymous user, therefore you are not able to use this features. Note that you can stop being anonymous at any time.");
+            builder.setPositiveButton("Register me!", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
+                }
+            }).setNegativeButton("Got it", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                    mListener.onRemainAnonymous();
+                }
+            }).setCancelable(false).show();
+        }
+        if (user.isAnonymous()){
+            return;
+        }
         rvFriends = (RecyclerView) view.findViewById(R.id.rvFriends);
         tvNoFriends = (TextView) view.findViewById(R.id.tvNoFriends);
         tvNoFriends.setVisibility(View.INVISIBLE);

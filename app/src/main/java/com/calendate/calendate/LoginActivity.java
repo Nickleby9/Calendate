@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
@@ -40,6 +41,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
@@ -49,7 +51,8 @@ import static com.beardedhen.androidbootstrap.font.FontAwesome.FA_SIGN_IN;
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, GoogleApiClient.OnConnectionFailedListener {
 
     private static final int RC_GOOGLE_LOGIN = 1;
-    BootstrapButton btnLogin, btnRegister;
+    BootstrapButton btnLogin, btnAnonymous;
+    TextView tvRegister;
     Button btnGoogle, btnFacebook;
     EditText etUsername, etPassword;
     FirebaseAuth mAuth;
@@ -57,6 +60,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     GoogleApiClient mApiClient;
     FirebaseDatabase mDatabase;
     CallbackManager mCallbackManager;
+    boolean acceptedTerms = false;
+    String method;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,19 +72,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         mDatabase = FirebaseDatabase.getInstance();
 
         btnLogin = (BootstrapButton) findViewById(R.id.btnLogin);
-        btnRegister = (BootstrapButton) findViewById(R.id.btnRegister);
+        tvRegister = (TextView) findViewById(R.id.tvRegister);
         etUsername = (EditText) findViewById(R.id.etUsername);
         etPassword = (EditText) findViewById(R.id.etPassword);
         btnGoogle = (Button) findViewById(R.id.btnGoogle);
         btnFacebook = (Button) findViewById(R.id.btnFacebook);
+        btnAnonymous = (BootstrapButton) findViewById(R.id.btnAnonymous);
 
         btnLogin.setBootstrapBrand(new CustomBootstrapStyle(this));
-        btnRegister.setBootstrapBrand(new CustomBootstrapStyle(this));
+        btnAnonymous.setBootstrapBrand(new CustomBootstrapStyle(this));
 
         btnLogin.setOnClickListener(this);
-        btnRegister.setOnClickListener(this);
+        tvRegister.setOnClickListener(this);
         btnGoogle.setOnClickListener(this);
         btnFacebook.setOnClickListener(this);
+        btnAnonymous.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -89,11 +96,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 .build()
         );
 
-        btnRegister.setBootstrapText(new BootstrapText.Builder(this)
-                .addText(getString(R.string.btn_register) + " ")
-//                .addFontAwesomeIcon(FA_USER_PLUS)
-                .build()
-        );
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -123,6 +125,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             }
         });
+
+        if (getIntent().getExtras() != null){
+            acceptedTerms = getIntent().getExtras().getBoolean("accepted");
+            method = getIntent().getExtras().getString("method");
+            if (acceptedTerms) {
+                switch (method) {
+                    case "google":
+                        onClick(btnGoogle);
+                        break;
+                    case "facebook":
+                        onClick(btnFacebook);
+                        break;
+                }
+            }
+        }
     }
 
     @Override
@@ -145,20 +162,74 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     detailsIncorrect();
                 }
                 break;
-            case R.id.btnRegister:
+            case R.id.tvRegister:
                 Intent intent1 = new Intent(this, RegistrationActivity.class);
                 startActivity(intent1);
                 break;
             case R.id.btnGoogle:
-                showProgress(true, getString(R.string.google_login_msg));
-                Intent googleIntent = Auth.GoogleSignInApi
-                        .getSignInIntent(mApiClient);
-                startActivityForResult(googleIntent, RC_GOOGLE_LOGIN);
+                if (acceptedTerms) {
+                    showProgress(true, getString(R.string.google_login_msg));
+                    Intent googleIntent = Auth.GoogleSignInApi
+                            .getSignInIntent(mApiClient);
+                    startActivityForResult(googleIntent, RC_GOOGLE_LOGIN);
+                } else {
+                    Intent intent = new Intent(this, ActivityTerms.class);
+                    intent.putExtra("method", "google");
+                    startActivity(intent);
+                }
                 break;
             case R.id.btnFacebook:
-                showProgress(true, getString(R.string.facebook_login_msg));
-                LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
+                if (acceptedTerms) {
+                    showProgress(true, getString(R.string.facebook_login_msg));
+                    LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
+                } else {
+                    Intent intent2 = new Intent(this, ActivityTerms.class);
+                    intent2.putExtra("method", "facebook");
+                    startActivity(intent2);
+                }
                 break;
+            case R.id.btnAnonymous:
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle(R.string.attention)
+                        .setMessage(R.string.anonymous_warning)
+                        .setPositiveButton(R.string.anonymous_accept, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                dialogInterface.dismiss();
+                                mAuth.signInAnonymously().addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+                                    @Override
+                                    public void onSuccess(final AuthResult authResult) {
+                                        authResult.getUser().updateEmail("No email address");
+                                        UserProfileChangeRequest change = new UserProfileChangeRequest.Builder().setDisplayName("Anonymous").build();
+                                        authResult.getUser().updateProfile(change).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                authResult.getUser().reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        User user = new User(authResult.getUser());
+                                                        user.setUsername("Anonymous");
+                                                        mDatabase.getReference("users").child(user.getUid()).setValue(user);
+                                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                        startActivity(intent);
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }).setNegativeButton(R.string.anonymous_decline, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.dismiss();
+                    }
+                }).show();
         }
     }
 
@@ -291,12 +362,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
                 builder.setTitle("Login error")
                         .setMessage("You have already registered using different credentials. \nPlease login with a different provider.")
-                .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
+                        .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
                 builder.show();
             }
         });

@@ -73,7 +73,7 @@ public class AddFriendsFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     user = snapshot.getValue(User.class);
-                    if (!user.getEmail().equals(currentUser.getEmail())) {
+                    if (!user.getEmail().equals(currentUser.getEmail()) || !user.getEmail().equals("No email address")) {
                         users.add(user);
                     }
                 }

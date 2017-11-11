@@ -3,12 +3,10 @@ package com.calendate.calendate;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -37,7 +35,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     FirebaseDatabase mDatabase;
     SharedPreferences prefs;
     TextView tvTerms;
-    CheckBox cbTerms;
+    boolean accepted = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,21 +51,21 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         btnRegister = (BootstrapButton) findViewById(R.id.btnRegister);
         btnRegister.setBootstrapBrand(new CustomBootstrapStyle(this));
         tvTerms = (TextView) findViewById(R.id.tvTerms);
-        cbTerms = (CheckBox) findViewById(R.id.cbTerms);
 
-        tvTerms.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String url = "https://docs.google.com/document/d/1Jrb8IFFXoFed9qMggefHZaCRn3r5d_yl-rdQMs2StVg/";
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                startActivity(intent);
-            }
-        });
-
+        tvTerms.setOnClickListener(this);
         btnRegister.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
+        if (getIntent().getExtras() != null){
+            etUsername.setText(getIntent().getExtras().getString("username"));
+            etEmail.setText(getIntent().getExtras().getString("email"));
+            etPassword.setText(getIntent().getExtras().getString("password"));
+            etPassword2.setText(getIntent().getExtras().getString("password2"));
+            accepted = getIntent().getExtras().getBoolean("accepted");
+            if (accepted)
+                onClick(btnRegister);
+        }
     }
 
     public boolean isEmptyFields() {
@@ -81,80 +79,101 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
     public void onClick(View v) {
-        if (cbTerms.isChecked()) {
-            tvError.setVisibility(View.INVISIBLE);
-            final String username = etUsername.getText().toString();
-            final String email = etEmail.getText().toString();
-            final String password = etPassword.getText().toString();
-            String password2 = etPassword2.getText().toString();
-            if (!isEmptyFields() && password.equals(password2)) {
-                showProgress(true);
-                mAuth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                mAuth.signInWithEmailAndPassword(email, password)
-                                        .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
-                                            @Override
-                                            public void onComplete(Task<AuthResult> task) {
-                                                final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                                UserProfileChangeRequest change = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
-                                                if (user != null) {
-                                                    user.updateProfile(change).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void aVoid) {
-                                                            user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+        int id = v.getId();
+        switch (id){
+            case R.id.tvTerms:
+                Intent intent = new Intent(this, ActivityTerms.class);
+                intent.putExtra("method", "register");
+                intent.putExtra("username", etUsername.getText().toString());
+                intent.putExtra("email", etEmail.getText().toString());
+                intent.putExtra("password", etPassword.getText().toString());
+                intent.putExtra("password2", etPassword2.getText().toString());
+                startActivity(intent);
+                break;
+            case R.id.btnRegister:
+                if (accepted) {
+                    tvError.setVisibility(View.INVISIBLE);
+                    final String username = etUsername.getText().toString();
+                    final String email = etEmail.getText().toString();
+                    final String password = etPassword.getText().toString();
+                    String password2 = etPassword2.getText().toString();
+                    if (!isEmptyFields() && password.equals(password2)) {
+                        showProgress(true);
+                        mAuth.createUserWithEmailAndPassword(email, password)
+                                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<AuthResult> task) {
+                                        mAuth.signInWithEmailAndPassword(email, password)
+                                                .addOnCompleteListener(RegistrationActivity.this, new OnCompleteListener<AuthResult>() {
+                                                    @Override
+                                                    public void onComplete(Task<AuthResult> task) {
+                                                        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                                                        UserProfileChangeRequest change = new UserProfileChangeRequest.Builder().setDisplayName(username).build();
+                                                        if (user != null) {
+                                                            user.updateProfile(change).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                 @Override
                                                                 public void onSuccess(Void aVoid) {
+                                                                    user.reload().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
 
-                                                                    User newUser = new User(user);
-                                                                    mDatabase.getReference("users").child(user.getUid()).setValue(newUser);
+                                                                            User newUser = new User(user);
+                                                                            mDatabase.getReference("users").child(user.getUid()).setValue(newUser);
 
-                                                                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
-                                                                    startActivity(intent);
+                                                                            Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                                                                            startActivity(intent);
+                                                                        }
+                                                                    });
                                                                 }
                                                             });
                                                         }
-                                                    });
-                                                }
+                                                    }
+                                                });
+                                        if (!task.isSuccessful()) {
+                                            showProgress(false);
+                                            try {
+                                                throw task.getException();
+                                            } catch (FirebaseAuthWeakPasswordException e) {
+                                                etPassword.setError(getString(R.string.error_weak_password));
+                                                etPassword.requestFocus();
+                                            } catch (FirebaseAuthInvalidCredentialsException e) {
+                                                etEmail.setError(getString(R.string.error_invalid_email));
+                                                etEmail.requestFocus();
+                                            } catch (FirebaseAuthUserCollisionException e) {
+                                                etEmail.setError(getString(R.string.error_user_exists));
+                                                etEmail.requestFocus();
+                                            } catch (FirebaseNetworkException e) {
+                                                tvError.setText(R.string.network_error);
+                                                tvError.setVisibility(View.VISIBLE);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
                                             }
-                                        });
-                                if (!task.isSuccessful()) {
-                                    showProgress(false);
-                                    try {
-                                        throw task.getException();
-                                    } catch (FirebaseAuthWeakPasswordException e) {
-                                        etPassword.setError(getString(R.string.error_weak_password));
-                                        etPassword.requestFocus();
-                                    } catch (FirebaseAuthInvalidCredentialsException e) {
-                                        etEmail.setError(getString(R.string.error_invalid_email));
-                                        etEmail.requestFocus();
-                                    } catch (FirebaseAuthUserCollisionException e) {
-                                        etEmail.setError(getString(R.string.error_user_exists));
-                                        etEmail.requestFocus();
-                                    } catch (FirebaseNetworkException e) {
-                                        tvError.setText(R.string.network_error);
-                                        tvError.setVisibility(View.VISIBLE);
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                        }
                                     }
-                                }
-                            }
-                        });
-            } else {
-                if (isEmptyFields()) {
-                    tvError.setText(R.string.error_empty_fields);
+                                });
+                    } else {
+                        if (isEmptyFields()) {
+                            tvError.setText(R.string.error_empty_fields);
+                            tvError.setVisibility(View.VISIBLE);
+                            return;
+                        }
+                        etPassword2.setError(getString(R.string.error_mismatch_passwords));
+                        etPassword2.requestFocus();
+                    }
+                } else {
+                    tvError.setText(R.string.terms_error);
                     tvError.setVisibility(View.VISIBLE);
-                    return;
                 }
-                etPassword2.setError(getString(R.string.error_mismatch_passwords));
-                etPassword2.requestFocus();
-            }
-        } else {
-            tvError.setText(R.string.terms_error);
-            tvError.setVisibility(View.VISIBLE);
+                break;
         }
+
     }
 
     private ProgressDialog dialog;
@@ -172,5 +191,4 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         else
             dialog.dismiss();
     }
-
 }

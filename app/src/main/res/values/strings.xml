@@ -86,8 +86,8 @@
     <string name="logging">Logging in...</string>
     <string name="btn_register">Don\'t have an account? Register here</string>
     <string name="btn_login">Login</string>
-    <string name="sign_in_with_google">Sign in with Google</string>
-    <string name="sign_in_with_facebook">Sign in with Facebook</string>
+    <string name="sign_in_with_google">Google sign in</string>
+    <string name="sign_in_with_facebook">Facebook sign in</string>
 
 
     <!--Main activity-->
@@ -168,21 +168,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  -->
-        <string name="empty_directory">Empty Directory</string>
-        <string name="storage_removed">Storage was removed or unmounted.</string>
-        <string name="choose_file">Select a file</string>
-        <string name="error_selecting_file">Error selecting File</string>
-        <string name="internal_storage">Internal storage</string>
+    <string name="empty_directory">Empty Directory</string>
+    <string name="storage_removed">Storage was removed or unmounted.</string>
+    <string name="choose_file">Select a file</string>
+    <string name="error_selecting_file">Error selecting File</string>
+    <string name="internal_storage">Internal storage</string>
     <string name="cancel_friendship">Cancel friendship</string>
     <string name="cancel_friendship_msg">Cancel friendship with</string>
     <string name="event_count">Event Count:</string>
     <string name="terms_error">You must accept the terms of use</string>
     <string name="delete_account">Delete account</string>
     <string name="success_delete">User deleted successfully</string>
-    <string name="accept_terms">I read and accept the terms of use</string>
+    <string name="accept_terms">I accept the terms of use</string>
     <string name="terms">Our terms of use</string>
     <string name="procceed">Continue</string>
     <string name="delete_warning">Pay attention! \n\n Proceeding will remove all of your data from Calendate.\n This is irreversible.</string>
     <string name="delete_account_title">Delete account</string>
+    <string name="decline_terms">Decline</string>
+    <string name="attention">Attention</string>
+    <string name="anonymous_warning">Sign in anonymously means you won\'t be able the restore your data in case you reinstall Calendate.    Also, some of the features won\'t work.</string>
+    <string name="anonymous_accept">Ok, sign me in</string>
+    <string name="anonymous_decline">Go back</string>
+    <string name="anonymous_sign_in">Sign in anonymously</string>
 
 </resources>
