@@ -2,12 +2,11 @@ package com.calendate.calendate;
 
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -18,29 +17,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
-import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.observers.DisposableObserver;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,12 +30,11 @@ import io.reactivex.schedulers.Schedulers;
 public class PickImageFragment extends DialogFragment {
 
     RecyclerView rvIcons;
-    FirebaseStorage mStorage = FirebaseStorage.getInstance();
     FirebaseDatabase mDatabase;
-    BitmapDrawable drawable;
-    ArrayList<String> imageUrls = new ArrayList<>();
     static private OnImageSetListener mListener;
     static String btnId;
+    ArrayList<Drawable> icons = new ArrayList<>();
+    ArrayList<String> iconText = new ArrayList<>();
 
     public PickImageFragment() {
         // Required empty public constructor
@@ -95,116 +76,81 @@ public class PickImageFragment extends DialogFragment {
         btnId = getArguments().getString("btnId");
 
         rvIcons.setLayoutManager(new GridLayoutManager(getContext(), 4));
-        ImageAdapter adapter = new ImageAdapter(mDatabase.getReference("icons"), this, getContext());
+
+        for (int i = 1; i<50; i++){
+            int rid = getContext().getResources().getIdentifier("icon_" + i, "drawable",
+                            getContext().getPackageName());
+            Drawable drawable = getResources().getDrawable(rid);
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), rid);
+            Bitmap.createScaledBitmap(bitmap,50,50,false);
+            icons.add(drawable);
+            iconText.add("icon_" + i);
+        }
+
+        IconsAdapter adapter = new IconsAdapter(icons, getContext(), btnId, iconText, this);
         rvIcons.setAdapter(adapter);
+
     }
 
-    private static class ImageAdapter extends FirebaseRecyclerAdapter<String, ImageAdapter.ImageViewHolder> {
+    private class IconsAdapter extends RecyclerView.Adapter<IconsAdapter.IconsViewHolder>{
 
-        DialogFragment dialog;
+        ArrayList<Drawable> data = new ArrayList<>();
+        LayoutInflater inflater;
         Context context;
+        String btnId;
+        ArrayList<String> iconText;
+        DialogFragment dialog;
 
-        public ImageAdapter(Query query, DialogFragment dialog, Context context) {
-            super(String.class, R.layout.icon_item, ImageViewHolder.class, query);
-            this.dialog = dialog;
+        public IconsAdapter(ArrayList<Drawable> data, Context context, String btnId, ArrayList<String> iconText, DialogFragment dialog) {
+            this.data = data;
             this.context = context;
+            inflater = LayoutInflater.from(context);
+            this.btnId = btnId;
+            this.iconText = iconText;
+            this.dialog = dialog;
         }
 
         @Override
-        protected void populateViewHolder(final ImageViewHolder viewHolder, String model, int position) {
-            StorageReference mStorage = FirebaseStorage.getInstance().getReference("button-icons").child(model);
-            mStorage.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(@NonNull Task<Uri> task) {
-                    Glide.with(context).load(task.getResult()).into(viewHolder.ivIcon);
-                    viewHolder.task = task;
-                }
-            });
-            viewHolder.mStorage = mStorage;
-            viewHolder.dialog = dialog;
+        public IconsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            return new IconsViewHolder(inflater.inflate(R.layout.icon_item, parent, false));
         }
 
-        public static class ImageViewHolder extends RecyclerView.ViewHolder {
+        @Override
+        public void onBindViewHolder(IconsViewHolder holder, int position) {
+            Drawable icon = data.get(position);
+            holder.ivIcons.setImageDrawable(icon);
+            holder.btnId = btnId;
+            holder.iconText = iconText.get(position);
+            holder.me = dialog;
+        }
 
-            ImageView ivIcon;
-            String url;
-            StorageReference mStorage;
-            DialogFragment dialog;
-            Bitmap image;
-            Task<Uri> task;
+        @Override
+        public int getItemCount() {
+            return data.size();
+        }
 
+        class IconsViewHolder extends RecyclerView.ViewHolder{
 
-            public ImageViewHolder(final View itemView) {
+            ImageView ivIcons;
+            String btnId;
+            String iconText;
+            DialogFragment me;
+            FirebaseUser user;
+
+            public IconsViewHolder(View itemView) {
                 super(itemView);
-                ivIcon = (ImageView) itemView.findViewById(R.id.ivIcon);
 
-                itemView.setOnClickListener(new View.OnClickListener() {
+                ivIcons = (ImageView) itemView.findViewById(R.id.ivIcon);
+                user = FirebaseAuth.getInstance().getCurrentUser();
+
+                ivIcons.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(final View v) {
-                        CompositeDisposable disposables = new CompositeDisposable();
-                        dialog.dismiss();
-
-                        disposables.add(imageDownloader(task)
-                                .subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribeWith(new DisposableObserver<Bitmap>() {
-                                    @Override
-                                    public void onNext(@io.reactivex.annotations.NonNull Bitmap bitmap) {
-
-                                    }
-
-                                    @Override
-                                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-                                    }
-
-                                    @Override
-                                    public void onComplete() {
-                                        saveImage(btnId, image, v.getContext());
-                                        mListener.onImageSet(mStorage, btnId, task.getResult());
-                                    }
-                                }));
-                    }
-                });
-
-
-            }
-
-            Observable<Bitmap> imageDownloader(final Task<Uri> task) {
-                return Observable.defer(new Callable<ObservableSource<? extends Bitmap>>() {
-                    @Override public ObservableSource<? extends Bitmap> call() throws Exception {
-                        try {
-                            image = Glide.with(itemView.getContext()).asBitmap().load(task.getResult()).submit().get();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        } catch (ExecutionException e) {
-                            e.printStackTrace();
-                        }
-                        return Observable.just(image);
+                    public void onClick(View view) {
+                        FirebaseDatabase.getInstance().getReference("button_images/" + user.getUid()).child(btnId).setValue(iconText);
+                        me.dismiss();
                     }
                 });
             }
-
-            private void saveImage(String btnId, Bitmap bitmap, Context context){
-                ContextWrapper cw = new ContextWrapper(context);
-                File dir = new File("");
-                dir = cw.getDir("icons", Context.MODE_PRIVATE);
-                File myPath = new File(dir, btnId + ".png");
-                FileOutputStream fos = null;
-                try {
-                    fos = new FileOutputStream(myPath);
-                    bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-
         }
     }
 }

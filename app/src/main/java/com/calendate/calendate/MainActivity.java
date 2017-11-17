@@ -23,11 +23,13 @@ import android.widget.Toast;
 import com.calendate.calendate.caldroid.CaldroidFragment;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.Friend;
+import com.calendate.calendate.models.User;
 import com.facebook.login.LoginManager;
 import com.github.nisrulz.sensey.Sensey;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,7 +38,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
@@ -46,7 +47,8 @@ import hirondelle.date4j.DateTime;
 
 public class MainActivity extends AppCompatActivity implements SetButtonTitleDialog.OnTitleSetListener,
         NavigationView.OnNavigationItemSelectedListener, GoogleApiClient.OnConnectionFailedListener,
-        PickImageFragment.OnImageSetListener, FriendListFragment.OnRemainAnonymous {
+        PickImageFragment.OnImageSetListener, FriendListFragment.OnRemainAnonymous, BindFragment.OnNotAnonymousListener,
+        BindFragment.OnBindFinishedListener {
 
     private static final int RC_FIREBASE_SIGNIN = 2;
     FirebaseDatabase mDatabase;
@@ -58,7 +60,9 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     int fragNum = 0;
     TextView tvUsername;
     TextView tvEmail;
-
+    boolean acceptedTerms = false;
+    String method;
+    Menu menu;
 
     FirebaseAuth.AuthStateListener mAuthListener = new FirebaseAuth.AuthStateListener() {
         @Override
@@ -68,8 +72,9 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 startActivity(intent);
             } else {
                 user = FirebaseAuth.getInstance().getCurrentUser();
-                user.reload();
-                String displayName = firebaseAuth.getCurrentUser().getDisplayName();
+                if (user != null) {
+                    user.reload();
+                }
             }
         }
     };
@@ -129,15 +134,38 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             checkForNewEvent();
             checkForNewFriend();
         }
+
+        if (getIntent().getExtras() != null) {
+            acceptedTerms = getIntent().getExtras().getBoolean("accepted");
+            method = getIntent().getExtras().getString("method");
+            if (acceptedTerms) {
+                navigationView.getMenu().getItem(4).setChecked(true);
+                Bundle bundle = new Bundle();
+                bundle.putInt("fragNum", fragNum);
+                BindFragment bindFragment = new BindFragment();
+                bindFragment.setArguments(bundle);
+                getSupportFragmentManager().beginTransaction().replace(R.id.frame, bindFragment).commit();
+                switch (method) {
+                    case "bind-google":
+//                        onClick(btnGoogle);
+                        break;
+                    case "bind-facebook":
+//                        onClick(btnFacebook);
+                        break;
+                }
+            }
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        this.menu = menu;
         tvUsername = (TextView) findViewById(R.id.tvUsername);
         tvEmail = (TextView) findViewById(R.id.tvEmail);
         if (user != null) {
-            tvUsername.setText(user.getDisplayName());
-            tvEmail.setText(user.getEmail());
+            User mUser = new User(user);
+            tvUsername.setText(mUser.getUsername());
+            tvEmail.setText(mUser.getEmail());
         }
         return true;
     }
@@ -256,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
             pressed = false;
-        } else if (navigationView.getMenu().getItem(0).isChecked()){
+        } else if (navigationView.getMenu().getItem(0).isChecked()) {
             if (pressed) {
 //                super.onBackPressed();
                 finishAffinity();
@@ -312,6 +340,9 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             case R.id.nav_about:
                 new AboutDialog().show(getSupportFragmentManager(), "aboutFragment");
                 break;
+            case R.id.nav_bind:
+                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new BindFragment()).commit();
+                break;
             case R.id.nav_delete:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.delete_account_title)
@@ -331,8 +362,10 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                                         for (DataSnapshot userKey : allUsers.getChildren()) {
                                             for (DataSnapshot oneFriend : userKey.getChildren()) {
                                                 Friend friend = oneFriend.getValue(Friend.class);
-                                                if (friend.getSenderUid().equals(user.getUid())){
-                                                    oneFriend.getRef().removeValue();
+                                                if (friend != null) {
+                                                    if (friend.getSenderUid().equals(user.getUid())) {
+                                                        oneFriend.getRef().removeValue();
+                                                    }
                                                 }
                                             }
                                         }
@@ -344,11 +377,18 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                                     }
                                 });
                                 mDatabase.getReference("users").child(user.getUid()).removeValue();
-                                FirebaseStorage.getInstance().getReference("documents/" + user.getUid()).delete();
+//                                FirebaseStorage.getInstance().getReference("documents/" + user.getUid()).;
                                 user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(MainActivity.this, R.string.success_delete, Toast.LENGTH_SHORT).show();
+                                        Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                                        startActivity(intent);
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(MainActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                             }
@@ -366,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
         return true;
     }
 
-    private void signOut(){
+    private void signOut() {
         ContextWrapper cw = new ContextWrapper(this);
         File dir = cw.getDir("icons", Context.MODE_PRIVATE);
         File[] files = dir.listFiles();
@@ -399,7 +439,24 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
     }
 
     @Override
-    public void onRemainAnonymous() {
+    public void onRemainAnonymous(String choice) {
+        if (choice.equals("remain"))
+            goToCategoriesFragment();
+        else {
+            navigationView.getMenu().getItem(4).setChecked(true);
+            BindFragment bindFragment = new BindFragment();
+            getSupportFragmentManager().beginTransaction().replace(R.id.frame, bindFragment).commit();
+        }
+    }
+
+    @Override
+    public void onNotAnonymous() {
         goToCategoriesFragment();
+    }
+
+    @Override
+    public void onBindFinished(FirebaseUser user) {
+        this.user = user;
+        onCreateOptionsMenu(menu);
     }
 }

@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.calendate.calendate.models.Friend;
+import com.calendate.calendate.models.User;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,7 +48,7 @@ public class FriendListFragment extends Fragment {
     }
 
     public interface OnRemainAnonymous{
-        void onRemainAnonymous();
+        void onRemainAnonymous(String choice);
     }
 
     @Override
@@ -79,21 +80,24 @@ public class FriendListFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        User mUser = new User(user);
+        tvNoFriends = (TextView) view.findViewById(R.id.tvNoFriends);
+        tvNoFriends.setVisibility(View.INVISIBLE);
 
         if (user.isAnonymous()){
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("Oops");
-            builder.setMessage("You logged in as an anonymous user, therefore you are not able to use this features. Note that you can stop being anonymous at any time.");
-            builder.setPositiveButton("Register me!", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.oops);
+            builder.setMessage(R.string.friends_anonymous_error);
+            builder.setPositiveButton(R.string.register_me, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-
+                    mListener.onRemainAnonymous("register");
                 }
-            }).setNegativeButton("Got it", new DialogInterface.OnClickListener() {
+            }).setNegativeButton(R.string.got_it, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
                     dialogInterface.dismiss();
-                    mListener.onRemainAnonymous();
+                    mListener.onRemainAnonymous("remain");
                 }
             }).setCancelable(false).show();
         }
@@ -101,8 +105,7 @@ public class FriendListFragment extends Fragment {
             return;
         }
         rvFriends = (RecyclerView) view.findViewById(R.id.rvFriends);
-        tvNoFriends = (TextView) view.findViewById(R.id.tvNoFriends);
-        tvNoFriends.setVisibility(View.INVISIBLE);
+
         fabAdd = (FloatingActionButton) view.findViewById(R.id.fabAdd);
         fabAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,7 +121,7 @@ public class FriendListFragment extends Fragment {
                 friends.clear();
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     Friend friend = snapshot.getValue(Friend.class);
-                    if (friend.isApproved()) {
+                    if (friend != null && friend.isApproved()) {
                         friends.add(friend);
                     }
                 }
@@ -132,7 +135,7 @@ public class FriendListFragment extends Fragment {
             }
         });
 
-        if (adapter != null && adapter.getItemCount() == 0)
+        if (adapter == null || adapter.getItemCount() == 0)
             tvNoFriends.setVisibility(View.VISIBLE);
     }
 

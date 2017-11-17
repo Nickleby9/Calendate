@@ -7,8 +7,8 @@ android {
         applicationId "com.calendate.calendate"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 30
-        versionName "0.3.0"
+        versionCode 40
+        versionName "0.4.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true
@@ -55,12 +55,12 @@ dependencies {
     compile 'com.android.support:support-v4:25.4.0'
     compile 'com.android.support:cardview-v7:25.4.0'
     compile 'com.android.support:design:25.4.0'
-    compile 'com.google.firebase:firebase-auth:11.0.4'
-    compile 'com.google.android.gms:play-services-auth:11.0.4'
-    compile 'com.google.firebase:firebase-database:11.0.4'
-    compile 'com.google.firebase:firebase-storage:11.0.4'
-    compile 'com.google.firebase:firebase-messaging:11.0.4'
-    compile 'com.google.firebase:firebase-core:11.0.4'
+    compile 'com.google.firebase:firebase-auth:11.6.0'
+    compile 'com.google.android.gms:play-services-auth:11.6.0'
+    compile 'com.google.firebase:firebase-database:11.6.0'
+    compile 'com.google.firebase:firebase-storage:11.6.0'
+    compile 'com.google.firebase:firebase-messaging:11.6.0'
+    compile 'com.google.firebase:firebase-core:11.6.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.beardedhen:androidbootstrap:2.3.1'
     compile 'com.firebaseui:firebase-ui-database:2.1.0'
@@ -82,8 +82,11 @@ dependencies {
 // Because RxAndroid releases are few and far between, it is recommended you also
 // explicitly depend on RxJava's latest version for bug fixes and new features.
     compile 'io.reactivex.rxjava2:rxjava:2.1.2'
-    compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:multidex:1.0.2'
+    compile 'com.github.ViksaaSkool:AwesomeSplash:v1.0.0'
 }
+
+
 
 
 

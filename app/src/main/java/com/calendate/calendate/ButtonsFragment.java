@@ -7,7 +7,6 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -26,10 +25,8 @@ import android.widget.TextView;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
-import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.CustomBootstrapStyleDark;
 import com.calendate.calendate.utils.CustomBootstrapStyleLight;
-import com.calendate.calendate.utils.MyUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -42,11 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -167,6 +160,7 @@ public class ButtonsFragment extends Fragment {
         private static final String IVBOTTOMRIGHT = "bottomRight";
         int topLeft = 0, topRight = 0, middleLeft = 0, middleRight = 0, bottomLeft = 0, bottomRight = 0;
         View publicView;
+        Snackbar snackbar;
 
         public PlaceholderFragment() {
         }
@@ -234,15 +228,13 @@ public class ButtonsFragment extends Fragment {
             btnBottomLeft.setBootstrapBrand(new CustomBootstrapStyleLight(view.getContext()));
             btnBottomRight.setBootstrapBrand(new CustomBootstrapStyleDark(view.getContext()));
 
-            if (getArguments().getString("storage") != null) {
-                setButtonImage(getArguments().getString("storage"), getArguments().getString("btnId"), (Uri) getArguments().getParcelable("uri"));
-            }
+            setButtonImage();
 
             showProgress(true, getString(R.string.loading));
 
             getButtonsText();
             getButtonsEventCount();
-            setButtonsImages();
+//            setButtonsImages();
 
             showProgress(false, "");
 
@@ -261,6 +253,7 @@ public class ButtonsFragment extends Fragment {
             btnBottomRight.setOnLongClickListener(this);
         }
 
+        /*
         private void setButtonsImages() {
             image = loadImage(IVTOPLEFT);
             if (image != null) {
@@ -299,122 +292,43 @@ public class ButtonsFragment extends Fragment {
                 cacheAndLoad(IVBOTTOMRIGHT, ivBottomRight);
             }
         }
+        */
 
         private void getButtonsEventCount() {
-            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVTOPLEFT + fragNum).addValueEventListener(new ValueEventListener() {
+            mDatabase.getReference("all_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        if (fragNum == 1) {
-                            topLeft++;
-                            tvTopLeft.setText(getString(R.string.event_count) + " " + topLeft);
-                        }
-                        if (fragNum == 2) {
-                            topLeft++;
-                            tvTopLeft.setText(getString(R.string.event_count) + " " + topLeft);
-                        }
-                        Event event = snapshot.getValue(Event.class);
-                        LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
-                        LocalDateTime today = LocalDateTime.now();
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVTOPRIGHT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        if (fragNum == 1) {
-                            topRight++;
-                            tvTopRight.setText(getString(R.string.event_count) + " " + topRight);
-                        }
-                        if (fragNum == 2) {
-                            topRight++;
-                            tvTopRight.setText(getString(R.string.event_count) + " " + topRight);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVMIDDLELEFT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        if (fragNum == 1) {
-                            middleLeft++;
-                            tvMiddleLeft.setText(getString(R.string.event_count) + " " + middleLeft);
-                        }
-                        if (fragNum == 2) {
-                            middleLeft++;
-                            tvMiddleLeft.setText(getString(R.string.event_count) + " " + middleLeft);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVMIDDLERIGHT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        if (fragNum == 1) {
-                            middleRight++;
-                            tvMiddleRight.setText(getString(R.string.event_count) + " " + middleRight);
-                        }
-                        if (fragNum == 2) {
-                            middleRight++;
-                            tvMiddleRight.setText(getString(R.string.event_count) + " " + middleRight);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVBOTTOMLEFT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        if (fragNum == 1) {
-                            bottomLeft++;
-                            tvBottomLeft.setText(getString(R.string.event_count) + " " + bottomLeft);
-                        }
-                        if (fragNum == 2) {
-                            bottomLeft++;
-                            tvBottomLeft.setText(getString(R.string.event_count) + " " + bottomLeft);
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("all_events/" + user.getUid()).orderByChild("btnId").equalTo(IVBOTTOMRIGHT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                        if (fragNum == 1) {
-                            bottomRight++;
-                            tvBottomRight.setText(getString(R.string.event_count) + " " + bottomRight);
-                        }
-                        if (fragNum == 2) {
-                            bottomRight++;
-                            tvBottomRight.setText(getString(R.string.event_count) + " " + bottomRight);
+                        for (DataSnapshot snap : snapshot.getChildren()) {
+                            if (snap.getKey().equals("btnId")) {
+                                String btnSnap = snap.getValue(String.class);
+                                if (btnSnap != null) {
+                                    if (btnSnap.equals(IVTOPLEFT + fragNum)) {
+                                        topLeft++;
+                                        tvTopLeft.setText(getString(R.string.event_count) + " " + topLeft);
+                                    }
+                                    if (btnSnap.equals(IVTOPRIGHT + fragNum)) {
+                                        topRight++;
+                                        tvTopRight.setText(getString(R.string.event_count) + " " + topRight);
+                                    }
+                                    if (btnSnap.equals(IVMIDDLELEFT + fragNum)) {
+                                        middleLeft++;
+                                        tvMiddleLeft.setText(getString(R.string.event_count) + " " + middleLeft);
+                                    }
+                                    if (btnSnap.equals(IVMIDDLERIGHT + fragNum)) {
+                                        middleRight++;
+                                        tvMiddleRight.setText(getString(R.string.event_count) + " " + middleRight);
+                                    }
+                                    if (btnSnap.equals(IVBOTTOMLEFT + fragNum)) {
+                                        bottomLeft++;
+                                        tvBottomLeft.setText(getString(R.string.event_count) + " " + bottomLeft);
+                                    }
+                                    if (btnSnap.equals(IVBOTTOMRIGHT + fragNum)) {
+                                        bottomRight++;
+                                        tvBottomRight.setText(getString(R.string.event_count) + " " + bottomRight);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -429,108 +343,35 @@ public class ButtonsFragment extends Fragment {
         boolean isButtonTextEmpty;
 
         private void getButtonsText() {
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVTOPLEFT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String text = dataSnapshot.getValue(String.class);
-                    if (text == null || text.equals(""))
-                        isButtonTextEmpty = true;
-                    else
-                        btnTopLeft.setText(text);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                }
-            });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVTOPRIGHT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String text = dataSnapshot.getValue(String.class);
-                    if (text == null || text.equals(""))
-                        isButtonTextEmpty = true;
-                    else
-                    btnTopRight.setText(text);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVMIDDLELEFT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String text = dataSnapshot.getValue(String.class);
-                    if (text == null || text.equals(""))
-                        isButtonTextEmpty = true;
-                    else
-                    btnMiddleLeft.setText(text);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVMIDDLERIGHT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String text = dataSnapshot.getValue(String.class);
-                    if (text == null || text.equals(""))
-                        isButtonTextEmpty = true;
-                    else
-                    btnMiddleRight.setText(text);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVBOTTOMLEFT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String text = dataSnapshot.getValue(String.class);
-                    if (text == null || text.equals(""))
-                        isButtonTextEmpty = true;
-                    else
-                    btnBottomLeft.setText(text);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-            mDatabase.getReference("buttons/" + user.getUid() + "/" + IVBOTTOMRIGHT + fragNum).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    String text = dataSnapshot.getValue(String.class);
-                    if (text == null || text.equals(""))
-                        isButtonTextEmpty = true;
-                    else
-                    btnBottomRight.setText(text);
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
-
             mDatabase.getReference("buttons/" + user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
+                    isButtonTextEmpty = true;
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String text = snapshot.getValue(String.class);
-                        if (text != null)
-                            if (!text.isEmpty())
+                        String snapKey = snapshot.getKey();
+
+                        if (text != null) {
+                            if (!text.isEmpty()) {
                                 isButtonTextEmpty = false;
+                                if (snapKey.equals(IVTOPLEFT + fragNum))
+                                    btnTopLeft.setText(text);
+                                if (snapKey.equals(IVTOPRIGHT + fragNum))
+                                    btnTopRight.setText(text);
+                                if (snapKey.equals(IVMIDDLELEFT + fragNum))
+                                    btnMiddleLeft.setText(text);
+                                if (snapKey.equals(IVMIDDLERIGHT + fragNum))
+                                    btnMiddleRight.setText(text);
+                                if (snapKey.equals(IVBOTTOMLEFT + fragNum))
+                                    btnBottomLeft.setText(text);
+                                if (snapKey.equals(IVBOTTOMRIGHT + fragNum))
+                                    btnBottomRight.setText(text);
+                            }
+                        }
                     }
                     if (isButtonTextEmpty) {
-                        final Snackbar snackbar = Snackbar.make(publicView, "Long press a category for options", Snackbar.LENGTH_INDEFINITE);
-                        snackbar.setAction("GOT IT", new View.OnClickListener() {
+                        snackbar = Snackbar.make(publicView, R.string.snackbar_category, Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction(R.string.snackbar_category_ok, new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 snackbar.dismiss();
@@ -560,7 +401,8 @@ public class ButtonsFragment extends Fragment {
                 e.printStackTrace();
             } finally {
                 try {
-                    fos.close();
+                    if (fos != null)
+                        fos.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -633,11 +475,15 @@ public class ButtonsFragment extends Fragment {
                     } catch (ExecutionException e) {
                         e.printStackTrace();
                     }
-                    return Observable.just(bitmap);
+                    if (bitmap != null)
+                        return Observable.just(bitmap);
+                    else
+                        return null;
                 }
             });
         }
 
+        /*
         private Bitmap loadImage(String buttonName) {
             ContextWrapper cw = new ContextWrapper(getContext());
             File dir = cw.getDir("icons", Context.MODE_PRIVATE);
@@ -651,6 +497,7 @@ public class ButtonsFragment extends Fragment {
             }
             return null;
         }
+        */
 
         @Override
         public void onClick(View v) {
@@ -731,7 +578,7 @@ public class ButtonsFragment extends Fragment {
                             break;
                         case 1:
                             //Change image
-                            StorageReference mStorage = FirebaseStorage.getInstance().getReference("button-icons/Approval.png");
+//                            StorageReference mStorage = FirebaseStorage.getInstance().getReference("button-icons/Approval.png");
 //                            Glide.with(getContext()).using(new FirebaseImageLoader()).load(mStorage).into(ivTopLeft);
 
                             btnId = btnRef + fragNum;
@@ -751,8 +598,41 @@ public class ButtonsFragment extends Fragment {
             mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).setValue(text);
         }
 
-        public void setButtonImage(String path, final String btnId, Uri uri) {
-            mDatabase.getReference("button_images/" + user.getUid() + "/" + btnId).setValue(path.replaceFirst("/", ""));
+        public void setButtonImage() {
+            mDatabase.getReference("button_images/" + user.getUid()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                        String btnId = snapshot.getKey();
+                        String imageText = snapshot.getValue(String.class);
+                        if (btnId != null) {
+                            if (btnId.equals(IVTOPLEFT + fragNum)) {
+                                ivTopLeft.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
+                            }
+                            if (btnId.equals(IVTOPRIGHT + fragNum)) {
+                                ivTopRight.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
+                            }
+                            if (btnId.equals(IVMIDDLELEFT + fragNum)) {
+                                ivMiddleLeft.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
+                            }
+                            if (btnId.equals(IVMIDDLERIGHT + fragNum)) {
+                                ivMiddleRight.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
+                            }
+                            if (btnId.equals(IVBOTTOMLEFT + fragNum)) {
+                                ivBottomLeft.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
+                            }
+                            if (btnId.equals(IVBOTTOMRIGHT + fragNum)) {
+                                ivBottomRight.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });/*
             Bitmap bitmap = loadImage(btnId.substring(0, btnId.length() - 1));
             String btn = btnId.substring(0, btnId.length() - 1);
             switch (btn) {
@@ -775,6 +655,7 @@ public class ButtonsFragment extends Fragment {
                     ivBottomRight.setImageBitmap(bitmap);
                     break;
             }
+            */
         }
 
         public void onButtonPressed(String btnRef, int fragNum, String btnTitle, int tvNum) {
@@ -801,6 +682,16 @@ public class ButtonsFragment extends Fragment {
                 dialog.dismiss();
         }
 
+        @Override
+        public void onAttach(Context context) {
+            super.onAttach(context);
+        }
+
+        @Override
+        public void onDetach() {
+            snackbar.dismiss();
+            super.onDetach();
+        }
 
         public static class SectionsPagerAdapter extends FragmentPagerAdapter {
 

@@ -187,8 +187,19 @@
     <string name="decline_terms">Decline</string>
     <string name="attention">Attention</string>
     <string name="anonymous_warning">Sign in anonymously means you won\'t be able the restore your data in case you reinstall Calendate.    Also, some of the features won\'t work.</string>
-    <string name="anonymous_accept">Ok, sign me in</string>
+    <string name="anonymous_accept">OK, sign me in</string>
     <string name="anonymous_decline">Go back</string>
-    <string name="anonymous_sign_in">Sign in anonymously</string>
+    <string name="anonymous_sign_in">Sign in without register</string>
+    <string name="snackbar_category">Long press a category for options</string>
+    <string name="snackbar_category_ok">GOT IT</string>
+    <string name="register_account">Register anonymous account</string>
+    <string name="registered">Congratulations! You are now registered!</string>
+    <string name="accept_terms_request">Please accept our terms of use</string>
+    <string name="anonymous_register_error">You already have a registered account. This is option is for anonymous users only</string>
+    <string name="got_it">Got it</string>
+    <string name="oops">Oops</string>
+    <string name="friends_anonymous_error">You logged in as an anonymous user, therefore you are not able to use this features. Note that you can stop being anonymous at any time.</string>
+    <string name="register_me">Register me!</string>
+    <string name="bind_account">Bind account</string>
 
 </resources>

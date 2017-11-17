@@ -10,6 +10,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,10 +31,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.EmailAuthProvider;
@@ -41,7 +40,6 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
@@ -55,13 +53,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     TextView tvRegister;
     Button btnGoogle, btnFacebook;
     EditText etUsername, etPassword;
-    FirebaseAuth mAuth;
     Boolean exit = false;
-    GoogleApiClient mApiClient;
     FirebaseDatabase mDatabase;
+    FirebaseAuth mAuth;
+    GoogleApiClient mApiClient;
     CallbackManager mCallbackManager;
-    boolean acceptedTerms = false;
-    String method;
+    CheckBox cbTerms;
+    TextView tvTerms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,6 +76,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btnGoogle = (Button) findViewById(R.id.btnGoogle);
         btnFacebook = (Button) findViewById(R.id.btnFacebook);
         btnAnonymous = (BootstrapButton) findViewById(R.id.btnAnonymous);
+        cbTerms = (CheckBox) findViewById(R.id.cbTerms);
+        tvTerms = (TextView) findViewById(R.id.tvTerms);
 
         btnLogin.setBootstrapBrand(new CustomBootstrapStyle(this));
         btnAnonymous.setBootstrapBrand(new CustomBootstrapStyle(this));
@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btnGoogle.setOnClickListener(this);
         btnFacebook.setOnClickListener(this);
         btnAnonymous.setOnClickListener(this);
+        tvTerms.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
@@ -97,18 +98,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         );
 
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso = ConnectionServices.initGoogleSignInOptions(this);
 
-        mApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+        mApiClient = ConnectionServices.initGoogleApiClient(this, gso);
 
 
-        mCallbackManager = CallbackManager.Factory.create();
+        mCallbackManager = ConnectionServices.initCallbackManager();
+
         LoginManager.getInstance().registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
@@ -125,21 +121,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
             }
         });
-
-        if (getIntent().getExtras() != null){
-            acceptedTerms = getIntent().getExtras().getBoolean("accepted");
-            method = getIntent().getExtras().getString("method");
-            if (acceptedTerms) {
-                switch (method) {
-                    case "google":
-                        onClick(btnGoogle);
-                        break;
-                    case "facebook":
-                        onClick(btnFacebook);
-                        break;
-                }
-            }
-        }
     }
 
     @Override
@@ -155,8 +136,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         showProgress(true, etUsername.getText().toString());
                         AuthCredential credential = EmailAuthProvider.getCredential(username, password);
                         linkAndSignIn(credential);
-                    } else {
-//                    mDatabase.getReference("users").
                     }
                 } else {
                     detailsIncorrect();
@@ -167,25 +146,37 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 startActivity(intent1);
                 break;
             case R.id.btnGoogle:
-                if (acceptedTerms) {
+                if (cbTerms.isChecked()) {
                     showProgress(true, getString(R.string.google_login_msg));
                     Intent googleIntent = Auth.GoogleSignInApi
                             .getSignInIntent(mApiClient);
                     startActivityForResult(googleIntent, RC_GOOGLE_LOGIN);
                 } else {
-                    Intent intent = new Intent(this, ActivityTerms.class);
-                    intent.putExtra("method", "google");
-                    startActivity(intent);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("")
+                            .setMessage("Please accept our terms of use first")
+                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            }).show();
                 }
                 break;
             case R.id.btnFacebook:
-                if (acceptedTerms) {
+                if (cbTerms.isChecked()) {
                     showProgress(true, getString(R.string.facebook_login_msg));
                     LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
                 } else {
-                    Intent intent2 = new Intent(this, ActivityTerms.class);
-                    intent2.putExtra("method", "facebook");
-                    startActivity(intent2);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("")
+                            .setMessage("Please accept our terms of use first")
+                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                    dialogInterface.dismiss();
+                                }
+                            }).show();
                 }
                 break;
             case R.id.btnAnonymous:
@@ -199,23 +190,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                                 mAuth.signInAnonymously().addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                     @Override
                                     public void onSuccess(final AuthResult authResult) {
-                                        authResult.getUser().updateEmail("No email address");
-                                        UserProfileChangeRequest change = new UserProfileChangeRequest.Builder().setDisplayName("Anonymous").build();
-                                        authResult.getUser().updateProfile(change).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                authResult.getUser().reload().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        User user = new User(authResult.getUser());
-                                                        user.setUsername("Anonymous");
-                                                        mDatabase.getReference("users").child(user.getUid()).setValue(user);
-                                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                        startActivity(intent);
-                                                    }
-                                                });
-                                            }
-                                        });
+                                        User user = new User(authResult.getUser());
+                                        user.setUsername("Anonymous");
+                                        user.setEmail("No email address");
+                                        mDatabase.getReference("users").child(user.getUid()).setValue(user);
+                                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                        startActivity(intent);
                                     }
                                 }).addOnFailureListener(new OnFailureListener() {
                                     @Override
@@ -230,6 +210,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         dialogInterface.dismiss();
                     }
                 }).show();
+                break;
+            case R.id.tvTerms:
+                Intent intent = new Intent(this, ActivityTerms.class);
+                startActivity(intent);
+                break;
         }
     }
 
@@ -242,9 +227,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if (result.isSuccess()) {
                 showProgress(false, "");
                 GoogleSignInAccount account = result.getSignInAccount();
-                AuthCredential credential = GoogleAuthProvider
-                        .getCredential(account.getIdToken(), null);
-                linkAndSignIn(credential);
+                if (account != null) {
+                    AuthCredential credential = GoogleAuthProvider
+                            .getCredential(account.getIdToken(), null);
+                    linkAndSignIn(credential);
+                }
             } else {
                 Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_SHORT).show();
                 showProgress(false, "");
@@ -314,7 +301,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     }
 
     public void linkAndSignIn(final AuthCredential credential) {
-        if (mAuth.getCurrentUser() != null) {
+       /* if (mAuth.getCurrentUser() != null) {
             mAuth.getCurrentUser().linkWithCredential(credential).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -342,18 +329,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     }
                 }
             });
-        }
+        } */
         mAuth.signInWithCredential(credential)
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
                         showProgress(false, "");
                         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                        User newUser = new User(user);
-                        mDatabase.getReference("users").child(user.getUid()).setValue(newUser);
-                        Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
+                        if (user != null) {
+                            User newUser = new User(user);
+                            mDatabase.getReference("users").child(user.getUid()).setValue(newUser);
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
                     }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override

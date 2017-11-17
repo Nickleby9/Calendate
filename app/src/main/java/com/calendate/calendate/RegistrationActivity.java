@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -36,6 +37,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     SharedPreferences prefs;
     TextView tvTerms;
     boolean accepted = false;
+    CheckBox cbTerms;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,13 +53,14 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
         btnRegister = (BootstrapButton) findViewById(R.id.btnRegister);
         btnRegister.setBootstrapBrand(new CustomBootstrapStyle(this));
         tvTerms = (TextView) findViewById(R.id.tvTerms);
+        cbTerms = (CheckBox) findViewById(R.id.cbTerms);
 
         tvTerms.setOnClickListener(this);
         btnRegister.setOnClickListener(this);
 
         mAuth = FirebaseAuth.getInstance();
 
-        if (getIntent().getExtras() != null){
+        if (getIntent().getExtras() != null) {
             etUsername.setText(getIntent().getExtras().getString("username"));
             etEmail.setText(getIntent().getExtras().getString("email"));
             etPassword.setText(getIntent().getExtras().getString("password"));
@@ -87,7 +90,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
     @Override
     public void onClick(View v) {
         int id = v.getId();
-        switch (id){
+        switch (id) {
             case R.id.tvTerms:
                 Intent intent = new Intent(this, ActivityTerms.class);
                 intent.putExtra("method", "register");
@@ -98,7 +101,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                 startActivity(intent);
                 break;
             case R.id.btnRegister:
-                if (accepted) {
+                if (cbTerms.isChecked()) {
                     tvError.setVisibility(View.INVISIBLE);
                     final String username = etUsername.getText().toString();
                     final String email = etEmail.getText().toString();
@@ -139,7 +142,8 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                         if (!task.isSuccessful()) {
                                             showProgress(false);
                                             try {
-                                                throw task.getException();
+                                                if (task.getException() != null)
+                                                    throw task.getException();
                                             } catch (FirebaseAuthWeakPasswordException e) {
                                                 etPassword.setError(getString(R.string.error_weak_password));
                                                 etPassword.requestFocus();
@@ -173,7 +177,6 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                 }
                 break;
         }
-
     }
 
     private ProgressDialog dialog;

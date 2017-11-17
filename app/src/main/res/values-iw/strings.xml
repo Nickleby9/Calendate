@@ -175,5 +175,16 @@
     <string name="anonymous_warning">התחברות בחשבון אנונימי לא מאפשרת את גיבוי המידע שלך במקרה של התקנה מחדש של האפליקציה. n\ בנוסף, חלק מהאפשרויות שלנו לא יעבדו.</string>
     <string name="anonymous_accept">הבנתי, אני רוצה להמשיך</string>
     <string name="anonymous_decline">חזרה</string>
-    <string name="anonymous_sign_in">התחברות אנונימית</string>
+    <string name="anonymous_sign_in">התחברות ללא הרשמה</string>
+    <string name="snackbar_category">לחיצה ארוכה על קטגוריה לקבלת אפשרויות</string>
+    <string name="snackbar_category_ok">הבנתי</string>
+    <string name="register_account">רישום חשבון אנונימי</string>
+    <string name="registered">נרשמת בהצלחה!</string>
+    <string name="accept_terms_request">יש לאשר את תנאי השימוש</string>
+    <string name="anonymous_register_error">אין צורך בהרשמה, החשבון שלך אינו אנונימי</string>
+    <string name="got_it">הבנתי</string>
+    <string name="oops">אופס</string>
+    <string name="friends_anonymous_error">אתה מחובר עם חשבון אנונימי והאופציה הזאת חסומה בפניך. אם תרצה, תוכל להפסיק להיות אנונימי בכל רגע</string>
+    <string name="register_me">אני רוצה להירשם!</string>
+    <string name="bind_account">Bind account</string>
 </resources>
