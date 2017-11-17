@@ -165,7 +165,7 @@ public class BindFragment extends Fragment implements View.OnClickListener, Goog
                     android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getContext());
                     builder.setTitle("")
                             .setMessage(R.string.accept_terms_request)
-                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.dismiss, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();
@@ -181,7 +181,7 @@ public class BindFragment extends Fragment implements View.OnClickListener, Goog
                     android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getContext());
                     builder.setTitle("")
                             .setMessage(R.string.accept_terms_request)
-                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.dismiss, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();
@@ -208,7 +208,7 @@ public class BindFragment extends Fragment implements View.OnClickListener, Goog
                     android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getContext());
                     builder.setTitle("")
                             .setMessage(R.string.accept_terms_request)
-                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                            .setPositiveButton(R.string.dismiss, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();

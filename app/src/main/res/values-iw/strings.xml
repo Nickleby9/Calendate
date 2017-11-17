@@ -183,4 +183,8 @@
     <string name="friends_anonymous_error">אתה מחובר עם חשבון אנונימי והאופציה הזאת חסומה בפניך. אם תרצה, תוכל להפסיק להיות אנונימי בכל רגע</string>
     <string name="register_me">אני רוצה להירשם!</string>
     <string name="bind_account">הצמדת חשבון</string>
+    <string name="different_credentials">קיים לך חשבון עם אמצעי התחברות אחר</string>
+    <string name="login_error">שגיאה</string>
+    <string name="proceed">המשך</string>
+    <string name="dismiss">בסדר</string>
 </resources>

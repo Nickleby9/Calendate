@@ -154,8 +154,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("")
-                            .setMessage("Please accept our terms of use first")
-                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                            .setMessage(R.string.accept_terms_request)
+                            .setPositiveButton(R.string.dismiss, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();
@@ -170,8 +170,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                 } else {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("")
-                            .setMessage("Please accept our terms of use first")
-                            .setPositiveButton("Dismiss", new DialogInterface.OnClickListener() {
+                            .setMessage(R.string.accept_terms_request)
+                            .setPositiveButton(R.string.dismiss, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     dialogInterface.dismiss();
@@ -349,9 +349,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void onFailure(@NonNull Exception e) {
                 showProgress(false, "");
                 AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                builder.setTitle("Login error")
-                        .setMessage("You have already registered using different credentials. \nPlease login with a different provider.")
-                        .setNeutralButton("Continue", new DialogInterface.OnClickListener() {
+                builder.setTitle(R.string.login_error)
+                        .setMessage(R.string.different_credentials)
+                        .setNeutralButton(R.string.proceed, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 dialog.dismiss();

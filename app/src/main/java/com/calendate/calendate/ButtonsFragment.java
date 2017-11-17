@@ -689,7 +689,8 @@ public class ButtonsFragment extends Fragment {
 
         @Override
         public void onDetach() {
-            snackbar.dismiss();
+            if (snackbar != null)
+                snackbar.dismiss();
             super.onDetach();
         }
 
