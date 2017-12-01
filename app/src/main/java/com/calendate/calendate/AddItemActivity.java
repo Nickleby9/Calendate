@@ -1,7 +1,9 @@
 package com.calendate.calendate;
 
 import android.Manifest;
+import android.app.AlarmManager;
 import android.app.DatePickerDialog;
+import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -56,6 +58,7 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -159,6 +162,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         if (eventKey == null)
             eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
+        fabAdd.setVisibility(View.GONE);
     }
 
     File newUriFile;
@@ -254,7 +258,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void onBackPressed() {
-        if (isDeleteShown){
+        if (isDeleteShown) {
             DocsAdapter.DocsViewHolder.hideDelete();
             return;
         }
@@ -398,7 +402,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
             @Override
             public void onCanceled(EasyImage.ImageSource source, int type) {
-                if (source == EasyImage.ImageSource.CAMERA){
+                if (source == EasyImage.ImageSource.CAMERA) {
                     File photoFile = EasyImage.lastlyTakenButCanceledPhoto(AddItemActivity.this);
                     if (photoFile != null)
                         photoFile.delete();
@@ -537,14 +541,52 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
 //        createNotification(event);
 
+
+        int alarmCount = alerts.get(0).getCount();
+        int alarmKind = alerts.get(0).getKind();
+
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
 
+        Calendar eventDate = Calendar.getInstance();
+        eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
+                date.getHourOfDay(), date.getMinuteOfHour(), 0);
+
+        switch (alarmKind) {
+            case 0:
+                eventDate.add(Calendar.MINUTE, -alarmCount);
+                break;
+            case 1:
+                eventDate.add(Calendar.HOUR, -alarmCount);
+                break;
+            case 2:
+                eventDate.add(Calendar.DATE, -alarmCount);
+                break;
+            case 3:
+                eventDate.add(Calendar.DATE, -(alarmCount * 7));
+                break;
+            case 4:
+                eventDate.add(Calendar.MONTH, -alarmCount);
+                break;
+        }
+
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (alarm != null) {
+//            Intent alarmIntent = new Intent("ALARM");
+            Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+            alarmIntent.putExtra("title", event.getTitle());
+            alarmIntent.putExtra("text", event.getDescription());
+//            alarmIntent.putExtra("event", event);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                    this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
+        }
+        else
+            Toast.makeText(this, "No alarm service found on your device", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
         intent.putExtra("btnId", btnId);
         startActivity(intent);
-
     }
 
     boolean first = true;
@@ -663,7 +705,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             holder.file = data.get(position);
             if (file != null) {
                 /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
-                    image = BitmapFactory.decodeFile(file.getPath());
+                image = BitmapFactory.decodeFile(file.getPath());
                 holder.ivDoc.setImageBitmap(image);
                 /*
                     CompositeDisposable disposables = new CompositeDisposable();
@@ -735,9 +777,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
 
                         /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
-                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-                            Intent intent1 = Intent.createChooser(intent, "Open with");
-                            view.getContext().startActivity(intent1);
+                        intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
+                        Intent intent1 = Intent.createChooser(intent, "Open with");
+                        view.getContext().startActivity(intent1);
                         /*}*/
 
                         /*

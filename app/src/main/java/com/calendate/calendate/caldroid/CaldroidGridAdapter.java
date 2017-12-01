@@ -62,7 +62,7 @@ public class CaldroidGridAdapter extends BaseAdapter {
      */
     protected Map<String, Object> extraData;
 
-	protected LayoutInflater localInflater;
+    protected LayoutInflater localInflater;
 
     public void setAdapterDateTime(DateTime dateTime) {
         this.month = dateTime.getMonth();
@@ -154,9 +154,9 @@ public class CaldroidGridAdapter extends BaseAdapter {
         // Get data from caldroidData
         populateFromCaldroidData();
 
-	    LayoutInflater inflater = (LayoutInflater) context
-			    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-	    localInflater = com.roomorama.caldroid.CaldroidFragment.getThemeInflater(context, inflater, themeResource);
+        LayoutInflater inflater = (LayoutInflater) context
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        localInflater = com.roomorama.caldroid.CaldroidFragment.getThemeInflater(context, inflater, themeResource);
     }
 
     /**
@@ -322,7 +322,26 @@ public class CaldroidGridAdapter extends BaseAdapter {
         cellView.refreshDrawableState();
 
         // Set text
+//        DateTime israel = dateTime.changeTimeZone(TimeZone.getDefault(), TimeZone.getTimeZone("Israel"));
         cellView.setText(String.valueOf(dateTime.getDay()));
+//        String number = String.valueOf(dateTime.getDay());
+//        switch (number) {
+//            case "1":
+//                cellView.setText("א");
+//                break;
+//            case "2":
+//                cellView.setText("ב");
+//                break;
+//            case "3":
+//                cellView.setText("ג");
+//                break;
+//            case "4":
+//                cellView.setText("ד");
+//                break;
+//            default:
+//                cellView.setText(String.valueOf(dateTime.getDay()));
+//                break;
+//        }
 
         // Set custom color if required
         setCustomResources(dateTime, cellView, cellView);
@@ -349,21 +368,21 @@ public class CaldroidGridAdapter extends BaseAdapter {
         return 0;
     }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		CellView cellView;
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        CellView cellView;
 
-		// For reuse
-		if (convertView == null) {
-			final int squareDateCellResource = squareTextViewCell ? R.layout.square_date_cell : R.layout.normal_date_cell;
-			cellView = (CellView) localInflater.inflate(squareDateCellResource, parent, false);
-		} else {
-			cellView = (CellView) convertView;
-		}
+        // For reuse
+        if (convertView == null) {
+            final int squareDateCellResource = squareTextViewCell ? R.layout.square_date_cell : R.layout.normal_date_cell;
+            cellView = (CellView) localInflater.inflate(squareDateCellResource, parent, false);
+        } else {
+            cellView = (CellView) convertView;
+        }
 
-		customizeTextView(position, cellView);
+        customizeTextView(position, cellView);
 
-		return cellView;
-	}
+        return cellView;
+    }
 
 }

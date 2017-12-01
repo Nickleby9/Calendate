@@ -29,28 +29,48 @@ public class NotificationReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Event event = intent.getParcelableExtra("event");
+        String action = intent.getAction();
+        Event event;
+        String title = "Calendate event";
+        String text = "Touch here to see the event";
 
+        if (intent.getExtras() != null) {
+//            event = intent.getExtras().getParcelable("event");
+            title = intent.getExtras().getString("title");
+            text = intent.getExtras().getString("text");
+//            if (event != null)
+//                title = event.getTitle();
+        }
+/*
+        if (action != null && action.equals("ALARM")) {
+            if (intent.getExtras() != null) {
+//                event = (Event) intent.getExtras().get("event");
+                event = intent.getExtras().getParcelable("event");
+                if (event != null)
+                    title = event.getTitle();
+            }
+        }
+*/
         NotificationManager notificationManagerCompat =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
         Intent repeatingIntent = new Intent(context, MainActivity.class);
         repeatingIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 100, repeatingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, repeatingIntent, 0);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.calendate_icon)
+                .setSmallIcon(R.drawable.calendate_notification)
                 .setAutoCancel(true)
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(pendingIntent)
-                .setContentTitle("Calendate event")
-                .setContentText("Touch here to see the event");
+                .setContentTitle("Reminder - " + title)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(text + "\nTouch for more info"));
 
-        notificationManagerCompat.notify(100, builder.build());
+        notificationManagerCompat.notify(0, builder.build());
 
-        if (intent.getIntExtra("num", 0) > 0)
-            checkForAnother(event, context);
+        //if (intent.getIntExtra("num", 0) > 0)
+        //   checkForAnother(event, context);
     }
 
     private void checkForAnother(Event event, Context context) {
