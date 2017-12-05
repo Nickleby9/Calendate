@@ -295,7 +295,7 @@ public class ButtonsFragment extends Fragment {
         */
 
         private void getButtonsEventCount() {
-            mDatabase.getReference("all_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
+            mDatabase.getReference("all_events/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {

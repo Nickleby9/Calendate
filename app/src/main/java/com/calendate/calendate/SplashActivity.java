@@ -21,7 +21,7 @@ public class SplashActivity extends AwesomeSplash {
         //Customize Circular Reveal
 
         configSplash.setBackgroundColor(R.color.primary_light); //any color you want form colors.xml
-        configSplash.setAnimCircularRevealDuration(1000); //int ms
+        configSplash.setAnimCircularRevealDuration(700); //int ms
         configSplash.setRevealFlagX(Flags.REVEAL_RIGHT);  //or Flags.REVEAL_LEFT
         configSplash.setRevealFlagY(Flags.REVEAL_BOTTOM); //or Flags.REVEAL_TOP
 
@@ -30,27 +30,28 @@ public class SplashActivity extends AwesomeSplash {
 
         //Customize Logo
         configSplash.setLogoSplash(R.mipmap.ic_launcher); //or any other drawable
-        configSplash.setAnimLogoSplashDuration(500); //int ms
+        configSplash.setAnimLogoSplashDuration(300); //int ms
         configSplash.setAnimLogoSplashTechnique(Techniques.FadeIn); //choose one form Techniques (ref: https://github.com/daimajia/AndroidViewAnimations)
 
-
+/*
         //Customize Path
 
 //        configSplash.setPathSplash(Constants.DROID_LOGO); //set path String
 //        configSplash.setOriginalHeight(400); //in relation to your svg (path) resource
 //        configSplash.setOriginalWidth(400); //in relation to your svg (path) resource
         configSplash.setAnimPathStrokeDrawingDuration(500);
+//        configSplash.setPathSplash("Calendate");
         configSplash.setPathSplashStrokeSize(3); //I advise value be <5
-        configSplash.setPathSplashStrokeColor(R.color.primary_light); //any color you want form colors.xml
+        configSplash.setPathSplashStrokeColor(R.color.colorPrimaryDark); //any color you want form colors.xml
         configSplash.setAnimPathFillingDuration(500);
-        configSplash.setPathSplashFillColor(R.color.primary_light); //path object filling color
-
+        configSplash.setPathSplashFillColor(R.color.colorPrimaryDark); //path object filling color
+*/
 
         //Customize Title
         configSplash.setTitleSplash("Calendate");
         configSplash.setTitleTextColor(R.color.colorPrimaryDark);
         configSplash.setTitleTextSize(35f); //float value
-        configSplash.setAnimTitleDuration(500);
+        configSplash.setAnimTitleDuration(300);
         configSplash.setAnimTitleTechnique(Techniques.FadeIn);
 //        configSplash.setTitleFont("fonts/myfont.ttf"); //provide string to your font located in assets/fonts/
 

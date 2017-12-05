@@ -504,10 +504,10 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     eventDate.add(Calendar.HOUR, -alarmCount);
                     break;
                 case 2:
-                    eventDate.add(Calendar.DATE, -alarmCount);
+                    eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
                     break;
                 case 3:
-                    eventDate.add(Calendar.DATE, -(alarmCount * 7));
+                    eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
                     break;
                 case 4:
                     eventDate.add(Calendar.MONTH, -alarmCount);

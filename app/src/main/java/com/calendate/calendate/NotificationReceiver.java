@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.NotificationCompat;
 
 /**
@@ -30,15 +31,16 @@ public class NotificationReceiver extends BroadcastReceiver {
         NotificationManager notificationManagerCompat =
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent repeatingIntent = new Intent(context, MainActivity.class);
-        repeatingIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        Intent activityIntent = new Intent(context,MainActivity.class);
+        activityIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         PendingIntent pendingIntent = PendingIntent.getActivity(
-                context, 0, repeatingIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                context, 0, activityIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.calendate_notification)
+                .setSmallIcon(R.drawable.ic_stat_calendate_notification)
                 .setAutoCancel(true)
+                .setColor(Color.argb(70,2,136,209)) //colorPrimaryDark
                 .setDefaults(Notification.DEFAULT_ALL)
                 .setContentIntent(pendingIntent)
                 .setContentTitle(context.getString(R.string.reminder) + title)
