@@ -5,6 +5,9 @@ import android.content.res.ColorStateList;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.icu.util.Calendar;
+import android.icu.util.HebrewCalendar;
+import android.icu.util.ULocale;
 import android.os.Build;
 import android.util.TypedValue;
 import android.view.ContextThemeWrapper;
@@ -321,27 +324,13 @@ public class CaldroidGridAdapter extends BaseAdapter {
 
         cellView.refreshDrawableState();
 
-        // Set text
-//        DateTime israel = dateTime.changeTimeZone(TimeZone.getDefault(), TimeZone.getTimeZone("Israel"));
-        cellView.setText(String.valueOf(dateTime.getDay()));
-//        String number = String.valueOf(dateTime.getDay());
-//        switch (number) {
-//            case "1":
-//                cellView.setText("א");
-//                break;
-//            case "2":
-//                cellView.setText("ב");
-//                break;
-//            case "3":
-//                cellView.setText("ג");
-//                break;
-//            case "4":
-//                cellView.setText("ד");
-//                break;
-//            default:
-//                cellView.setText(String.valueOf(dateTime.getDay()));
-//                break;
-//        }
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            Calendar calendar = HebrewCalendar.getInstance(new ULocale.Builder().setLanguage("he").setRegion("IL").build());
+//            calendar.set(dateTime.getYear(),dateTime.getMonth(),dateTime.getDay());
+            cellView.setText(String.valueOf(calendar.get(Calendar.DATE)));
+            cellView.setText(String.valueOf(dateTime.getDay()));
+        } else
+            cellView.setText(String.valueOf(dateTime.getDay()));
 
         // Set custom color if required
         setCustomResources(dateTime, cellView, cellView);

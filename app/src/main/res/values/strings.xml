@@ -205,5 +205,10 @@
     <string name="login_error">Login error</string>
     <string name="proceed">Continue</string>
     <string name="dismiss">Dismiss</string>
+    <string name="no_alarm_service">No alarm service found on your device</string>
+    <string name="reminder">Reminder -</string>
+    <string name="touch_for_info">Touch for more info</string>
+    <string name="large_files_err">Files too large!</string>
+    <string name="file_location">Where is your file located?</string>
 
 </resources>

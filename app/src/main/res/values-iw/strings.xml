@@ -187,4 +187,9 @@
     <string name="login_error">שגיאה</string>
     <string name="proceed">המשך</string>
     <string name="dismiss">בסדר</string>
+    <string name="no_alarm_service">לא נמצא שירות התראות זמין במכשיר שלך</string>
+    <string name="reminder">תזכורת -</string>
+    <string name="touch_for_info">גע/י לקבלת מידע נוסף</string>
+    <string name="large_files_err">הקבצים גדולים מדי!</string>
+    <string name="file_location">איפה ממוקם הקובץ?</string>
 </resources>

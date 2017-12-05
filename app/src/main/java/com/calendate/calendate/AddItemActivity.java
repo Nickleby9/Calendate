@@ -13,7 +13,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
@@ -92,7 +91,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     static ArrayList<Alert> alerts = new ArrayList<>();
     FloatingActionButton fabAdd;
     static AlertsAdapter adapter;
-    String bundleID = "";
     RxPermissions rxPermissions;
     StorageReference mStorage;
     static ArrayList<File> fileArray = new ArrayList<>();
@@ -130,10 +128,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
 
-        etTitle.requestFocus();
-        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(etTitle.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
-
         btnDate.setOnClickListener(this);
         btnTime.setOnClickListener(this);
         fabAdd.setOnClickListener(this);
@@ -148,12 +142,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         spnRepeat.setAdapter(spnRepeatAdapter);
 
         if (getIntent().getStringExtra("event") != null) {
-            bundleID = getIntent().getStringExtra("event");
             eventKey = getIntent().getStringExtra("event");
             isEditMode = true;
             readOnce();
         } else {
-            alerts.add(new Alert(1, 1));
+            alerts.add(new Alert(1,1, 1));
             adapter = new AlertsAdapter(this, getAlerts());
             rvAlerts.setAdapter(adapter);
             onClick(btnDate);
@@ -162,10 +155,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         if (eventKey == null)
             eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
-        fabAdd.setVisibility(View.GONE);
-    }
+        etTitle.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(etTitle.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
 
-    File newUriFile;
+//        fabAdd.setVisibility(View.GONE);
+    }
 
     private void readOnce() {
         DatabaseReference ref = mDatabase.getReference("all_events/" + user.getUid());
@@ -173,7 +168,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if (snapshot.getKey().equals(bundleID)) {
+                    if (snapshot.getKey().equals(eventKey)) {
                         Event event = snapshot.getValue(Event.class);
                         etTitle.setText(event.getTitle());
                         etDescription.setText(event.getDescription());
@@ -181,7 +176,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                         btnDate.setText(dateTime.toString(MyUtils.btnDateFormat));
                         spnRepeat.setSelection(event.getRepeatPos());
-//                        key = snapshot.getKey();
                         alerts = event.getAlerts();
                         date = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                         year = date.getYear();
@@ -303,65 +297,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 if (!checkStoragePermission())
                     return;
 
-//                Intent getContentIntent = FileUtils.createGetContentIntent();
-//                Intent intent = Intent.createChooser(getContentIntent, "Choose your file");
-//                startActivityForResult(intent, REQUEST_CHOOSER);
-
-                EasyImage.openChooserWithDocuments(this, "Where is your file located?", 0);
+                EasyImage.openChooserWithDocuments(this, getString(R.string.file_location), 0);
                 break;
         }
-    }
-
-    private void createNotification(Event event) {
-
-        Intent intent = new Intent(Intent.ACTION_EDIT);
-        intent.setType("vnd.android.cursor.item/event");
-        intent.putExtra(CalendarContract.Events.DTSTART, date.getMillisOfSecond());
-        intent.putExtra(CalendarContract.Events.ALL_DAY, false);
-//        intent.putExtra(CalendarContract.Events.DURATION, );
-//        intent.putExtra(CalendarContract.Events.RRULE, );
-//        intent.putExtra(CalendarContract.Events.EVENT_TIMEZONE, );
-        intent.putExtra(CalendarContract.Events.TITLE, event.getTitle());
-        intent.putExtra(CalendarContract.Events.DESCRIPTION, event.getTitle());
-        intent.putExtra(CalendarContract.Events.HAS_ALARM, 1);
-        intent.putExtra(CalendarContract.Events.CALENDAR_ID, event.getEventUID());
-
-        /*
-        ArrayList<Alert> alerts = event.getAlerts();
-        int count = alerts.get(0).getCount();
-        int kind = alerts.get(0).getKind();
-
-        long newDateInMillis = 0;
-        long time = 0;
-
-        switch (kind) {
-            case 0: //minutes
-                time = 60 * 1000;
-                break;
-            case 1: //hours
-                time = 60 * 60 * 1000;
-                break;
-            case 2: //days
-                time = 24 * 60 * 60 * 1000;
-                break;
-            case 3: //weeks
-                time = 7 * 24 * 60 * 60 * 1000;
-                break;
-            case 4: //months
-                time = 604800000;
-                break;
-        }
-        time = time * count;
-        newDateInMillis = date.getMillisOfSecond() - time;
-
-        Intent intent = new Intent(this, NotificationReceiver.class);
-        alerts.remove(0);
-        intent.putExtra("event", event);
-        intent.putExtra("num", alerts.size());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, newDateInMillis, pendingIntent);
-*/
     }
 
     private boolean checkStoragePermission() {
@@ -450,7 +388,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                             fileArray.add(file);
                             docsAdapter.notifyDataSetChanged();
                         } catch (Exception e) {
-                            Toast.makeText(this, "Files too large!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, R.string.large_files_err, Toast.LENGTH_SHORT).show();
                         }
                     }
                 }
@@ -511,7 +449,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             AlertsAdapter.AlertsViewHolder viewHolder = (AlertsAdapter.AlertsViewHolder) AlertsAdapter.AlertsViewHolder.viewHolders.get(i);
             int count = Integer.valueOf(viewHolder.etCount.getText().toString());
             int selectedItemPosition = viewHolder.spnKind.getSelectedItemPosition();
-            alerts.add(i, new Alert(count, selectedItemPosition));
+            int id = longToInt(date.getMillisOfSecond() + "" + i);
+            alerts.add(i, new Alert(id, count, selectedItemPosition));
         }
 
         String title = etTitle.getText().toString();
@@ -520,12 +459,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         int repeat = spnRepeat.getSelectedItemPosition();
         String btnId = this.btnId;
 
-//        if (getIntent().getStringExtra("event") == null)
-//            key = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
-
         event = new Event(title, description, date, alerts, hours, minutes, repeat, eventKey, btnId, true, user.getDisplayName());
         mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).setValue(event);
-
 
         for (File file : fileArray) {
             mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
@@ -539,54 +474,82 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     });
         }
 
-//        createNotification(event);
-
-
-        int alarmCount = alerts.get(0).getCount();
-        int alarmKind = alerts.get(0).getKind();
+        createNotification(alerts, event);
 
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
 
-        Calendar eventDate = Calendar.getInstance();
-        eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
-                date.getHourOfDay(), date.getMinuteOfHour(), 0);
-
-        switch (alarmKind) {
-            case 0:
-                eventDate.add(Calendar.MINUTE, -alarmCount);
-                break;
-            case 1:
-                eventDate.add(Calendar.HOUR, -alarmCount);
-                break;
-            case 2:
-                eventDate.add(Calendar.DATE, -alarmCount);
-                break;
-            case 3:
-                eventDate.add(Calendar.DATE, -(alarmCount * 7));
-                break;
-            case 4:
-                eventDate.add(Calendar.MONTH, -alarmCount);
-                break;
-        }
-
-        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-        if (alarm != null) {
-//            Intent alarmIntent = new Intent("ALARM");
-            Intent alarmIntent = new Intent(this, NotificationReceiver.class);
-            alarmIntent.putExtra("title", event.getTitle());
-            alarmIntent.putExtra("text", event.getDescription());
-//            alarmIntent.putExtra("event", event);
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
-        }
-        else
-            Toast.makeText(this, "No alarm service found on your device", Toast.LENGTH_SHORT).show();
 
         Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
         intent.putExtra("btnId", btnId);
         startActivity(intent);
+    }
+
+    private void createNotification(ArrayList<Alert> alerts, Event event) {
+        clearNotifications(alerts, event);
+        Calendar eventDate = Calendar.getInstance();
+
+        for (int i = 0; i < alerts.size(); i++) {
+            eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
+                    date.getHourOfDay(), date.getMinuteOfHour(), 0);
+            int id = alerts.get(i).getId();
+            int alarmCount = alerts.get(i).getCount();
+            int alarmKind = alerts.get(i).getKind();
+
+            switch (alarmKind) {
+                case 0:
+                    eventDate.add(Calendar.MINUTE, -alarmCount);
+                    break;
+                case 1:
+                    eventDate.add(Calendar.HOUR, -alarmCount);
+                    break;
+                case 2:
+                    eventDate.add(Calendar.DATE, -alarmCount);
+                    break;
+                case 3:
+                    eventDate.add(Calendar.DATE, -(alarmCount * 7));
+                    break;
+                case 4:
+                    eventDate.add(Calendar.MONTH, -alarmCount);
+                    break;
+            }
+
+            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+            if (alarm != null) {
+                Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+                alarmIntent.putExtra("title", event.getTitle());
+                alarmIntent.putExtra("text", event.getDescription());
+                alarmIntent.putExtra("id", id);
+//                Log.d("Hilay", "createNotification: " + id);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
+            } else
+                Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void clearNotifications(ArrayList<Alert> alerts, Event event) {
+        for (int i = 0; i < alerts.size(); i++) {
+            int id = alerts.get(i).getId();
+            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+            if (alarm != null) {
+                Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                        this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarm.cancel(pendingIntent);
+            } else
+                Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    int longToInt(String str) {
+        long num = Long.valueOf(str);
+        while (num > (Integer.MAX_VALUE)) {
+            num -= Integer.MAX_VALUE;
+        }
+        return (int) num;
     }
 
     boolean first = true;

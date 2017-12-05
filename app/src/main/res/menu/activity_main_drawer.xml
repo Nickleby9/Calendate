@@ -29,10 +29,10 @@
                     android:icon="@drawable/ic_person_add"
                     android:title="@string/register_account" />
 
-                <item
-                    android:id="@+id/nav_delete"
-                    android:icon="@drawable/ic_delete"
-                    android:title="@string/delete_account" />
+                <!--<item-->
+                    <!--android:id="@+id/nav_delete"-->
+                    <!--android:icon="@drawable/ic_delete"-->
+                    <!--android:title="@string/delete_account" />-->
 
                 <item
                     android:id="@+id/nav_sign_out"

@@ -71,7 +71,7 @@ public class TimelineFragment extends Fragment {
         EventAdapter adapter = new EventAdapter(mDatabase.getReference("all_events/" + user.getUid()).orderByChild("date"));
 
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new
-                CallBack(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT, adapter); // Making the SimpleCallback
+                CallBack(0, ItemTouchHelper.RIGHT | ItemTouchHelper.LEFT, adapter, getContext()); // Making the SimpleCallback
         ItemTouchHelper touchHelper = new ItemTouchHelper(simpleItemTouchCallback);
         touchHelper.attachToRecyclerView(recycler);
 

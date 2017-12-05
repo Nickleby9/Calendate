@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
@@ -34,8 +33,6 @@ import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.EventRow;
 import com.calendate.calendate.utils.MyUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -234,7 +231,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         else
             btnTime.setText(String.valueOf(hours) + ":" + String.valueOf(minutes));
     }
-
+/*
     private void editEvent() {
         alerts.clear();
 
@@ -269,7 +266,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         alerts.clear();
         changeEnabled(false);
     }
-
+*/
     public static class AlertsAdapter extends FirebaseRecyclerAdapter<Alert, AlertsAdapter.AlertsViewHolder> {
 
         public AlertsAdapter(Query query) {

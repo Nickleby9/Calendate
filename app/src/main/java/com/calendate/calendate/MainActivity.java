@@ -29,7 +29,6 @@ import com.github.nisrulz.sensey.Sensey;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -343,7 +342,8 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             case R.id.nav_bind:
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new BindFragment()).commit();
                 break;
-            case R.id.nav_delete:
+            /*
+                case R.id.nav_delete:
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle(R.string.delete_account_title)
                         .setMessage(R.string.delete_warning)
@@ -399,6 +399,8 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                         navigationView.getMenu().getItem(0).setChecked(true);
                     }
                 }).show();
+                break;
+                */
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
