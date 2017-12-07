@@ -212,7 +212,6 @@
     <string name="file_location">Where is your file located?</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="register_title">Register</string>
     <string name="timeline_title">Timeline</string>
     <string name="categories_title">Categories</string>
@@ -221,8 +220,8 @@
     <string name="intro_views">Different views</string>
     <string name="intro_views_desc">You can see your events divided into categories, on a calendar or even on a timeline</string>
     <string name="intro_categories">Customize Categories</string>
-    <string name="intro_categories_desc">Long press a category to set your own title and icon  Swipe to see more categories</string>
+    <string name="intro_categories_desc">Long press a category to set your own title and icon \n Swipe to see more categories</string>
     <string name="intro_friends">Social calendar</string>
-    <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them  Just swipe your events and send them away</string>
+    <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them \n Just swipe your events and send them away</string>
 
 </resources>

@@ -197,10 +197,10 @@
     <string name="categories_title">קטגוריות</string>
     <string name="add_friend_title">הוספת חבר</string>
     <string name="friends_title">רשימת חברים</string>
-    <string name="intro_views">Different views</string>
-    <string name="intro_views_desc">You can see your events divided into categories, on a calendar or even on a timeline</string>
-    <string name="intro_categories">Customize Categories</string>
-    <string name="intro_categories_desc">Long press a category to set your own title and icon  Swipe to see more categories</string>
-    <string name="intro_friends">Social calendar</string>
-    <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them  Just swipe your events and send them away</string>
+    <string name="intro_views">תצוגות שונות</string>
+    <string name="intro_views_desc">ניתן להציג את האירועים שלכם בחלוקה לקטגוריות, על לוח שנה, או אפילו בציר זמן</string>
+    <string name="intro_categories">קטגוריות מותאמות אישית</string>
+    <string name="intro_categories_desc">לחיצה ארוכה על קטגוריה תאפשר הגדרת כותרת ואייקון.\n דפדפו הצידה להצגת עוד קטגוריות</string>
+    <string name="intro_friends">יומן חברתי</string>
+    <string name="intro_friends_desc">תוסיפו את האנשים החושבים בחייכם לרשימת החברים.\n תגררו את האירוע הצידה על מנת לשתף אותו</string>
 </resources>
