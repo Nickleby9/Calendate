@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -67,6 +68,7 @@ public class AddFriendsFragment extends Fragment {
         rvUsers = (RecyclerView) view.findViewById(R.id.rvUsers);
         rvUsers.setLayoutManager(new LinearLayoutManager(getContext()));
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), R.layout.spinner_item, usernames);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.add_friend_title);
 
         mDatabase.getReference("users").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

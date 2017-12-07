@@ -80,7 +80,8 @@
             android:layout_marginEnd="8dp"
             android:layout_marginTop="8dp"
             android:layoutDirection="ltr"
-            android:text="Your personal information will be used to save your in app data on the server."
+            android:text="Your personal information will be used to save your in app data on the server.
+Other users can see you email if they search your username, in order to add you as their friends"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView6" />

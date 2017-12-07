@@ -46,6 +46,7 @@ public class DetailActivity extends AppCompatActivity {
     static String btnId;
     TextView tvNoEvents;
     EventAdapter adapter;
+    static String btnTitle;
 
     @Override
     public void onBackPressed() {
@@ -62,8 +63,9 @@ public class DetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        btnTitle = getIntent().getStringExtra("btnTitle");
         btnId = getIntent().getStringExtra("btnId");
-        String btnTitle = getIntent().getStringExtra("btnTitle");
+        final String btnTitle = getIntent().getStringExtra("btnTitle");
         int tvNum = getIntent().getIntExtra("tvNum", 0);
         ((AppCompatActivity) this).getSupportActionBar().setTitle(btnTitle);
 
@@ -97,6 +99,7 @@ public class DetailActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), AddItemActivity.class);
                 intent.putExtra("btnId", btnId);
+                intent.putExtra("btnTitle", btnTitle);
                 startActivity(intent);
             }
         });
@@ -141,6 +144,7 @@ public class DetailActivity extends AppCompatActivity {
                     public void onClick(View v) {
                         Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
                         intent.putExtra("model", model);
+                        intent.putExtra("btnTitle", btnTitle);
                         v.getContext().startActivity(intent);
                     }
                 });

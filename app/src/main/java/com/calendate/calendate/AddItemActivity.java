@@ -29,6 +29,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -100,6 +101,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     String eventKey;
     boolean isEditMode = false;
     static boolean isDeleteShown = false;
+    String btnTitle = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +111,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         btnId = getIntent().getStringExtra("btnId");
+        btnTitle = getIntent().getStringExtra("btnTitle");
 
         etTitle = (EditText) findViewById(R.id.etTitle);
         etDescription = (EditText) findViewById(R.id.etDescription);
@@ -124,6 +127,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         docsAdapter = new DocsAdapter(this, fileArray);
         rvDocs.setAdapter(docsAdapter);
+        spnRepeat.setVisibility(View.GONE);
+        TextView tvRepeat = (TextView) findViewById(R.id.tvRepeat);
+        tvRepeat.setVisibility(View.GONE);
 
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
@@ -482,6 +488,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
         intent.putExtra("btnId", btnId);
+        intent.putExtra("btnTitle", btnTitle);
         startActivity(intent);
     }
 

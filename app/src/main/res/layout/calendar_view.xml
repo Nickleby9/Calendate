@@ -12,7 +12,8 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/calendar_right_arrow"
+            android:id="@+id/calendar_left_arrow"
+            android:rotationY="@integer/locale_mirror_flip"
             style="?styleCaldroidRightArrow" />
 
         <TextView
@@ -20,7 +21,8 @@
             style="?styleCaldroidMonthName"/>
 
         <Button
-            android:id="@+id/calendar_left_arrow"
+            android:id="@+id/calendar_right_arrow"
+            android:rotationY="@integer/locale_mirror_flip"
             style="?styleCaldroidLeftArrow" />
 
     </LinearLayout>

@@ -22,6 +22,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -76,6 +77,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     static ArrayList<Alert> alerts = new ArrayList<>();
     AlertsAdapter alertsAdapter;
     DocsAdapter docsAdapter;
+    String btnTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +90,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         model = getIntent().getParcelableExtra("model");
+        btnTitle = getIntent().getStringExtra("btnTitle");
 
         etTitle = (EditText) findViewById(R.id.etTitle);
         etDescription = (EditText) findViewById(R.id.etDescription);
@@ -121,6 +124,10 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         readOnce();
 
         changeEnabled(false);
+
+        spnRepeat.setVisibility(View.GONE);
+        TextView tvRepeat = (TextView) findViewById(R.id.tvRepeat);
+        tvRepeat.setVisibility(View.GONE);
     }
 
     private void readOnce() {
@@ -147,6 +154,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                         hours = Integer.valueOf(split[0]);
                         minutes = Integer.valueOf(split[1]);
                         btnId = event.getBtnId();
+                        date = new LocalDateTime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), hours, minutes, 0);
                     }
                 }
             }
@@ -165,6 +173,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             case R.id.btnChange:
                 Intent intent = new Intent(this, AddItemActivity.class);
                 intent.putExtra("event", model.getEventUID());
+                intent.putExtra("btnTitle", btnTitle);
                 startActivity(intent);
                 break;
             case R.id.btnDate:

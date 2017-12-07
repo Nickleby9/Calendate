@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.calendate.calendate.caldroid.CaldroidFragment;
+import com.calendate.calendate.intro.IntroActivity;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.Friend;
 import com.calendate.calendate.models.User;
@@ -105,6 +107,13 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        SharedPreferences prefs = getSharedPreferences("intro", MODE_PRIVATE);
+        int firstTime = prefs.getInt("firstTime", 0);
+        if (firstTime == 0){
+            Intent intent = new Intent(this, IntroActivity.class);
+            startActivity(intent);
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -415,10 +424,10 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
         for (File file : files) {
             file.delete();
         }
-        mAuth.signOut();
+        LoginManager.getInstance().logOut();
         Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient);
         Auth.GoogleSignInApi.signOut(mGoogleApiClient);
-        LoginManager.getInstance().logOut();
+        mAuth.signOut();
     }
 
     @Override

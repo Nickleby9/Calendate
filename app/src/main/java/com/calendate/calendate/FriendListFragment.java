@@ -8,6 +8,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -83,6 +84,7 @@ public class FriendListFragment extends Fragment {
         User mUser = new User(user);
         tvNoFriends = (TextView) view.findViewById(R.id.tvNoFriends);
         tvNoFriends.setVisibility(View.INVISIBLE);
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(R.string.friends_title);
 
         if (user.isAnonymous()){
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());

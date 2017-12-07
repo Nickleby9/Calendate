@@ -63,8 +63,8 @@
     <string name="registering">Registering...</string>
 
     <!--Button change dialog-->
-    <string name="button_title_title">Set the title for your button</string>
-    <string name="button_title_hint">Button title</string>
+    <string name="button_title_title">Set a title for the category</string>
+    <string name="button_title_hint">Title</string>
     <string name="button_title_set">Set</string>
     <string name="button_title_error">Maximum length exceeded</string>
     <string name="change_button_dialog_title">What would you like to do?</string>
@@ -201,7 +201,7 @@
     <string name="friends_anonymous_error">You logged in as an anonymous user, therefore you are not able to use this features. Note that you can stop being anonymous at any time.</string>
     <string name="register_me">Register me!</string>
     <string name="bind_account">Bind account</string>
-    <string name="different_credentials">You have already registered using different credentials.  Please login with a different provider.</string>
+    <string name="different_credentials">Account doesn\'t exist. Please try again or sign in with a different provider.</string>
     <string name="login_error">Login error</string>
     <string name="proceed">Continue</string>
     <string name="dismiss">Dismiss</string>
@@ -210,5 +210,19 @@
     <string name="touch_for_info">Touch for more info</string>
     <string name="large_files_err">Files too large!</string>
     <string name="file_location">Where is your file located?</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="register_title">Register</string>
+    <string name="timeline_title">Timeline</string>
+    <string name="categories_title">Categories</string>
+    <string name="add_friend_title">Add friend</string>
+    <string name="friends_title">Friends</string>
+    <string name="intro_views">Different views</string>
+    <string name="intro_views_desc">You can see your events divided into categories, on a calendar or even on a timeline</string>
+    <string name="intro_categories">Customize Categories</string>
+    <string name="intro_categories_desc">Long press a category to set your own title and icon  Swipe to see more categories</string>
+    <string name="intro_friends">Social calendar</string>
+    <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them  Just swipe your events and send them away</string>
 
 </resources>

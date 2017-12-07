@@ -183,7 +183,7 @@
     <string name="friends_anonymous_error">אתה מחובר עם חשבון אנונימי והאופציה הזאת חסומה בפניך. אם תרצה, תוכל להפסיק להיות אנונימי בכל רגע</string>
     <string name="register_me">אני רוצה להירשם!</string>
     <string name="bind_account">הצמדת חשבון</string>
-    <string name="different_credentials">קיים לך חשבון עם אמצעי התחברות אחר</string>
+    <string name="different_credentials">חשבון לא קיים. נסה שנית או התחבר/י עם אמצעי התחברות אחר</string>
     <string name="login_error">שגיאה</string>
     <string name="proceed">המשך</string>
     <string name="dismiss">בסדר</string>
@@ -192,4 +192,15 @@
     <string name="touch_for_info">גע/י לקבלת מידע נוסף</string>
     <string name="large_files_err">הקבצים גדולים מדי!</string>
     <string name="file_location">איפה ממוקם הקובץ?</string>
+    <string name="register_title">הרשמה</string>
+    <string name="timeline_title">ציר זמן</string>
+    <string name="categories_title">קטגוריות</string>
+    <string name="add_friend_title">הוספת חבר</string>
+    <string name="friends_title">רשימת חברים</string>
+    <string name="intro_views">Different views</string>
+    <string name="intro_views_desc">You can see your events divided into categories, on a calendar or even on a timeline</string>
+    <string name="intro_categories">Customize Categories</string>
+    <string name="intro_categories_desc">Long press a category to set your own title and icon  Swipe to see more categories</string>
+    <string name="intro_friends">Social calendar</string>
+    <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them  Just swipe your events and send them away</string>
 </resources>
