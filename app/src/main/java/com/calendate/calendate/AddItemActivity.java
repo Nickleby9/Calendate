@@ -59,6 +59,7 @@ import org.joda.time.format.DateTimeFormat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -152,7 +153,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             isEditMode = true;
             readOnce();
         } else {
-            alerts.add(new Alert(1,1, 1));
+            alerts.add(new Alert(1, 1, 1));
             adapter = new AlertsAdapter(this, getAlerts());
             rvAlerts.setAdapter(adapter);
             onClick(btnDate);
@@ -494,46 +495,107 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
     private void createNotification(ArrayList<Alert> alerts, Event event) {
         clearNotifications(alerts, event);
-        Calendar eventDate = Calendar.getInstance();
 
-        for (int i = 0; i < alerts.size(); i++) {
-            eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
-                    date.getHourOfDay(), date.getMinuteOfHour(), 0);
-            int id = alerts.get(i).getId();
-            int alarmCount = alerts.get(i).getCount();
-            int alarmKind = alerts.get(i).getKind();
+        AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
+        if (alarm != null) {
+            Calendar eventDate = Calendar.getInstance();
 
-            switch (alarmKind) {
-                case 0:
-                    eventDate.add(Calendar.MINUTE, -alarmCount);
-                    break;
-                case 1:
-                    eventDate.add(Calendar.HOUR, -alarmCount);
-                    break;
-                case 2:
-                    eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
-                    break;
-                case 3:
-                    eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
-                    break;
-                case 4:
-                    eventDate.add(Calendar.MONTH, -alarmCount);
-                    break;
-            }
+            for (int i = 0; i < alerts.size(); i++) {
+                eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
+                        date.getHourOfDay(), date.getMinuteOfHour(), 0);
+                int id = alerts.get(i).getId();
+                int alarmCount = alerts.get(i).getCount();
+                int alarmKind = alerts.get(i).getKind();
 
-            AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
-            if (alarm != null) {
+                switch (alarmKind) {
+                    case 0:
+                        eventDate.add(Calendar.MINUTE, -alarmCount);
+                        break;
+                    case 1:
+                        eventDate.add(Calendar.HOUR, -alarmCount);
+                        break;
+                    case 2:
+                        eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
+                        break;
+                    case 3:
+                        eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
+                        break;
+                    case 4:
+                        eventDate.add(Calendar.MONTH, -alarmCount);
+                        break;
+                }
+
                 Intent alarmIntent = new Intent(this, NotificationReceiver.class);
                 alarmIntent.putExtra("title", event.getTitle());
                 alarmIntent.putExtra("text", event.getDescription());
                 alarmIntent.putExtra("id", id);
 //                Log.d("Hilay", "createNotification: " + id);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                PendingIntent pendingIntent;
+                pendingIntent = PendingIntent.getBroadcast(
                         this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
-            } else
-                Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
-        }
+
+                int repeat = event.getRepeatPos();
+
+                switch (repeat) {
+                    case 0: //none
+                        alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
+                        break;
+                    case 1: //day
+                        alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                        break;
+                    case 2: //week
+                        alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+                        break;
+                    case 3: //month
+                        for (int j = 0; j < 36; j++) {
+                            Calendar newDate = eventDate;
+                            if (newDate.get(Calendar.MONTH) > 11)
+                                month = 0;
+                            switch (newDate.getActualMaximum(Calendar.MONTH)) {
+                                case 28:
+                                    newDate.add(Calendar.MONTH, j);
+                                    alarm.setRepeating(AlarmManager.RTC_WAKEUP, newDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 28, pendingIntent);
+                                    break;
+                                case 29:
+                                    newDate.add(Calendar.MONTH, j);
+                                    alarm.setRepeating(AlarmManager.RTC_WAKEUP, newDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 29, pendingIntent);
+                                    break;
+                                case 30:
+                                    newDate.add(Calendar.MONTH, j);
+                                    alarm.setRepeating(AlarmManager.RTC_WAKEUP, newDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 30, pendingIntent);
+                                    break;
+                                case 31:
+                                    newDate.add(Calendar.MONTH, j);
+                                    alarm.setRepeating(AlarmManager.RTC_WAKEUP, newDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 31, pendingIntent);
+                                    break;
+                            }
+                        }
+                        break;
+                    case 4: //year
+                        GregorianCalendar g = new GregorianCalendar();
+                        if (eventDate.get(Calendar.MONTH) > Calendar.FEBRUARY) {
+                            if (g.isLeapYear(eventDate.get(Calendar.YEAR + 1))) {
+                                alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(),
+                                        AlarmManager.INTERVAL_DAY * 366, pendingIntent);
+                            } else {
+                                alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(),
+                                        AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                            }
+                        } else {
+                            if (g.isLeapYear(eventDate.get(Calendar.YEAR))) {
+                                alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(),
+                                        AlarmManager.INTERVAL_DAY * 366, pendingIntent);
+                            } else {
+                                alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(),
+                                        AlarmManager.INTERVAL_DAY * 365, pendingIntent);
+                            }
+                        }
+                        break;
+                }
+
+            }
+        } else
+            Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
     }
 
     private void clearNotifications(ArrayList<Alert> alerts, Event event) {
