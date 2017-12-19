@@ -73,7 +73,6 @@ public class DetailActivity extends AppCompatActivity {
         user = FirebaseAuth.getInstance().getCurrentUser();
         recycler = (RecyclerView) findViewById(R.id.recycler);
         tvNoEvents = (TextView) findViewById(R.id.tvNoEvents);
-        tvNoEvents.setVisibility(View.INVISIBLE);
         if (tvNum == 0)
             tvNoEvents.setVisibility(View.VISIBLE);
 

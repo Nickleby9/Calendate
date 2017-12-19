@@ -38,7 +38,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     case "newEvent":
                         builder.setContentTitle(getString(R.string.note_new_share))
                                 .setStyle(new NotificationCompat.BigTextStyle().bigText(username + " " + getString(R.string.note_share_msg)))
-                                .setSmallIcon(R.drawable.calendate_icon)
+                                .setSmallIcon(R.drawable.ic_stat_calendate_notification)
                                 .setAutoCancel(true)
                                 .setDefaults(Notification.DEFAULT_ALL)
                                 .setContentIntent(pi);
@@ -47,7 +47,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                     case "friendRequest":
                         builder.setContentTitle(getString(R.string.note_new_request))
                                 .setStyle(new NotificationCompat.BigTextStyle().bigText(username + " " + getString(R.string.note_friend_msg)))
-                                .setSmallIcon(R.drawable.calendate_icon)
+                                .setSmallIcon(R.drawable.ic_stat_calendate_notification)
                                 .setAutoCancel(true)
                                 .setDefaults(Notification.DEFAULT_ALL)
                                 .setContentIntent(pi);

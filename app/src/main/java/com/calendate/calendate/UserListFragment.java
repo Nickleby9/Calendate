@@ -133,7 +133,7 @@ public class UserListFragment extends BottomSheetDialogFragment {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()) {
-                                                Toast.makeText(v.getContext(), "The event successfully shared!", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(v.getContext(), R.string.successful_share, Toast.LENGTH_SHORT).show();
                                             } else {
                                                 Toast.makeText(v.getContext(), "Server error", Toast.LENGTH_SHORT).show();
                                             }

@@ -7,6 +7,7 @@ import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -39,6 +40,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.rd.PageIndicatorView;
+import com.rd.animation.type.AnimationType;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -66,6 +69,7 @@ public class ButtonsFragment extends Fragment {
     FirebaseAuth mAuth;
     FirebaseUser user;
     Bitmap image;
+    PageIndicatorView dotsIndicator;
 
     public ButtonsFragment() {
         // Required empty public constructor
@@ -88,13 +92,16 @@ public class ButtonsFragment extends Fragment {
         user = FirebaseAuth.getInstance().getCurrentUser();
 
         viewPager = (ViewPager) view.findViewById(R.id.viewPager);
+        dotsIndicator = (PageIndicatorView) view.findViewById(R.id.indicator);
         mSectionsPagerAdapter = new PlaceholderFragment.SectionsPagerAdapter(getChildFragmentManager());
+
         if (mAuth.getCurrentUser() != null)
             viewPager.setAdapter(mSectionsPagerAdapter);
         int fragNumToGo = getArguments().getInt("fragNum", 0);
         if (getArguments().getParcelable("image") != null) {
             image = getArguments().getParcelable("image");
         }
+
         viewPager.setCurrentItem(fragNumToGo);
 
         if (user != null) {
@@ -107,7 +114,12 @@ public class ButtonsFragment extends Fragment {
             int frag = getArguments().getInt("fragNum", 0);
             viewPager.setCurrentItem(frag);
         }
-
+        dotsIndicator.setViewPager(viewPager);
+        dotsIndicator.setCount(2);
+        dotsIndicator.setSelectedColor(Color.parseColor("#039be5"));
+        dotsIndicator.setUnselectedColor(Color.parseColor("#B3E5FC"));
+        dotsIndicator.setAnimationType(AnimationType.SLIDE);
+        dotsIndicator.setRadius(5);
     }
 
     public static ButtonsFragment newInstance(String path, final String btnId, Uri uri, int fragNum) {
@@ -296,7 +308,7 @@ public class ButtonsFragment extends Fragment {
         */
 
         private void getButtonsEventCount() {
-            mDatabase.getReference("all_events/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            mDatabase.getReference("all_events/" + user.getUid()).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {

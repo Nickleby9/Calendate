@@ -1,6 +1,9 @@
 package com.calendate.calendate.models;
 
-public class Alert {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Alert implements Parcelable {
 
     int id;
     int count;
@@ -33,4 +36,35 @@ public class Alert {
     public void setId(int id) {
         this.id = id;
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeInt(this.id);
+        dest.writeInt(this.count);
+        dest.writeInt(this.kind);
+    }
+
+    protected Alert(Parcel in) {
+        this.id = in.readInt();
+        this.count = in.readInt();
+        this.kind = in.readInt();
+    }
+
+    public static final Parcelable.Creator<Alert> CREATOR = new Parcelable.Creator<Alert>() {
+        @Override
+        public Alert createFromParcel(Parcel source) {
+            return new Alert(source);
+        }
+
+        @Override
+        public Alert[] newArray(int size) {
+            return new Alert[size];
+        }
+    };
 }

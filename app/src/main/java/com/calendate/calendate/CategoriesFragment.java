@@ -6,9 +6,9 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +54,7 @@ public class CategoriesFragment extends BottomSheetDialogFragment {
         user = FirebaseAuth.getInstance().getCurrentUser();
         rvCategories = (RecyclerView) view.findViewById(R.id.rvCategories);
         model = getArguments().getParcelable("event");
+        Log.d("hilay", "onViewCreated: " + model.getAlerts());
 
 
         CategoriesAdapter adapter = new CategoriesAdapter(mDatabase.getReference("buttons/" + user.getUid()), model, this);
@@ -113,9 +114,11 @@ public class CategoriesFragment extends BottomSheetDialogFragment {
                                                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                                                     Event event = snapshot.getValue(Event.class);
                                                     if (event.getEventUID().equals(model.getEventUID())){
+                                                        event.setBtnId(btnId);
+                                                        event.setOwn(true);/*
                                                         model.setBtnId(btnId);
-                                                        model.setOwn(true);
-                                                        FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid()).child(event.getEventUID()).setValue(model);
+                                                        model.setOwn(true);*/
+                                                        FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid()).child(event.getEventUID()).setValue(event);
                                                         snapshot.getRef().removeValue();
                                                         if (fragment instanceof DialogFragment){
                                                             ((DialogFragment) fragment).dismiss();

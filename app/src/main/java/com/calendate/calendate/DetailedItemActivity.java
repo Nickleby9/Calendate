@@ -22,7 +22,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -125,9 +124,9 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
         changeEnabled(false);
 
-        spnRepeat.setVisibility(View.GONE);
+        /*spnRepeat.setVisibility(View.GONE);
         TextView tvRepeat = (TextView) findViewById(R.id.tvRepeat);
-        tvRepeat.setVisibility(View.GONE);
+        tvRepeat.setVisibility(View.GONE);*/
     }
 
     private void readOnce() {

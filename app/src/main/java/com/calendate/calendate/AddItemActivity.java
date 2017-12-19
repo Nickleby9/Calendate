@@ -29,7 +29,6 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -59,7 +58,6 @@ import org.joda.time.format.DateTimeFormat;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -128,9 +126,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
         docsAdapter = new DocsAdapter(this, fileArray);
         rvDocs.setAdapter(docsAdapter);
+
+        /*
         spnRepeat.setVisibility(View.GONE);
         TextView tvRepeat = (TextView) findViewById(R.id.tvRepeat);
         tvRepeat.setVisibility(View.GONE);
+        */
 
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
@@ -437,7 +438,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         String time = btnTime.getText().toString();
         repeat = spnRepeat.getSelectedItemPosition();
 
-        if (title.isEmpty() || time.equals(getString(R.string.btn_set_time)) || AlertsAdapter.AlertsViewHolder.viewHolders.size() == 0
+        if (title.isEmpty() || time.equals(getString(R.string.btn_set_time)) /*|| AlertsAdapter.AlertsViewHolder.viewHolders.size() == 0*/
                 || repeat == -1 || btnDate.getText().toString().equals(getString(R.string.add_item_pick_a_date))) {
             return true;
         } else {
@@ -452,12 +453,17 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         alerts.clear();
 
         int size = rvAlerts.getChildCount();
-        for (int i = 0; i < size; i++) {
-            AlertsAdapter.AlertsViewHolder viewHolder = (AlertsAdapter.AlertsViewHolder) AlertsAdapter.AlertsViewHolder.viewHolders.get(i);
-            int count = Integer.valueOf(viewHolder.etCount.getText().toString());
-            int selectedItemPosition = viewHolder.spnKind.getSelectedItemPosition();
-            int id = longToInt(date.getMillisOfSecond() + "" + i);
-            alerts.add(i, new Alert(id, count, selectedItemPosition));
+        if (size == 0) {
+            int id = longToInt(date.getMillisOfSecond() + "");
+            alerts.add(0, new Alert(id, 0, 0));
+        } else {
+            for (int i = 0; i < size; i++) {
+                AlertsAdapter.AlertsViewHolder viewHolder = (AlertsAdapter.AlertsViewHolder) AlertsAdapter.AlertsViewHolder.viewHolders.get(i);
+                int count = Integer.valueOf(viewHolder.etCount.getText().toString());
+                int selectedItemPosition = viewHolder.spnKind.getSelectedItemPosition();
+                int id = longToInt(System.currentTimeMillis() + "" + i);
+                alerts.add(i, new Alert(id, count, selectedItemPosition));
+            }
         }
 
         String title = etTitle.getText().toString();
@@ -499,6 +505,22 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (alarm != null) {
             Calendar eventDate = Calendar.getInstance();
+            eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
+                    date.getHourOfDay(), date.getMinuteOfHour(), 0);
+
+            Intent onceIntent = new Intent(this, NotificationReceiver.class);
+            onceIntent.putExtra("title", event.getTitle());
+            onceIntent.putExtra("text", event.getDescription());
+            onceIntent.putExtra("eventUid", event.getEventUID());
+            onceIntent.putExtra("before", -1);
+            int onceId = 0;
+            if (AlertsAdapter.AlertsViewHolder.viewHolders.size() == 0)
+                onceId = longToInt(date.getMillisOfSecond() + "");
+            else
+                onceId = alerts.get(0).getId() - 1;
+            PendingIntent pendingOnceIntent = PendingIntent.getBroadcast(
+                    this, onceId, onceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingOnceIntent);
 
             for (int i = 0; i < alerts.size(); i++) {
                 eventDate.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(),
@@ -506,6 +528,20 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 int id = alerts.get(i).getId();
                 int alarmCount = alerts.get(i).getCount();
                 int alarmKind = alerts.get(i).getKind();
+
+                Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+                alarmIntent.putExtra("title", event.getTitle());
+                alarmIntent.putExtra("text", event.getDescription());
+                alarmIntent.putExtra("id", id);
+                alarmIntent.putExtra("before", alarmKind);
+                alarmIntent.putExtra("beforeTime", alarmCount);
+                alarmIntent.putExtra("repeat", "none");
+
+                PendingIntent pendingIntent;
+                pendingIntent = PendingIntent.getBroadcast(
+                        this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
 
                 switch (alarmKind) {
                     case 0:
@@ -525,28 +561,23 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         break;
                 }
 
-                Intent alarmIntent = new Intent(this, NotificationReceiver.class);
-                alarmIntent.putExtra("title", event.getTitle());
-                alarmIntent.putExtra("text", event.getDescription());
-                alarmIntent.putExtra("id", id);
-//                Log.d("Hilay", "createNotification: " + id);
-                PendingIntent pendingIntent;
-                pendingIntent = PendingIntent.getBroadcast(
-                        this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
                 int repeat = event.getRepeatPos();
 
                 switch (repeat) {
                     case 0: //none
-                        alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
+                        alarmIntent.putExtra("repeat", "none");
                         break;
                     case 1: //day
-                        alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
+                        alarmIntent.putExtra("repeat", "daily");
+//                        alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pendingIntent);
                         break;
                     case 2: //week
-                        alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pendingIntent);
+                        alarmIntent.putExtra("repeat", "weekly");
+//                        alarm.setRepeating(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pendingIntent);
                         break;
                     case 3: //month
+                        alarmIntent.putExtra("repeat", "monthly");
+                        /*
                         for (int j = 0; j < 36; j++) {
                             Calendar newDate = eventDate;
                             if (newDate.get(Calendar.MONTH) > 11)
@@ -570,8 +601,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                     break;
                             }
                         }
+                        */
                         break;
                     case 4: //year
+                        alarmIntent.putExtra("repeat", "yearly");
+                        /*
                         GregorianCalendar g = new GregorianCalendar();
                         if (eventDate.get(Calendar.MONTH) > Calendar.FEBRUARY) {
                             if (g.isLeapYear(eventDate.get(Calendar.YEAR + 1))) {
@@ -590,9 +624,12 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                                         AlarmManager.INTERVAL_DAY * 365, pendingIntent);
                             }
                         }
+                        */
                         break;
                 }
-
+                pendingIntent = PendingIntent.getBroadcast(
+                        this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+                alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
             }
         } else
             Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();

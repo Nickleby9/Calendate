@@ -23,6 +23,7 @@ import android.widget.Toast;
 
 import com.calendate.calendate.caldroid.CaldroidFragment;
 import com.calendate.calendate.intro.IntroActivity;
+import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.Friend;
 import com.calendate.calendate.models.User;
@@ -42,6 +43,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.TimeZone;
 
 import hirondelle.date4j.DateTime;
@@ -186,6 +188,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                     final Event event = snapshot.getValue(Event.class);
                     if (event != null) {
                         if (!event.isOwn()) {
+                            event.setAlerts(new ArrayList<Alert>());
                             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
                             builder.setTitle(R.string.new_shared_event)
                                     .setMessage(event.getCreator() + " " + getString(R.string.share_msg) + " " + event.getTitle() + ".\n" + getString(R.string.share_msg_2))

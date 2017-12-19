@@ -203,4 +203,5 @@
     <string name="intro_categories_desc">לחיצה ארוכה על קטגוריה תאפשר הגדרת כותרת ואייקון.\n דפדפו הצידה להצגת עוד קטגוריות</string>
     <string name="intro_friends">יומן חברתי</string>
     <string name="intro_friends_desc">תוסיפו את האנשים החושבים בחייכם לרשימת החברים.\n תגררו את האירוע הצידה על מנת לשתף אותו</string>
+    <string name="successful_share">The event successfully shared!</string>
 </resources>
