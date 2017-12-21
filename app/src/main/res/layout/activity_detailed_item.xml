@@ -16,21 +16,20 @@
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:text="@string/documents"
             android:textColor="#000"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/spnRepeat" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvDocs"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
-            android:layout_marginRight="16dp"
-            app:layout_constraintRight_toRightOf="parent"
+            android:layout_marginEnd="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             android:layout_marginBottom="16dp"
             android:layout_marginTop="8dp"
@@ -42,16 +41,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="16dp"
             android:ems="10"
             android:hint="@string/add_item_title"
             android:inputType="textPersonName"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
@@ -63,8 +60,8 @@
             android:hint="@string/add_item_description"
             android:inputType="textPersonName"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="@+id/etTitle"
-            app:layout_constraintRight_toRightOf="@+id/etTitle"
+            app:layout_constraintStart_toStartOf="@+id/etTitle"
+            app:layout_constraintEnd_toEndOf="@+id/etTitle"
             app:layout_constraintTop_toBottomOf="@+id/etTitle" />
 
         <com.beardedhen.androidbootstrap.BootstrapButton
@@ -72,14 +69,13 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
             android:layout_marginTop="3dp"
             android:text="@string/add_item_pick_a_date"
             app:bootstrapBrand="regular"
             app:bootstrapSize="lg"
             app:buttonMode="regular"
-            app:layout_constraintLeft_toLeftOf="@+id/etDescription"
-            app:layout_constraintRight_toLeftOf="@+id/btnTime"
+            app:layout_constraintStart_toStartOf="@+id/etDescription"
+            app:layout_constraintEnd_toStartOf="@+id/btnTime"
             app:layout_constraintTop_toBottomOf="@+id/etDescription"
             app:roundedCorners="true"
             app:showOutline="false" />
@@ -92,7 +88,7 @@
             app:bootstrapBrand="regular"
             app:bootstrapSize="lg"
             app:buttonMode="regular"
-            app:layout_constraintRight_toRightOf="@+id/etDescription"
+            app:layout_constraintEnd_toEndOf="@+id/etDescription"
             app:layout_constraintTop_toTopOf="@+id/btnDate"
             app:roundedCorners="true"
             app:showOutline="false" />
@@ -101,13 +97,12 @@
             android:id="@+id/tvAlert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="15dp"
             android:text="@string/add_item_alert_ahead"
             android:textColor="#000"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnDate"
             app:layout_goneMarginTop="8dp" />
 
@@ -116,12 +111,11 @@
             android:id="@+id/tvRepeat"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
             android:text="@string/add_item_repeat"
             android:textColor="#000"
             android:textSize="18sp"
-            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/fabAdd" />
 
         <Spinner
@@ -129,19 +123,19 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            app:layout_constraintLeft_toLeftOf="@+id/tvRepeat"
+            app:layout_constraintStart_toStartOf="@+id/tvRepeat"
             app:layout_constraintTop_toBottomOf="@+id/tvRepeat" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/rvAlerts"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginEnd="0dp"
             android:layout_marginTop="19dp"
             app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintLeft_toLeftOf="@+id/btnDate"
-            app:layout_constraintRight_toRightOf="@+id/btnTime"
+            app:layout_constraintStart_toStartOf="@+id/btnDate"
+            app:layout_constraintEnd_toEndOf="@+id/btnTime"
             app:layout_constraintTop_toBottomOf="@+id/tvAlert">
 
 
@@ -155,7 +149,7 @@
             android:clickable="true"
             app:backgroundTint="#FFF"
             app:fabSize="mini"
-            app:layout_constraintRight_toRightOf="@+id/rvAlerts"
+            app:layout_constraintEnd_toEndOf="@+id/rvAlerts"
             app:layout_constraintTop_toBottomOf="@+id/rvAlerts"
             app:srcCompat="@drawable/ic_add" />
 
@@ -168,7 +162,6 @@
             android:clickable="true"
             app:backgroundTint="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
             app:srcCompat="@drawable/ic_edit" />
     </android.support.constraint.ConstraintLayout>
 

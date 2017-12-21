@@ -8,14 +8,16 @@ public class Alert implements Parcelable {
     int id;
     int count;
     int kind;
+    boolean visible;
 
     public Alert() {
     }
 
-    public Alert(int id, int count, int kind) {
+    public Alert(int id, int count, int kind, boolean visible) {
         this.id = id;
         this.count = count;
         this.kind = kind;
+        this.visible = visible;
     }
 
     public int getCount() {
@@ -36,6 +38,12 @@ public class Alert implements Parcelable {
     public void setId(int id) {
         this.id = id;
     }
+    public boolean isVisible() {
+        return visible;
+    }
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
 
     @Override
@@ -48,12 +56,14 @@ public class Alert implements Parcelable {
         dest.writeInt(this.id);
         dest.writeInt(this.count);
         dest.writeInt(this.kind);
+        dest.writeByte(this.visible ? (byte) 1 : (byte) 0);
     }
 
     protected Alert(Parcel in) {
         this.id = in.readInt();
         this.count = in.readInt();
         this.kind = in.readInt();
+        this.visible = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<Alert> CREATOR = new Parcelable.Creator<Alert>() {

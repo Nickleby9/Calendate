@@ -100,7 +100,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         btnChange = (FloatingActionButton) findViewById(R.id.btnChange);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
 
-        alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts"));
+        alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts").orderByChild("visible").equalTo(true));
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
         rvAlerts.setAdapter(alertsAdapter);
@@ -240,42 +240,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         else
             btnTime.setText(String.valueOf(hours) + ":" + String.valueOf(minutes));
     }
-/*
-    private void editEvent() {
-        alerts.clear();
 
-        int size = AlertsAdapter.AlertsViewHolder.viewHolders.size();
-        for (int i = 0; i < size; i++) {
-            AlertsAdapter.AlertsViewHolder viewHolder = (AlertsAdapter.AlertsViewHolder) AlertsAdapter.AlertsViewHolder.viewHolders.get(i);
-            int count = Integer.valueOf(viewHolder.etCount.getText().toString());
-            int selectedItemPosition = viewHolder.spnKind.getSelectedItemPosition();
-            alerts.add(i, new Alert(count, selectedItemPosition));
-        }
-
-        final String title = etTitle.getText().toString();
-        final String description = etDescription.getText().toString();
-        String time = btnTime.getText().toString();
-        final int repeat = spnRepeat.getSelectedItemPosition();
-        final String btnId = this.btnId;
-
-        final String key = model.getEventUID();
-        mDatabase.getReference("all_events/" + user.getUid()).child(key).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Event event = new Event(title, description, date, alerts, hours, minutes, repeat, key, btnId, true, user.getDisplayName());
-                mDatabase.getReference("all_events/" + user.getUid()).child(key).setValue(event);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(DetailedItemActivity.this, "Connection error", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        alerts.clear();
-        changeEnabled(false);
-    }
-*/
     public static class AlertsAdapter extends FirebaseRecyclerAdapter<Alert, AlertsAdapter.AlertsViewHolder> {
 
         public AlertsAdapter(Query query) {
@@ -290,7 +255,6 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
         @Override
         protected void populateViewHolder(AlertsAdapter.AlertsViewHolder viewHolder, Alert model, int position) {
-            viewHolder.alert = model;
             viewHolder.etCount.setText(String.valueOf(model.getCount()));
             viewHolder.spnKind.setSelection(model.getKind());
             AlertsViewHolder.viewHolders.add(position, viewHolder);
@@ -302,7 +266,6 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             EditText etCount;
             Spinner spnKind;
             FloatingActionButton fabRemove;
-            Alert alert;
             static ArrayList<RecyclerView.ViewHolder> viewHolders = new ArrayList<>();
 
             public AlertsViewHolder(View itemView) {
@@ -379,7 +342,8 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                             viewHolder.context = context;
                             /*if (model.contains(".jpg")) {*/
                             Glide.with(context).asBitmap().load(file).apply(RequestOptions.overrideOf(45, 45)).into(viewHolder.ivDoc);
-                            /*} else */if (model.contains(".pdf")) {
+                            /*} else */
+                            if (model.contains(".pdf")) {
                                 viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
                             }
                         }

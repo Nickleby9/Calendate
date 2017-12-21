@@ -37,7 +37,7 @@ public class NotificationReceiver extends BroadcastReceiver {
             alarmCount = intent.getExtras().getInt("beforeTime");
             alarmKind = intent.getExtras().getInt("before");
 
-            if (alarmCount != -1 && alarmCount != 0 && alarmKind != -1) {
+            if (alarmCount > 0 && alarmKind != -1) {
                 switch (alarmKind) {
                     case 0:
                         if (alarmCount == 1)

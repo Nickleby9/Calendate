@@ -159,7 +159,7 @@ public class Event implements Parcelable {
         this.creator = in.readString();
     }
 
-    public static final Creator<Event> CREATOR = new Creator<Event>() {
+    public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {
         @Override
         public Event createFromParcel(Parcel source) {
             return new Event(source);

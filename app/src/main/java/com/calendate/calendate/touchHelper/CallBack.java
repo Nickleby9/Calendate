@@ -124,10 +124,11 @@ public class CallBack extends ItemTouchHelper.SimpleCallback {
         for (int j = 0; j < alerts.size(); j++) {
             int id = alerts.get(j).getId();
             AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            PendingIntent pendingIntent;
 
             if (alarm != null) {
                 Intent alarmIntent = new Intent(context, NotificationReceiver.class);
-                PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                pendingIntent = PendingIntent.getBroadcast(
                         context, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarm.cancel(pendingIntent);
             } else

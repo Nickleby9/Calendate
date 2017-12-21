@@ -22,6 +22,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -160,7 +161,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             isEditMode = true;
             readOnce();
         } else {
-            alerts.add(new Alert(1, 1, 1));
+            alerts.add(new Alert(1, 1, 1, true));
             adapter = new AlertsAdapter(this, getAlerts());
             rvAlerts.setAdapter(adapter);
             onClick(btnDate);
@@ -460,17 +461,22 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         alerts.clear();
 
         int size = rvAlerts.getChildCount();
+        boolean isCountZero = false;
         if (size == 0) {
             int id = longToInt(System.currentTimeMillis());
-            alerts.add(0, new Alert(id, 0, 0));
+            alerts.add(0, new Alert(id, 0, 0, false));
         } else {
             for (int i = 0; i < size; i++) {
                 AlertsAdapter.AlertsViewHolder viewHolder = (AlertsAdapter.AlertsViewHolder) AlertsAdapter.AlertsViewHolder.viewHolders.get(i);
                 int count = Integer.valueOf(viewHolder.etCount.getText().toString());
                 int selectedItemPosition = viewHolder.spnKind.getSelectedItemPosition();
                 int id = longToInt(System.currentTimeMillis() + "" + i);
-                alerts.add(i, new Alert(id, count, selectedItemPosition));
+                alerts.add(i, new Alert(id, count, selectedItemPosition, true));
+                if (count == 0)
+                    isCountZero = true;
             }
+            if (!isCountZero)
+                alerts.add(alerts.size(), new Alert(longToInt(System.currentTimeMillis()), 0, 0, false));
         }
 
         String title = etTitle.getText().toString();
@@ -481,7 +487,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         event = new Event(title, description, date, alerts, hours, minutes, repeat, eventKey, btnId, true, user.getDisplayName());
         mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).setValue(event);
-        calendar.set(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), date.getHourOfDay(), date.getMinuteOfHour());
+        calendar.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(), hours, minutes, 0);
 
         for (File file : fileArray) {
             mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
@@ -530,99 +536,66 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (alarm != null) {
             Calendar eventDate = Calendar.getInstance();
-            eventDate = calendar;
-
-            Intent onceIntent = new Intent(this, NotificationReceiver.class);
-            onceIntent.putExtra("title", event.getTitle());
-            onceIntent.putExtra("text", event.getDescription());
-            onceIntent.putExtra("eventUid", event.getEventUID());
-            onceIntent.putExtra("before", -1);
-
             int repeat = event.getRepeatPos();
+            Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+            alarmIntent.putExtra("title", event.getTitle());
+            alarmIntent.putExtra("text", event.getDescription());
 
             switch (repeat) {
                 case 0: //none
-                    onceIntent.putExtra("repeat", "none");
+                    alarmIntent.putExtra("repeat", "none");
                     break;
                 case 1: //day
-                    onceIntent.putExtra("repeat", "daily");
+                    alarmIntent.putExtra("repeat", "daily");
                     break;
                 case 2: //week
-                    onceIntent.putExtra("repeat", "weekly");
+                    alarmIntent.putExtra("repeat", "weekly");
                     break;
                 case 3: //month
-                    onceIntent.putExtra("repeat", "monthly");
+                    alarmIntent.putExtra("repeat", "monthly");
                     break;
                 case 4: //year
-                    onceIntent.putExtra("repeat", "yearly");
+                    alarmIntent.putExtra("repeat", "yearly");
                     break;
             }
 
-            int onceId = 0;
-            if (AlertsAdapter.AlertsViewHolder.viewHolders.size() == 0) {
-                onceId = event.getAlerts().get(0).getId();
-            } else
-                onceId = longToInt(System.currentTimeMillis());
-
-            PendingIntent pendingOnceIntent = PendingIntent.getBroadcast(
-                    this, onceId, onceIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingOnceIntent);
-
             PendingIntent pendingIntent;
-            int id, alarmCount, alarmKind;
-            Intent alarmIntent = new Intent(this, NotificationReceiver.class);
             for (int i = 0; i < alerts.size(); i++) {
-                eventDate = calendar;
+                eventDate.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
+                        calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE),0);
 
-                id = alerts.get(i).getId();
-                alarmCount = alerts.get(i).getCount();
-                alarmKind = alerts.get(i).getKind();
+                int id = alerts.get(i).getId();
+                int alarmCount = alerts.get(i).getCount();
+                int alarmKind = alerts.get(i).getKind();
 
-                alarmIntent.putExtra("title", event.getTitle());
-                alarmIntent.putExtra("text", event.getDescription());
+                if (alarmCount != 0) {
+                    switch (alarmKind) {
+                        case 0:
+                            eventDate.add(Calendar.MINUTE, -alarmCount);
+                            break;
+                        case 1:
+                            eventDate.add(Calendar.HOUR, -alarmCount);
+                            break;
+                        case 2:
+                            eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
+                            break;
+                        case 3:
+                            eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
+                            break;
+                        case 4:
+                            eventDate.add(Calendar.MONTH, -alarmCount);
+                            break;
+                    }
+                }
+
                 alarmIntent.putExtra("id", id);
                 alarmIntent.putExtra("before", alarmKind);
                 alarmIntent.putExtra("beforeTime", alarmCount);
-                alarmIntent.putExtra("repeat", "none");
 
-                switch (alarmKind) {
-                    case 0:
-                        eventDate.add(Calendar.MINUTE, -alarmCount);
-                        break;
-                    case 1:
-                        eventDate.add(Calendar.HOUR, -alarmCount);
-                        break;
-                    case 2:
-                        eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
-                        break;
-                    case 3:
-                        eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
-                        break;
-                    case 4:
-                        eventDate.add(Calendar.MONTH, -alarmCount);
-                        break;
-                }
-
-                switch (repeat) {
-                    case 0: //none
-                        alarmIntent.putExtra("repeat", "none");
-                        break;
-                    case 1: //day
-                        alarmIntent.putExtra("repeat", "daily");
-                        break;
-                    case 2: //week
-                        alarmIntent.putExtra("repeat", "weekly");
-                        break;
-                    case 3: //month
-                        alarmIntent.putExtra("repeat", "monthly");
-                        break;
-                    case 4: //year
-                        alarmIntent.putExtra("repeat", "yearly");
-                        break;
-                }
                 pendingIntent = PendingIntent.getBroadcast(
                         this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
+                Log.d("Hilay", "createNotification: " + eventDate.toString());
             }
         } else
             Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
@@ -632,10 +605,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (alarm != null) {
             Intent alarmIntent = new Intent(this, NotificationReceiver.class);
-            int onceId = alerts.get(0).getId() - 1;
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    this, onceId, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            alarm.cancel(pendingIntent);
+            PendingIntent pendingIntent;
 
             for (int i = 0; i < alerts.size(); i++) {
                 int id = alerts.get(i).getId();
@@ -700,6 +670,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         public AlertsAdapter(Context context, ArrayList<Alert> data) {
             inflater = LayoutInflater.from(context);
             this.context = context;
+            if (!data.get(data.size() - 1).isVisible())
+                data.remove(data.size() - 1);
             this.data = data;
         }
 
@@ -711,7 +683,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         @Override
         public void onBindViewHolder(AlertsViewHolder holder, int position) {
-            holder.alert = data.get(position);
             holder.etCount.setText(String.valueOf(data.get(position).getCount()));
             holder.spnKind.setSelection(data.get(position).getKind());
             AlertsViewHolder.viewHolders.add(position, holder);
@@ -726,7 +697,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         static class AlertsViewHolder extends RecyclerView.ViewHolder {
             EditText etCount;
             Spinner spnKind;
-            Alert alert;
             FloatingActionButton fabRemove;
             static ArrayList<AlertsViewHolder> viewHolders = new ArrayList<>();
 
