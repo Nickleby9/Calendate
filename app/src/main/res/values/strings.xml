@@ -224,5 +224,6 @@
     <string name="intro_friends">Social calendar</string>
     <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them \n Just swipe your events and send them away</string>
     <string name="successful_share">The event successfully shared!</string>
+    <string name="new_event">New event</string>
 
 </resources>

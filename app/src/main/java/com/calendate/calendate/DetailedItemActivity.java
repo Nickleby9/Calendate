@@ -77,6 +77,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     AlertsAdapter alertsAdapter;
     DocsAdapter docsAdapter;
     String btnTitle;
+    Event event;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,7 +137,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     if (snapshot.getKey().equals(model.getEventUID())) {
-                        Event event = snapshot.getValue(Event.class);
+                        event = snapshot.getValue(Event.class);
                         etTitle.setText(event.getTitle());
                         if (event.getDescription().isEmpty()) {
                             etDescription.setHint("");
@@ -171,7 +172,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         switch (id) {
             case R.id.btnChange:
                 Intent intent = new Intent(this, AddItemActivity.class);
-                intent.putExtra("event", model.getEventUID());
+                intent.putExtra("event", event);
                 intent.putExtra("btnTitle", btnTitle);
                 startActivity(intent);
                 break;

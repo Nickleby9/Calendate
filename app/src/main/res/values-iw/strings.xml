@@ -204,4 +204,5 @@
     <string name="intro_friends">יומן חברתי</string>
     <string name="intro_friends_desc">תוסיפו את האנשים החושבים בחייכם לרשימת החברים.\n תגררו את האירוע הצידה על מנת לשתף אותו</string>
     <string name="successful_share">The event successfully shared!</string>
+    <string name="new_event">New event</string>
 </resources>
