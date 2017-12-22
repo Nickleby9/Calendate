@@ -145,7 +145,7 @@
             app:layout_constraintTop_toBottomOf="@+id/tvDoc"
             app:srcCompat="@drawable/ic_doc_add"
             android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toStartOf="@+id/rvDocs"
+            app:layout_constraintStart_toEndOf="@+id/rvDocs"
             android:layout_marginEnd="8dp" />
 
         <android.support.v7.widget.RecyclerView
@@ -156,8 +156,7 @@
             android:layout_marginEnd="16dp"
             android:layout_marginTop="0dp"
             app:layout_constraintBottom_toBottomOf="@+id/ivAttach"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintVertical_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/ivAttach" />
 
         <TextView

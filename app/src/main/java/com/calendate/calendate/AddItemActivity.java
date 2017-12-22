@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -489,32 +490,41 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).setValue(event);
         calendar.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(), hours, minutes, 0);
 
-        for (File file : fileArray) {
-            mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
-                    .putFile(Uri.fromFile(file)).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                    int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
-                    NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    if (notificationManager != null) {
-                        NotificationCompat.Builder builder = new NotificationCompat.Builder(AddItemActivity.this);
-                        builder.setContentTitle("Uploading file")
-                                .setProgress((int) taskSnapshot.getTotalByteCount(), progress, false);
-                        notificationManager.notify(1001, builder.build());
+        for (final File file : fileArray) {
+            UploadTask uploadTask = mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
+                    .putFile(Uri.fromFile(file));
+            final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(AddItemActivity.this);
+                builder.setContentTitle("Uploading file")
+                        .setProgress((int) 100, 0, false)
+                        .setSmallIcon(R.drawable.ic_stat_calendate_notification)
+                        .setOngoing(true)
+                        .setVibrate(new long[]{0})
+                        .setSound(Uri.EMPTY)
+                        .setColor(Color.argb(70, 2, 136, 209)); //colorPrimaryDark
+                notificationManager.notify(longToInt(1001 + "" + file.length()), builder.build());
+                uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                        int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
+                        builder.setProgress(100, progress, false);
+                        builder.setContentText(taskSnapshot.getBytesTransferred()/1000 + "kb / " + taskSnapshot.getTotalByteCount() / 1000 + "kb");
+                        notificationManager.notify(longToInt(1001 + "" + file.length()), builder.build());
                     }
-                }
-            })
-                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onSuccess(UploadTask.TaskSnapshot task) {
-                            mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(i)).setValue(task.getDownloadUrl().toString());
-                            i++;
-                            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                            if (notificationManager != null) {
-                                notificationManager.cancel(1001);
+                })
+                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onSuccess(UploadTask.TaskSnapshot task) {
+                                mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(i)).setValue(task.getDownloadUrl().toString());
+                                i++;
+                                NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                                if (notificationManager != null) {
+                                    notificationManager.cancel(longToInt(1001 + "" + file.length()));
+                                }
                             }
-                        }
-                    });
+                        });
+            }
         }
 
         createNotification(alerts, event);
@@ -535,7 +545,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (alarm != null) {
-            Calendar eventDate = Calendar.getInstance();
+//            Calendar eventDate = calendar;
             int repeat = event.getRepeatPos();
             Intent alarmIntent = new Intent(this, NotificationReceiver.class);
             alarmIntent.putExtra("title", event.getTitle());
@@ -561,41 +571,55 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
             PendingIntent pendingIntent;
             for (int i = 0; i < alerts.size(); i++) {
-                eventDate.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
-                        calendar.get(Calendar.HOUR), calendar.get(Calendar.MINUTE),0);
+//                eventDate.set(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH),
+//                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 0);
+//                eventDate.set(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), hours, minutes, 0);
+//                LocalDateTime eventDate = new LocalDateTime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), hours, minutes,0,0);
+                LocalDateTime eventDate = new LocalDateTime(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH),
+                        calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 0);
+                Log.d("Hilay", "createNotification: " + eventDate.toString());
 
                 int id = alerts.get(i).getId();
                 int alarmCount = alerts.get(i).getCount();
                 int alarmKind = alerts.get(i).getKind();
 
-                if (alarmCount != 0) {
-                    switch (alarmKind) {
-                        case 0:
-                            eventDate.add(Calendar.MINUTE, -alarmCount);
-                            break;
-                        case 1:
-                            eventDate.add(Calendar.HOUR, -alarmCount);
-                            break;
-                        case 2:
-                            eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
-                            break;
-                        case 3:
-                            eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
-                            break;
-                        case 4:
-                            eventDate.add(Calendar.MONTH, -alarmCount);
-                            break;
-                    }
-                }
-
                 alarmIntent.putExtra("id", id);
                 alarmIntent.putExtra("before", alarmKind);
                 alarmIntent.putExtra("beforeTime", alarmCount);
 
+                LocalDateTime newDate = eventDate;
+
+                if (alarmCount != 0) {
+                    switch (alarmKind) {
+                        case 0:
+//                            eventDate.add(Calendar.MINUTE, -alarmCount);
+                            newDate = eventDate.minusMinutes(alarmCount);
+                            break;
+                        case 1:
+//                            eventDate.add(Calendar.HOUR_OF_DAY, -alarmCount);
+                            newDate = eventDate.minusHours(alarmCount);
+                            break;
+                        case 2:
+//                            eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
+                            newDate = eventDate.minusDays(alarmCount);
+                            break;
+                        case 3:
+//                            eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
+                            newDate = eventDate.minusWeeks(alarmCount);
+                            break;
+                        case 4:
+//                            eventDate.add(Calendar.MONTH, -alarmCount);
+                            newDate = eventDate.minusMonths(alarmCount);
+                            break;
+                    }
+                }
+
+                Log.d("Hilay", "createNotification: " + newDate.toString());
+                Calendar alertTime = Calendar.getInstance();
+                alertTime.set(newDate.getYear(),newDate.getMonthOfYear() - 1, newDate.getDayOfMonth(), newDate.getHourOfDay(), newDate.getMinuteOfHour(), 0);
                 pendingIntent = PendingIntent.getBroadcast(
                         this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                alarm.set(AlarmManager.RTC_WAKEUP, eventDate.getTimeInMillis(), pendingIntent);
-                Log.d("Hilay", "createNotification: " + eventDate.toString());
+                alarm.set(AlarmManager.RTC_WAKEUP, alertTime.getTimeInMillis(), pendingIntent);
             }
         } else
             Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
