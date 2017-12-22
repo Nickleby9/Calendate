@@ -41,36 +41,36 @@ public class NotificationReceiver extends BroadcastReceiver {
                 switch (alarmKind) {
                     case 0:
                         if (alarmCount == 1)
-                            kind = "minute";
+                            kind = context.getString(R.string.note_minute);
                         else
-                            kind = "minutes";
+                            kind = context.getString(R.string.note_minutes);
                         break;
                     case 1:
                         if (alarmCount == 1)
-                            kind = "hour";
+                            kind = context.getString(R.string.note_hour);
                         else
-                            kind = "hours";
+                            kind = context.getString(R.string.note_hours);
                         break;
                     case 2:
                         if (alarmCount == 1)
-                            kind = "day";
+                            kind = context.getString(R.string.note_day);
                         else
-                            kind = "days";
+                            kind = context.getString(R.string.note_days);
                         break;
                     case 3:
                         if (alarmCount == 1)
-                            kind = "week";
+                            kind = context.getString(R.string.note_week);
                         else
-                            kind = "weeks";
+                            kind = context.getString(R.string.note_weeks);
                         break;
                     case 4:
                         if (alarmCount == 1)
-                            kind = "month";
+                            kind = context.getString(R.string.note_month);
                         else
-                            kind = "months";
+                            kind = context.getString(R.string.note_months);
                         break;
                 }
-                timingTitle = " (in " + alarmCount + " " + kind + ")";
+                timingTitle = " (" + context.getString(R.string.note_in) + " " + alarmCount + " " + kind + ")";
             }
         }
 

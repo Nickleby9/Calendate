@@ -1342,7 +1342,7 @@ public class CaldroidFragment extends DialogFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Calendar");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(com.calendate.calendate.R.string.calendar_view);
 
         final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();

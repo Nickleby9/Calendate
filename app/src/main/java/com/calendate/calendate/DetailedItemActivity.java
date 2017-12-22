@@ -414,10 +414,10 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                             intent.setDataAndType(Uri.fromFile(newFile), "application/pdf");
                                             try {
                                                 intent.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
-                                                Intent intent1 = Intent.createChooser(intent, "Open With");
+                                                Intent intent1 = Intent.createChooser(intent, context.getString(R.string.open_with));
                                                 context.startActivity(intent1);
                                             } catch (ActivityNotFoundException e) {
-                                                Toast.makeText(view.getContext(), "You don't have an application to open this file", Toast.LENGTH_SHORT).show();
+                                                Toast.makeText(view.getContext(), R.string.app_not_found, Toast.LENGTH_SHORT).show();
                                             }
                                         }
                                     }

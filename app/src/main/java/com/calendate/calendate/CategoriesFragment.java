@@ -8,7 +8,6 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,8 +53,6 @@ public class CategoriesFragment extends BottomSheetDialogFragment {
         user = FirebaseAuth.getInstance().getCurrentUser();
         rvCategories = (RecyclerView) view.findViewById(R.id.rvCategories);
         model = getArguments().getParcelable("event");
-        Log.d("hilay", "onViewCreated: " + model.getAlerts());
-
 
         CategoriesAdapter adapter = new CategoriesAdapter(mDatabase.getReference("buttons/" + user.getUid()), model, this);
         rvCategories.setLayoutManager(new LinearLayoutManager(getContext()));

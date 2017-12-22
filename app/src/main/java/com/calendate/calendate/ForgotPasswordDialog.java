@@ -43,13 +43,13 @@ public class ForgotPasswordDialog extends DialogFragment {
                                 @Override
                                 public void onComplete(Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(view.getContext(), "Email sent!", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(view.getContext(), R.string.email_sent, Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });
                 dismiss();
             } else {
-                    etEmail.setError("Email can not be empty");
+                    etEmail.setError(getString(R.string.empty_mail));
                     etEmail.requestFocus();
                 }
             }

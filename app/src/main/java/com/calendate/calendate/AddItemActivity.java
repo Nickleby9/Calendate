@@ -496,7 +496,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (notificationManager != null) {
                 final NotificationCompat.Builder builder = new NotificationCompat.Builder(AddItemActivity.this);
-                builder.setContentTitle("Uploading file")
+                builder.setContentTitle(getString(R.string.uploading))
                         .setProgress((int) 100, 0, false)
                         .setSmallIcon(R.drawable.ic_stat_calendate_notification)
                         .setOngoing(true)
@@ -577,7 +577,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 //                LocalDateTime eventDate = new LocalDateTime(date.getYear(), date.getMonthOfYear(), date.getDayOfMonth(), hours, minutes,0,0);
                 LocalDateTime eventDate = new LocalDateTime(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, calendar.get(Calendar.DAY_OF_MONTH),
                         calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), 0);
-                Log.d("Hilay", "createNotification: " + eventDate.toString());
 
                 int id = alerts.get(i).getId();
                 int alarmCount = alerts.get(i).getCount();
@@ -614,7 +613,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }
 
-                Log.d("Hilay", "createNotification: " + newDate.toString());
                 Calendar alertTime = Calendar.getInstance();
                 alertTime.set(newDate.getYear(),newDate.getMonthOfYear() - 1, newDate.getDayOfMonth(), newDate.getHourOfDay(), newDate.getMinuteOfHour(), 0);
                 pendingIntent = PendingIntent.getBroadcast(

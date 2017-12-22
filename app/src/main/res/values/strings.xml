@@ -225,5 +225,22 @@
     <string name="intro_friends_desc">Add the close persons in your life and share your occasions with them \n Just swipe your events and send them away</string>
     <string name="successful_share">The event successfully shared!</string>
     <string name="new_event">New event</string>
+    <string name="note_minute">minute</string>
+    <string name="note_minutes">minutes</string>
+    <string name="note_hour">hour</string>
+    <string name="note_hours">hours</string>
+    <string name="note_day">day</string>
+    <string name="note_days">days</string>
+    <string name="note_week">week</string>
+    <string name="note_weeks">weeks</string>
+    <string name="note_month">month</string>
+    <string name="note_months">months</string>
+    <string name="note_in">in</string>
+    <string name="uploading">Uploading file</string>
+    <string name="calendar_view">Calendar</string>
+    <string name="email_sent">Email sent!</string>
+    <string name="empty_mail">Email can not be empty</string>
+    <string name="app_not_found">You don\'t have an application to open this file</string>
+    <string name="open_with">Open With</string>
 
 </resources>
