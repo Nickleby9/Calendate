@@ -217,8 +217,8 @@
     <string name="note_in">בעוד</string>
     <string name="uploading">מעלה קובץ</string>
     <string name="calendar_view">לוח שנה</string>
-    <string name="email_sent">Email sent!</string>
-    <string name="empty_mail">Email can not be empty</string>
-    <string name="app_not_found">You don\'t have an application to open this file</string>
-    <string name="open_with">Open With</string>
+    <string name="email_sent">המייל נשלח!</string>
+    <string name="empty_mail">כתובת מייל לא יכולה להישאר ריקה</string>
+    <string name="app_not_found">לא נמצא יישום מתאים לפתיחץ הקובץ</string>
+    <string name="open_with">פתיחה באמצעות</string>
 </resources>
