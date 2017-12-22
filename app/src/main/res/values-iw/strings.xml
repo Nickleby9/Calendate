@@ -206,6 +206,7 @@
     <string name="successful_share">האירוע שותף בהצלחה!</string>
     <string name="new_event">אירוע חדש</string>
     <string name="note_minute">דקה</string>
+    <string name="note_minutes">דקות</string>
     <string name="note_hour">שעה</string>
     <string name="note_hours">שעות</string>
     <string name="note_day">יום</string>
