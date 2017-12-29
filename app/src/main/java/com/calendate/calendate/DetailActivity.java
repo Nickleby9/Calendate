@@ -1,14 +1,9 @@
 package com.calendate.calendate;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -18,7 +13,6 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.EventRow;
 import com.calendate.calendate.touchHelper.CallBack;
@@ -35,8 +29,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
-
-import java.util.ArrayList;
 
 public class DetailActivity extends AppCompatActivity {
 
@@ -78,7 +70,7 @@ public class DetailActivity extends AppCompatActivity {
 
 //        DatabaseReference query = mDatabase.getReference("events/" + user.getUid() + "/" + btnId);
         DatabaseReference query = mDatabase.getReference("all_events/" + user.getUid());
-        adapter = new EventAdapter(query.orderByChild("btnId").equalTo(btnId), this);
+        adapter = new EventAdapter(query.orderByChild("btnId").equalTo(btnId), this, user.getUid());
 
 
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -111,10 +103,12 @@ public class DetailActivity extends AppCompatActivity {
     static class EventAdapter extends FirebaseRecyclerAdapter<EventRow, EventAdapter.EventViewHolder> {
 
         Context context;
+        String userId;
 
-        public EventAdapter(Query query, Context context) {
+        public EventAdapter(Query query, Context context, String userId) {
             super(EventRow.class, R.layout.event_item, EventViewHolder.class, query);
             this.context = context;
+            this.userId = userId;
         }
 
         @Override
@@ -124,6 +118,7 @@ public class DetailActivity extends AppCompatActivity {
             viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat) + " - " + model.getTime());
             viewHolder.model = model;
             viewHolder.context = this.context;
+            viewHolder.userId = this.userId;
         }
 
 
@@ -132,6 +127,7 @@ public class DetailActivity extends AppCompatActivity {
             TextView tvDate;
             EventRow model;
             Context context;
+            String userId;
 
             public EventViewHolder(View itemView) {
                 super(itemView);
@@ -140,98 +136,28 @@ public class DetailActivity extends AppCompatActivity {
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
-                        intent.putExtra("model", model);
-                        intent.putExtra("btnTitle", btnTitle);
-                        v.getContext().startActivity(intent);
+                    public void onClick(final View v) {
+                        FirebaseDatabase.getInstance().getReference("all_events/" + userId + "/" + model.getEventUID()).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                    Event event = dataSnapshot.getValue(Event.class);
+                                    if (event != null && event.isAccessible()){
+                                        Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
+                                        intent.putExtra("model", model);
+                                        intent.putExtra("btnTitle", btnTitle);
+                                        v.getContext().startActivity(intent);
+                                    } else {
+                                        Toast.makeText(context, R.string.upload_in_progress, Toast.LENGTH_SHORT).show();
+                                    }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
                     }
                 });
-            }
-
-            void optionsDialog(final View v) {
-                final AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
-                builder.setTitle(R.string.change_button_dialog_title)
-                        .setItems(R.array.itemOptions, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which) {
-                                    case 0:
-                                        //Share
-                                        UserListFragment userListFragment = new UserListFragment();
-                                        dialog.dismiss();
-                                        if (v.getContext() instanceof FragmentActivity) {
-                                            Bundle bundle = new Bundle();
-                                            bundle.putParcelable("model", model);
-                                            userListFragment.setArguments(bundle);
-                                            userListFragment.show(((FragmentActivity) v.getContext()).getSupportFragmentManager(), "fragment");
-                                        }
-                                        break;
-                                    case 1:
-                                        //Delete
-                                        deleteDialog();
-                                        break;
-                                }
-                            }
-                        }).show();
-            }
-
-            private void deleteDialog() {
-                AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
-                builder.setTitle(R.string.confirm_delete)
-                        .setMessage(R.string.confirm_delete)
-                        .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                                FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//                                mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID()).removeValue();
-                                mDatabase.getReference("all_events/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot dataSnapshot) {
-                                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                                            for (DataSnapshot event : snapshot.getChildren()) {
-                                                if (event.getKey().equals(model.getEventUID())) {
-                                                    Event eventValue = event.getValue(Event.class);
-                                                    clearNotifications(eventValue);
-                                                    event.getRef().removeValue();
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(DatabaseError databaseError) {
-
-                                    }
-                                });
-                                dialogInterface.dismiss();
-                            }
-                        })
-                        .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                dialogInterface.dismiss();
-                            }
-                        }).show();
-            }
-
-            private void clearNotifications(Event eventValue) {
-                ArrayList<Alert> alerts = eventValue.getAlerts();
-
-                for (int j = 0; j < alerts.size(); j++) {
-                    int id = alerts.get(j).getId();
-                    AlarmManager alarm = (AlarmManager) context.getSystemService(ALARM_SERVICE);
-
-                    if (alarm != null) {
-                        Intent alarmIntent = new Intent(context, NotificationReceiver.class);
-                        PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                                context, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-                        alarm.cancel(pendingIntent);
-                    } else
-                        Toast.makeText(context, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
-                }
             }
 
         }

@@ -23,6 +23,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +61,9 @@ import com.tbruyelle.rxpermissions.RxPermissions;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -119,7 +123,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         btnTitle = getIntent().getStringExtra("btnTitle");
 
         etTitle = (EditText) findViewById(R.id.etTitle);
-        etDescription = (EditText) findViewById(R.id.etDescription);
+        etDescription = (EditText) findViewById(R.id.tvDescription);
         spnRepeat = (Spinner) findViewById(R.id.spnRepeat);
         btnTime = (BootstrapButton) findViewById(R.id.btnTime);
         btnDate = (BootstrapButton) findViewById(R.id.btnDate);
@@ -165,7 +169,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             adapter = new AlertsAdapter(this, getAlerts());
             rvAlerts.setAdapter(adapter);
             onClick(btnDate);
-            fileArray.clear();
         }
 
         if (eventKey == null)
@@ -176,6 +179,26 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         imm.hideSoftInputFromWindow(etTitle.getWindowToken(), InputMethodManager.HIDE_IMPLICIT_ONLY);
 
 //        fabAdd.setVisibility(View.GONE);
+
+        etTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() == 0)
+                    ((AppCompatActivity) AddItemActivity.this).getSupportActionBar().setTitle(getString(R.string.new_event));
+                else
+                    ((AppCompatActivity) AddItemActivity.this).getSupportActionBar().setTitle(s);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void readOnce() {
@@ -187,6 +210,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     if (snapshot.getKey().equals(eventKey)) {
                         Event event = snapshot.getValue(Event.class);
                         etTitle.setText(event.getTitle());
+                        ((AppCompatActivity) AddItemActivity.this).getSupportActionBar().setTitle(event.getTitle());
                         etDescription.setText(event.getDescription());
                         btnTime.setText(event.getTime());
                         LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
@@ -427,6 +451,31 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         });
     }
 
+    Observable<File> imageDownloadAndShrink(final File file) {
+        return Observable.defer(new Callable<ObservableSource<? extends File>>() {
+            @Override
+            public ObservableSource<? extends File> call() throws Exception {
+                File smallFile = new File(getCacheDir(), file.getName() + "-mini");
+                try {
+                    if (smallFile.createNewFile()) {
+                        Bitmap b = Glide.with(AddItemActivity.this).asBitmap().load(file)
+                                .apply(RequestOptions.overrideOf(45, 45)).submit().get();
+                        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                        b.compress(Bitmap.CompressFormat.PNG, 100, bos);
+                        byte[] bitmapData = bos.toByteArray();
+                        FileOutputStream fos = new FileOutputStream(smallFile);
+                        fos.write(bitmapData);
+                        fos.flush();
+                        fos.close();
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                return Observable.just(smallFile);
+            }
+        });
+    }
+
     public static void removeEventAdapter(int pos) {
         alerts.remove(pos);
         AlertsAdapter.AlertsViewHolder.viewHolders.remove(pos);
@@ -455,7 +504,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    int i = 1;
+    int i = 0;
+    int j = 0;
 
     private void addNewEvent() {
 
@@ -486,13 +536,43 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         int repeat = spnRepeat.getSelectedItemPosition();
         final String btnId = this.btnId;
 
-        event = new Event(title, description, date, alerts, hours, minutes, repeat, eventKey, btnId, true, user.getDisplayName());
+        event = new Event(title, description, date, alerts, hours, minutes, repeat, eventKey, btnId, true, user.getDisplayName(), true);
         mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).setValue(event);
         calendar.set(date.getYear(), date.getMonthOfYear() - 1, date.getDayOfMonth(), hours, minutes, 0);
 
+        final int arrSize = fileArray.size();
         for (final File file : fileArray) {
             UploadTask uploadTask = mStorage.child("documents").child(user.getUid()).child(eventKey).child(file.getName())
                     .putFile(Uri.fromFile(file));
+            mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("accessible").setValue(false);
+            CompositeDisposable disposable = new CompositeDisposable();
+            disposable.add(imageDownloadAndShrink(file)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribeWith(new DisposableObserver<File>() {
+                        @Override
+                        public void onNext(@io.reactivex.annotations.NonNull File newFile) {
+                            UploadTask uploadTask1 = mStorage.child("documents").child(user.getUid()).child(eventKey).child(newFile.getName())
+                                    .putFile(Uri.fromFile(newFile));
+                            uploadTask1.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                    mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("mini-documents").child(String.valueOf(i)).setValue(taskSnapshot.getDownloadUrl().toString());
+                                    i++;
+                                }
+                            });
+                        }
+
+                        @Override
+                        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+                            Toast.makeText(AddItemActivity.this, "Failed to upload file", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onComplete() {
+
+                        }
+                    }));
             final NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
             if (notificationManager != null) {
                 final NotificationCompat.Builder builder = new NotificationCompat.Builder(AddItemActivity.this);
@@ -509,15 +589,17 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                         int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
                         builder.setProgress(100, progress, false);
-                        builder.setContentText(taskSnapshot.getBytesTransferred()/1000 + "kb / " + taskSnapshot.getTotalByteCount() / 1000 + "kb");
+                        builder.setContentText(taskSnapshot.getBytesTransferred() / 1000 + "kb / " + taskSnapshot.getTotalByteCount() / 1000 + "kb");
                         notificationManager.notify(longToInt(1001 + "" + file.length()), builder.build());
                     }
                 })
                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                             @Override
                             public void onSuccess(UploadTask.TaskSnapshot task) {
-                                mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(i)).setValue(task.getDownloadUrl().toString());
-                                i++;
+                                mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("documents").child(String.valueOf(j)).setValue(task.getDownloadUrl().toString());
+                                j++;
+                                if (j == arrSize)
+                                    mDatabase.getReference("all_events/" + user.getUid()).child(eventKey).child("accessible").setValue(true);
                                 NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                                 if (notificationManager != null) {
                                     notificationManager.cancel(longToInt(1001 + "" + file.length()));
@@ -529,6 +611,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         createNotification(alerts, event);
 
+        fileArray.clear();
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
 
@@ -614,7 +697,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 }
 
                 Calendar alertTime = Calendar.getInstance();
-                alertTime.set(newDate.getYear(),newDate.getMonthOfYear() - 1, newDate.getDayOfMonth(), newDate.getHourOfDay(), newDate.getMinuteOfHour(), 0);
+                alertTime.set(newDate.getYear(), newDate.getMonthOfYear() - 1, newDate.getDayOfMonth(), newDate.getHourOfDay(), newDate.getMinuteOfHour(), 0);
                 pendingIntent = PendingIntent.getBroadcast(
                         this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarm.set(AlarmManager.RTC_WAKEUP, alertTime.getTimeInMillis(), pendingIntent);
@@ -772,6 +855,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
                 image = BitmapFactory.decodeFile(file.getPath());
                 holder.ivDoc.setImageBitmap(image);
+                image = null;
                 /*
                     CompositeDisposable disposables = new CompositeDisposable();
 

@@ -242,5 +242,8 @@
     <string name="empty_mail">Email can not be empty</string>
     <string name="app_not_found">You don\'t have an application to open this file</string>
     <string name="open_with">Open With</string>
+    <string name="upload_in_progress">Please wait for file uploading to finish</string>
+    <string name="no_description">No description</string>
+    <string name="description_title">Description:</string>
 
 </resources>

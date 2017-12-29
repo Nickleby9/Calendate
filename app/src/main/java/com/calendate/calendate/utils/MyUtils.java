@@ -14,4 +14,12 @@ public class MyUtils {
     public static void fixBootstrapButton(Context context, BootstrapButton button) {
         button.setBootstrapBrand(new CustomBootstrapStyle(context));
     }
+
+    public static void fixBootstrapButtonTransparent(Context context, BootstrapButton button) {
+        button.setBootstrapBrand(new CustomBootstrapStyleTransparent(context));
+    }
+
+    public static void fixBootstrapButtonTextLike(Context context, BootstrapButton button) {
+        button.setBootstrapBrand(new CustomBootstrapStyleTextLike(context));
+    }
 }

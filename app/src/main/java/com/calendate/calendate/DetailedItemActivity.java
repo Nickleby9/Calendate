@@ -22,12 +22,12 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.models.EventRow;
@@ -60,8 +60,8 @@ import io.reactivex.schedulers.Schedulers;
 
 public class DetailedItemActivity extends AppCompatActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, TimePickerDialog.OnTimeSetListener {
 
+    TextView tvDescription, tvTitle;
     Spinner spnRepeat;
-    EditText etTitle, etDescription;
     BootstrapButton btnDate, btnTime;
     FloatingActionButton btnChange;
     LocalDateTime date;
@@ -92,25 +92,23 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         model = getIntent().getParcelableExtra("model");
         btnTitle = getIntent().getStringExtra("btnTitle");
 
-        etTitle = (EditText) findViewById(R.id.etTitle);
-        etDescription = (EditText) findViewById(R.id.etDescription);
+        tvDescription = (TextView) findViewById(R.id.tvDescription);
+        tvTitle = (TextView) findViewById(R.id.tvTitle);
         btnDate = (BootstrapButton) findViewById(R.id.btnDate);
         btnTime = (BootstrapButton) findViewById(R.id.btnTime);
         spnRepeat = (Spinner) findViewById(R.id.spnRepeat);
-        btnChange = (FloatingActionButton) findViewById(R.id.btnChange);
+        btnChange = (FloatingActionButton) findViewById(R.id.fabChange);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
 
         alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts").orderByChild("visible").equalTo(true));
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
         rvAlerts.setAdapter(alertsAdapter);
-        docsAdapter = new DocsAdapter(this, model.getEventUID(), mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/documents"));
         rvDocs = (RecyclerView) findViewById(R.id.rvDocs);
         rvDocs.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
-        rvDocs.setAdapter(docsAdapter);
 
-        MyUtils.fixBootstrapButton(this, btnDate);
-        MyUtils.fixBootstrapButton(this, btnTime);
+        MyUtils.fixBootstrapButtonTextLike(this, btnDate);
+        MyUtils.fixBootstrapButtonTextLike(this, btnTime);
 
         ArrayAdapter<CharSequence> spnRepeatAdapter = ArrayAdapter.createFromResource(this, R.array.repeat, R.layout.spinner_item);
         spnRepeatAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
@@ -138,11 +136,12 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     if (snapshot.getKey().equals(model.getEventUID())) {
                         event = snapshot.getValue(Event.class);
-                        etTitle.setText(event.getTitle());
-                        if (event.getDescription().isEmpty()) {
-                            etDescription.setHint("");
-                        } else {
-                            etDescription.setText(event.getDescription());
+                        tvTitle.setText(event.getTitle());
+//                        ((AppCompatActivity) DetailedItemActivity.this).getSupportActionBar().setTitle(event.getTitle());
+                        docsAdapter = new DocsAdapter(DetailedItemActivity.this, event, user, mDatabase.getReference("all_events/" + user.getUid() + "/" + event.getEventUID() + "/mini-documents"));
+                        rvDocs.setAdapter(docsAdapter);
+                        if (!event.getDescription().isEmpty()) {
+                            tvDescription.setText(event.getDescription());
                         }
                         LocalDateTime dateTime = LocalDateTime.parse(event.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                         btnDate.setText(dateTime.toString(MyUtils.btnDateFormat));
@@ -167,10 +166,18 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     }
 
     @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("btnTitle",btnTitle);
+        intent.putExtra("btnId", btnId);
+        startActivity(intent);
+    }
+
+    @Override
     public void onClick(View v) {
         int id = v.getId();
         switch (id) {
-            case R.id.btnChange:
+            case R.id.fabChange:
                 Intent intent = new Intent(this, AddItemActivity.class);
                 intent.putExtra("event", event);
                 intent.putExtra("btnTitle", btnTitle);
@@ -202,16 +209,12 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     }
 
     void changeEnabled(Boolean state) {
-        etDescription.setEnabled(state);
-        etTitle.setEnabled(state);
         btnTime.setClickable(state);
         spnRepeat.setEnabled(state);
         btnDate.setClickable(state);
         fabAdd.setClickable(state);
         if (!state) {
             fabAdd.setVisibility(View.INVISIBLE);
-            etTitle.setBackgroundResource(R.color.transparent);
-            etDescription.setBackgroundResource(R.color.transparent);
             spnRepeat.setBackgroundResource(R.color.transparent);
         } else {
             fabAdd.setVisibility(View.VISIBLE);
@@ -219,8 +222,6 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             fabAdd.setVisibility(View.VISIBLE);
             btnDate.setTextColor(Color.WHITE);
             btnTime.setTextColor(Color.WHITE);
-            etTitle.setBackgroundResource(R.color.caldroid_white);
-            etDescription.setBackgroundResource(R.color.caldroid_white);
             spnRepeat.setBackgroundResource(R.color.caldroid_white);
         }
     }
@@ -317,18 +318,22 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         FirebaseUser user;
         StorageReference mStorage;
         DocsViewHolder viewHolder;
+        Event event;
 
-        public DocsAdapter(Context context, String eventUid, Query query) {
+        public DocsAdapter(Context context, Event event, FirebaseUser user, Query query) {
             super(String.class, R.layout.doc_item, DocsAdapter.DocsViewHolder.class, query);
             this.context = context;
-            user = FirebaseAuth.getInstance().getCurrentUser();
-            mStorage = FirebaseStorage.getInstance().getReference("documents/" + user.getUid() + "/" + eventUid);
+            this.user = user;
+            this.event = event;
+            mStorage = FirebaseStorage.getInstance().getReference("documents/" + user.getUid() + "/" + event.getEventUID());
         }
 
         @Override
         protected void populateViewHolder(final DocsViewHolder viewHolder, final String model, int position) {
             this.viewHolder = viewHolder;
             viewHolder.string = model;
+            viewHolder.user = user;
+            viewHolder.event = event;
             CompositeDisposable disposables = new CompositeDisposable();
 
             disposables.add(imageDownloader(model)
@@ -341,7 +346,8 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                             viewHolder.file = newFile;
                             viewHolder.context = context;
                             /*if (model.contains(".jpg")) {*/
-                            Glide.with(context).asBitmap().load(file).apply(RequestOptions.overrideOf(45, 45)).into(viewHolder.ivDoc);
+                            Glide.with(context).asBitmap().load(file).into(viewHolder.ivDoc);
+//                                Glide.with(context).asBitmap().load(file).apply(RequestOptions.overrideOf(45, 45)).into(viewHolder.ivDoc);
                             /*} else */
                             if (model.contains(".pdf")) {
                                 viewHolder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
@@ -381,6 +387,8 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             File file, myNewFile;
             String string;
             Context context;
+            FirebaseUser user;
+            Event event;
 
             public DocsViewHolder(final View itemView) {
                 super(itemView);
@@ -390,12 +398,28 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                 ivDoc.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(final View view) {
+                        int index = string.indexOf("-mini?alt");
+                        final String linkWithoutMini = string.substring(0, index);
+                        FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid() + "/" + event.getEventUID() + "/documents").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                    String fullLink = snapshot.getValue(String.class);
+                                    if (fullLink.contains(linkWithoutMini)) {
+                                        ShowImageFragment.newInstance(fullLink).show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
+                                    }
+                                }
+                            }
 
-                        ShowImageFragment.newInstance(string).show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
 
                         CompositeDisposable disposables = new CompositeDisposable();
 
-                        disposables.add(imageDownloader(string, view)
+                        disposables.add(imageDownloader(linkWithoutMini, view)
                                 .subscribeOn(Schedulers.io())
                                 .observeOn(AndroidSchedulers.mainThread())
                                 .subscribeWith(new DisposableObserver<File>() {

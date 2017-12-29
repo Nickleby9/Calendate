@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
 
@@ -44,6 +45,7 @@ public class CallBack extends ItemTouchHelper.SimpleCallback {
     private DatabaseReference root = FirebaseDatabase.getInstance().getReference();
     private FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
     Context context;
+    String fileName;
 
     /**
      * Make sure you pass in your RecyclerAdapter to this class
@@ -80,6 +82,15 @@ public class CallBack extends ItemTouchHelper.SimpleCallback {
                                             Event eventValue = snapshot.getValue(Event.class);
                                             clearNotifications(eventValue);
                                             snapshot.getRef().removeValue();
+                                            for (DataSnapshot document : snapshot.child("documents").getChildren()) {
+                                                String doc = document.getValue(String.class);
+                                                String[] split = doc.split("%2F");
+                                                doc = split[3];
+                                                int index = doc.indexOf("?");
+                                                fileName = doc.substring(0, index);
+                                                FirebaseStorage.getInstance().getReference("documents/" + user.getUid() + "/" + eventRow.getEventUID()).child(fileName).delete();
+                                                FirebaseStorage.getInstance().getReference("documents/" + user.getUid() + "/" + eventRow.getEventUID()).child(fileName + "-mini").delete();
+                                            }
                                         }
                                     }
                                 }

@@ -222,4 +222,7 @@
     <string name="empty_mail">כתובת מייל לא יכולה להישאר ריקה</string>
     <string name="app_not_found">לא נמצא יישום מתאים לפתיחץ הקובץ</string>
     <string name="open_with">פתיחה באמצעות</string>
+    <string name="upload_in_progress">אנא המתן לסיום העלאת הקבצים</string>
+    <string name="no_description">ללא תיאור</string>
+    <string name="description_title">תיאור:</string>
 </resources>

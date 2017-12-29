@@ -22,12 +22,13 @@ public class Event implements Parcelable {
     String btnId;
     boolean own;
     String creator;
+    boolean accessible;
 
     public Event() {
 
     }
 
-    public Event(String title, String description, LocalDateTime date, ArrayList<Alert> alerts, int hours, int minutes, int repeatPos, String eventUID, String btnId, boolean own, String creator) {
+    public Event(String title, String description, LocalDateTime date, ArrayList<Alert> alerts, int hours, int minutes, int repeatPos, String eventUID, String btnId, boolean own, String creator, boolean accessible) {
         this.title = title;
         this.description = description;
         this.date = date.toString(MyUtils.dateForamt);
@@ -41,6 +42,7 @@ public class Event implements Parcelable {
         this.btnId = btnId;
         this.own = own;
         this.creator = creator;
+        this.accessible = accessible;
     }
 
 
@@ -125,6 +127,13 @@ public class Event implements Parcelable {
         this.creator = creator;
     }
 
+    public boolean isAccessible() {
+        return accessible;
+    }
+
+    public void setAccessible(boolean accessible) {
+        this.accessible = accessible;
+    }
 
     @Override
     public int describeContents() {
@@ -137,12 +146,13 @@ public class Event implements Parcelable {
         dest.writeString(this.title);
         dest.writeString(this.description);
         dest.writeString(this.date);
-        dest.writeList(this.alerts);
+        dest.writeTypedList(this.alerts);
         dest.writeString(this.time);
         dest.writeInt(this.repeatPos);
         dest.writeString(this.btnId);
         dest.writeByte(this.own ? (byte) 1 : (byte) 0);
         dest.writeString(this.creator);
+        dest.writeByte(this.accessible ? (byte) 1 : (byte) 0);
     }
 
     protected Event(Parcel in) {
@@ -150,13 +160,13 @@ public class Event implements Parcelable {
         this.title = in.readString();
         this.description = in.readString();
         this.date = in.readString();
-        this.alerts = new ArrayList<Alert>();
-        in.readList(this.alerts, Alert.class.getClassLoader());
+        this.alerts = in.createTypedArrayList(Alert.CREATOR);
         this.time = in.readString();
         this.repeatPos = in.readInt();
         this.btnId = in.readString();
         this.own = in.readByte() != 0;
         this.creator = in.readString();
+        this.accessible = in.readByte() != 0;
     }
 
     public static final Parcelable.Creator<Event> CREATOR = new Parcelable.Creator<Event>() {

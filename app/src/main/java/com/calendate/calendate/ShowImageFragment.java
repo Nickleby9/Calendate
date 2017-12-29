@@ -67,7 +67,7 @@ public class ShowImageFragment extends DialogFragment {
 
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                webView.loadUrl(url);
+                view.loadUrl(url);
                 return true;
             }
 
@@ -75,16 +75,18 @@ public class ShowImageFragment extends DialogFragment {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 progressBar.setVisibility(View.VISIBLE);
+                view.setVisibility(View.INVISIBLE);
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.INVISIBLE);
+                view.setVisibility(View.VISIBLE);
             }
         });
-
         webView.loadUrl(url);
+
     }
 
     public static ShowImageFragment newInstance(File file) {
