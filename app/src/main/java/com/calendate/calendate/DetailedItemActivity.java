@@ -30,7 +30,6 @@ import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.bumptech.glide.Glide;
 import com.calendate.calendate.models.Alert;
 import com.calendate.calendate.models.Event;
-import com.calendate.calendate.models.EventRow;
 import com.calendate.calendate.utils.MyUtils;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.auth.FirebaseAuth;
@@ -69,14 +68,14 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     FirebaseUser user;
     String key = "";
     int hours = 0, minutes = 0;
-    EventRow model;
+    String eventKey;
     String btnId;
     RecyclerView rvAlerts, rvDocs;
     FloatingActionButton fabAdd;
     static ArrayList<Alert> alerts = new ArrayList<>();
     AlertsAdapter alertsAdapter;
     DocsAdapter docsAdapter;
-    String btnTitle;
+    String btnTitle = "";
     Event event;
 
     @Override
@@ -89,7 +88,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
-        model = getIntent().getParcelableExtra("model");
+        eventKey = getIntent().getStringExtra("eventKey");
         btnTitle = getIntent().getStringExtra("btnTitle");
 
         tvDescription = (TextView) findViewById(R.id.tvDescription);
@@ -100,7 +99,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
         btnChange = (FloatingActionButton) findViewById(R.id.fabChange);
         fabAdd = (FloatingActionButton) findViewById(R.id.fabAdd);
 
-        alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + model.getEventUID() + "/alerts").orderByChild("visible").equalTo(true));
+        alertsAdapter = new AlertsAdapter(mDatabase.getReference("all_events/" + user.getUid() + "/" + eventKey + "/alerts").orderByChild("visible").equalTo(true));
         rvAlerts = (RecyclerView) findViewById(R.id.rvAlerts);
         rvAlerts.setLayoutManager(new LinearLayoutManager(this));
         rvAlerts.setAdapter(alertsAdapter);
@@ -134,7 +133,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    if (snapshot.getKey().equals(model.getEventUID())) {
+                    if (snapshot.getKey().startsWith(eventKey)) {
                         event = snapshot.getValue(Event.class);
                         tvTitle.setText(event.getTitle());
 //                        ((AppCompatActivity) DetailedItemActivity.this).getSupportActionBar().setTitle(event.getTitle());
@@ -167,10 +166,15 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("btnTitle",btnTitle);
-        intent.putExtra("btnId", btnId);
-        startActivity(intent);
+        if (btnTitle.equals("")){
+            Intent intent = new Intent(this, MainActivity.class);
+            startActivity(intent);
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra("btnTitle", btnTitle);
+            intent.putExtra("btnId", btnId);
+            startActivity(intent);
+        }
     }
 
     @Override

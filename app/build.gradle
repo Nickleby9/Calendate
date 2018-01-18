@@ -7,8 +7,8 @@ android {
         applicationId "com.calendate.calendate"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 201
-        versionName "2.0.1"
+        versionCode 220
+        versionName "2.2"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true
@@ -87,6 +87,7 @@ dependencies {
     compile 'com.github.apl-devs:appintro:v4.2.2'
     compile 'com.romandanylyk:pageindicatorview:0.2.0'
 }
+
 
 
 

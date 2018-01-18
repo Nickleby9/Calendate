@@ -189,7 +189,7 @@
     <string name="dismiss">בסדר</string>
     <string name="no_alarm_service">לא נמצא שירות התראות זמין במכשיר שלך</string>
     <string name="reminder">תזכורת -</string>
-    <string name="touch_for_info">גע/י לקבלת מידע נוסף</string>
+    <string name="touch_for_info">גע/י להצגת מידע נוסף</string>
     <string name="large_files_err">הקבצים גדולים מדי!</string>
     <string name="file_location">איפה ממוקם הקובץ?</string>
     <string name="register_title">הרשמה</string>
@@ -225,4 +225,10 @@
     <string name="upload_in_progress">אנא המתן לסיום העלאת הקבצים</string>
     <string name="no_description">ללא תיאור</string>
     <string name="description_title">תיאור:</string>
+    <string name="conflict_msg">קיימת התנגשות עם אחד או יותר מהאירועים שלך</string>
+    <string name="conflict_btn">צפה באירועים</string>
+    <string name="no_internet_title">אין חיבור לאינטרנט</string>
+    <string name="no_internet_msg">אין חיבור פעיל לאינטרנט.\nעל מנת ש Calendate תוכל לעבוד בצורה הטובה ביותר, נדרש חיבור לאינטרנט.\nאפשר ליצור אירועים חדשים גם בלי חיבור לאינטרנט.</string>
+    <string name="go_to_setting">עבור להגדרות</string>
+    <string name="empty_text_err">השם לא יכול להיות ריק</string>
 </resources>

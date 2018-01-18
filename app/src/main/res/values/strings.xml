@@ -246,4 +246,13 @@
     <string name="no_description">No description</string>
     <string name="description_title">Description:</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="conflict_msg">There is one or more conflict with another event</string>
+    <string name="conflict_btn">View Conflicts</string>
+    <string name="no_internet_title">No internet connection</string>
+    <string name="no_internet_msg">There is no active internet connection.\nPlease note that Calendate needs an active internet connection in order to fully function.\nYou can still create events without the internet.</string>
+    <string name="go_to_setting">Go to settings</string>
+    <string name="empty_text_err">Text cannot be empty</string>
+
 </resources>

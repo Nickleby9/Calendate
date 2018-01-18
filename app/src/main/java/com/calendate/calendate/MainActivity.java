@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -43,6 +44,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.TimeZone;
 
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
 
         SharedPreferences prefs = getSharedPreferences("intro", MODE_PRIVATE);
         int firstTime = prefs.getInt("firstTime", 0);
-        if (firstTime == 0){
+        if (firstTime == 0) {
             Intent intent = new Intent(this, IntroActivity.class);
             startActivity(intent);
         }
@@ -165,6 +168,48 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 }
             }
         }
+
+        checkForInternetConnection();
+    }
+
+    private void checkForInternetConnection() {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    InetAddress address = InetAddress.getByName("www.google.com");
+                    Log.d("CCC", "run: " + address);
+                    if (address.equals("")) {
+                        displayInternetDialog();
+                    }
+                } catch (UnknownHostException e) {
+                    displayInternetDialog();
+                }
+            }
+        });
+        thread.start();
+    }
+
+    private void displayInternetDialog() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle(R.string.no_internet_title)
+                        .setMessage(R.string.no_internet_msg)
+                        .setPositiveButton(R.string.go_to_setting, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivityForResult(new Intent(android.provider.Settings.ACTION_SETTINGS), 99);
+                            }
+                        }).setNegativeButton(getString(R.string.str_continue), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }).show();
+            }
+        });
     }
 
     @Override

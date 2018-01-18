@@ -136,6 +136,23 @@ public class Event implements Parcelable {
     }
 
     @Override
+    public String toString() {
+        return "Event{" +
+                "eventUID='" + eventUID + '\'' +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", date='" + date + '\'' +
+                ", alerts=" + alerts +
+                ", time='" + time + '\'' +
+                ", repeatPos=" + repeatPos +
+                ", btnId='" + btnId + '\'' +
+                ", own=" + own +
+                ", creator='" + creator + '\'' +
+                ", accessible=" + accessible +
+                '}';
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }

@@ -618,7 +618,7 @@ public class ButtonsFragment extends Fragment {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         String btnId = snapshot.getKey();
                         String imageText = snapshot.getValue(String.class);
-                        if (btnId != null) {
+                        if (btnId != null && getActivity() != null) {
                             if (btnId.equals(IVTOPLEFT + fragNum)) {
                                 ivTopLeft.setImageResource(getResources().getIdentifier(imageText, "drawable", getContext().getPackageName()));
                             }

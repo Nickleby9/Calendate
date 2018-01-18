@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -36,6 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 public class CallBack extends ItemTouchHelper.SimpleCallback {
 
@@ -74,6 +76,15 @@ public class CallBack extends ItemTouchHelper.SimpleCallback {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             // then you can delete the object
+                            SharedPreferences prefs = context.getSharedPreferences("events", Context.MODE_PRIVATE);
+                            Map<String, ?> keys = prefs.getAll();
+                            for (Map.Entry<String, ?> entry : keys.entrySet()) {
+                                if (entry.getKey() != null) {
+                                    if (entry.getKey().startsWith(eventRow.getEventUID())){
+                                        prefs.edit().remove(entry.getKey()).apply();
+                                    }
+                                }
+                            }
                             root.child("all_events").child(user.getUid()).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot) {

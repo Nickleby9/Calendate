@@ -61,8 +61,12 @@ public class SetButtonTitleDialog extends DialogFragment implements TextWatcher 
             @Override
             public void onClick(View v) {
                 String s = etTitle.getText().toString();
-                mListener.onTitleSet(s, btnId);
-                dismiss();
+                if (s.equals("")){
+                    etTitle.setError(getString(R.string.empty_text_err));
+                } else {
+                    mListener.onTitleSet(s, btnId);
+                    dismiss();
+                }
             }
         });
     }
@@ -91,6 +95,9 @@ public class SetButtonTitleDialog extends DialogFragment implements TextWatcher 
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (etTitle.getError() != null){
+            etTitle.setError(null);
+        }
         if (s.length() > 18) {
             tvWarning.setVisibility(View.VISIBLE);
             btnSet.setEnabled(false);

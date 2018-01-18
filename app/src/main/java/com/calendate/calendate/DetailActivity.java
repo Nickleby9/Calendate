@@ -143,7 +143,7 @@ public class DetailActivity extends AppCompatActivity {
                                     Event event = dataSnapshot.getValue(Event.class);
                                     if (event != null && event.isAccessible()){
                                         Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
-                                        intent.putExtra("model", model);
+                                        intent.putExtra("eventKey", model.getEventUID());
                                         intent.putExtra("btnTitle", btnTitle);
                                         v.getContext().startActivity(intent);
                                     } else {

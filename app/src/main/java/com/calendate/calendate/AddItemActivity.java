@@ -9,6 +9,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -16,7 +17,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -105,17 +108,19 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     ArrayList<Bitmap> images = new ArrayList<>();
     static DocsAdapter docsAdapter;
     Event event;
-    String eventKey;
+    String eventKey = "";
     boolean isEditMode = false;
     static boolean isDeleteShown = false;
     String btnTitle = "";
     Event model;
     Calendar calendar = Calendar.getInstance();
+    View publicView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_item);
+        publicView = (CoordinatorLayout) findViewById(R.id.add_item_layout);
         ((AppCompatActivity) this).getSupportActionBar().setTitle(R.string.new_event);
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -170,9 +175,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             rvAlerts.setAdapter(adapter);
             onClick(btnDate);
         }
-
-        if (eventKey == null)
-            eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
         etTitle.requestFocus();
         InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -508,6 +510,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     int j = 0;
 
     private void addNewEvent() {
+        if (eventKey.equals(""))
+            eventKey = mDatabase.getReference("all_events/" + user.getUid()).push().getKey();
 
         alerts.clear();
 
@@ -615,7 +619,6 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         alerts.clear();
         AlertsAdapter.AlertsViewHolder.viewHolders.clear();
 
-
         Intent intent = new Intent(AddItemActivity.this, DetailActivity.class);
         intent.putExtra("btnId", btnId);
         intent.putExtra("btnTitle", btnTitle);
@@ -628,29 +631,8 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
         AlarmManager alarm = (AlarmManager) getSystemService(ALARM_SERVICE);
         if (alarm != null) {
-//            Calendar eventDate = calendar;
-            int repeat = event.getRepeatPos();
-            Intent alarmIntent = new Intent(this, NotificationReceiver.class);
-            alarmIntent.putExtra("title", event.getTitle());
-            alarmIntent.putExtra("text", event.getDescription());
-
-            switch (repeat) {
-                case 0: //none
-                    alarmIntent.putExtra("repeat", "none");
-                    break;
-                case 1: //day
-                    alarmIntent.putExtra("repeat", "daily");
-                    break;
-                case 2: //week
-                    alarmIntent.putExtra("repeat", "weekly");
-                    break;
-                case 3: //month
-                    alarmIntent.putExtra("repeat", "monthly");
-                    break;
-                case 4: //year
-                    alarmIntent.putExtra("repeat", "yearly");
-                    break;
-            }
+            SharedPreferences prefs = getSharedPreferences("events", MODE_PRIVATE);
+            String eventPrefs = prefs.getString("events", "");
 
             PendingIntent pendingIntent;
             for (int i = 0; i < alerts.size(); i++) {
@@ -665,6 +647,10 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 int alarmCount = alerts.get(i).getCount();
                 int alarmKind = alerts.get(i).getKind();
 
+                Intent alarmIntent = new Intent(this, NotificationReceiver.class);
+                alarmIntent.putExtra("title", event.getTitle());
+                alarmIntent.putExtra("text", event.getDescription());
+                alarmIntent.putExtra("repeat", event.getRepeatPos());
                 alarmIntent.putExtra("id", id);
                 alarmIntent.putExtra("before", alarmKind);
                 alarmIntent.putExtra("beforeTime", alarmCount);
@@ -674,23 +660,18 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                 if (alarmCount != 0) {
                     switch (alarmKind) {
                         case 0:
-//                            eventDate.add(Calendar.MINUTE, -alarmCount);
                             newDate = eventDate.minusMinutes(alarmCount);
                             break;
                         case 1:
-//                            eventDate.add(Calendar.HOUR_OF_DAY, -alarmCount);
                             newDate = eventDate.minusHours(alarmCount);
                             break;
                         case 2:
-//                            eventDate.add(Calendar.DAY_OF_MONTH, -alarmCount);
                             newDate = eventDate.minusDays(alarmCount);
                             break;
                         case 3:
-//                            eventDate.add(Calendar.DAY_OF_MONTH, -(alarmCount * 7));
                             newDate = eventDate.minusWeeks(alarmCount);
                             break;
                         case 4:
-//                            eventDate.add(Calendar.MONTH, -alarmCount);
                             newDate = eventDate.minusMonths(alarmCount);
                             break;
                     }
@@ -698,9 +679,15 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
                 Calendar alertTime = Calendar.getInstance();
                 alertTime.set(newDate.getYear(), newDate.getMonthOfYear() - 1, newDate.getDayOfMonth(), newDate.getHourOfDay(), newDate.getMinuteOfHour(), 0);
+                eventPrefs = event.getTitle() + "~!~" + event.getDescription() + "~!~" + event.getRepeatPos() + "~!~" + alerts.get(i).getId() + "~!~" +
+                        alerts.get(i).getKind() + "~!~" + alerts.get(i).getCount() + "~!~" + alertTime.getTimeInMillis();
+                alarmIntent.putExtra("millis", alertTime.getTimeInMillis());
+                alarmIntent.putExtra("prefs", eventPrefs);
+                alarmIntent.putExtra("prefsTitle", event.getEventUID() + "-" + i);
                 pendingIntent = PendingIntent.getBroadcast(
                         this, id, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 alarm.set(AlarmManager.RTC_WAKEUP, alertTime.getTimeInMillis(), pendingIntent);
+                prefs.edit().putString(event.getEventUID() + "-" + i, eventPrefs).apply();
             }
         } else
             Toast.makeText(this, R.string.no_alarm_service, Toast.LENGTH_SHORT).show();
@@ -750,6 +737,44 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             onClick(btnTime);
         }
         first = false;
+        checkForConflictDates();
+    }
+
+    ArrayList<Event> events = new ArrayList<>();
+    Snackbar snackbar;
+
+    private void checkForConflictDates() {
+        events.clear();
+
+        final String dateNum = date.toString(MyUtils.dateForamt);
+        mDatabase.getReference("all_events/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    Event event = snapshot.getValue(Event.class);
+                    if (event.getDate().equals(dateNum)) {
+                        events.add(event);
+                    }
+                }
+                if (events.size() > 0) {
+                    snackbar = Snackbar.make(publicView, R.string.conflict_msg, Snackbar.LENGTH_INDEFINITE);
+                    snackbar.setAction(R.string.conflict_btn, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            snackbar.dismiss();
+                            ConflictFragment.newInstance(events).show(getSupportFragmentManager(), "Conflict");
+                        }
+                    });
+                    snackbar.show();
+                } else if (snackbar != null && snackbar.isShown())
+                    snackbar.dismiss();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
     @Override
