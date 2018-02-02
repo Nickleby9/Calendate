@@ -26,7 +26,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         //if the app is in the foreground:
         //send the push to onMessageReceived
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            if (FirebaseAuth.getInstance().getCurrentUser().getUid().equals(userUid)) {
+            if (FirebaseAuth.getInstance().getCurrentUser().getUid().equals(userUid) || userUid.equals("everyone")) {
 
                 Intent contentIntent = new Intent(this, MainActivity.class);
                 PendingIntent pi =
@@ -52,6 +52,14 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setDefaults(Notification.DEFAULT_ALL)
                                 .setContentIntent(pi);
                         mgr.notify(2, builder.build());
+                        break;
+                    case "all":
+                        builder.setContentTitle(intent.getStringExtra("title"))
+                                .setStyle(new NotificationCompat.BigTextStyle().bigText(intent.getStringExtra("msg")))
+                                .setSmallIcon(R.drawable.ic_stat_calendate_notification)
+                                .setAutoCancel(true)
+                                .setDefaults(Notification.DEFAULT_ALL);
+                        mgr.notify(3, builder.build());
                         break;
                 }
             }
