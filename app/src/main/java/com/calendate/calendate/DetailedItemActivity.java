@@ -77,6 +77,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     DocsAdapter docsAdapter;
     String btnTitle = "";
     Event event;
+    String sourcePage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,8 +89,20 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
+        sourcePage = getIntent().getStringExtra("source");
         eventKey = getIntent().getStringExtra("eventKey");
-        btnTitle = getIntent().getStringExtra("btnTitle");
+        btnId = getIntent().getStringExtra("btnId");
+        mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                btnTitle = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         tvDescription = (TextView) findViewById(R.id.tvDescription);
         tvTitle = (TextView) findViewById(R.id.tvTitle);
@@ -166,15 +179,26 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
     @Override
     public void onBackPressed() {
-        if (btnTitle.equals("")){
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        } else {
-            Intent intent = new Intent(this, DetailActivity.class);
-            intent.putExtra("btnTitle", btnTitle);
-            intent.putExtra("btnId", btnId);
-            startActivity(intent);
+        Intent intent;
+        switch (sourcePage) {
+            case "categories":
+                intent = new Intent(this, DetailActivity.class);
+                intent.putExtra("btnTitle", btnTitle);
+                intent.putExtra("btnId", btnId);
+                break;
+            case "calendar":
+                intent = new Intent(this, MainActivity.class);
+                intent.putExtra("source", "calendar");
+                intent.putExtra("date", date);
+                break;
+            case "timeline":
+                intent = new Intent(this, MainActivity.class);
+                intent.putExtra("source", "timeline");
+                break;
+            default:
+                intent = new Intent(this, MainActivity.class);
         }
+        startActivity(intent);
     }
 
     @Override

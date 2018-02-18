@@ -58,7 +58,7 @@ public class TimelineFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_timelife, container, false);
+        return inflater.inflate(R.layout.fragment_timeline, container, false);
     }
 
     @Override
@@ -80,19 +80,20 @@ public class TimelineFragment extends Fragment {
         recycler.setAdapter(adapter);
     }
 
-    static class EventAdapter extends FirebaseRecyclerAdapter<EventRow, DetailActivity.EventAdapter.EventViewHolder> {
+    static class EventAdapter extends FirebaseRecyclerAdapter<EventRow, TimelineFragment.EventAdapter.EventViewHolder> {
 
         public EventAdapter(Query query) {
-            super(EventRow.class, R.layout.event_item, DetailActivity.EventAdapter.EventViewHolder.class, query);
+            super(EventRow.class, R.layout.event_item, TimelineFragment.EventAdapter.EventViewHolder.class, query);
         }
 
         @Override
-        protected void populateViewHolder(DetailActivity.EventAdapter.EventViewHolder viewHolder, EventRow model, int position) {
+        protected void populateViewHolder(TimelineFragment.EventAdapter.EventViewHolder viewHolder, EventRow model, int position) {
             viewHolder.tvTitle.setText(model.getTitle());
             LocalDateTime dateTime = LocalDateTime.parse(model.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
             viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat));
             viewHolder.model = model;
         }
+
 
         public static class EventViewHolder extends RecyclerView.ViewHolder {
             TextView tvTitle;
@@ -108,7 +109,9 @@ public class TimelineFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
-                        intent.putExtra("model", model);
+                        intent.putExtra("eventKey", model.getEventUID());
+                        intent.putExtra("btnId", model.getBtnId());
+                        intent.putExtra("source", "timeline");
                         v.getContext().startActivity(intent);
                     }
                 });

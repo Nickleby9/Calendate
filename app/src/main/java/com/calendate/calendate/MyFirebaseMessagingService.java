@@ -53,7 +53,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                                 .setContentIntent(pi);
                         mgr.notify(2, builder.build());
                         break;
-                    case "all":
+                    case "general":
                         builder.setContentTitle(intent.getStringExtra("title"))
                                 .setStyle(new NotificationCompat.BigTextStyle().bigText(intent.getStringExtra("msg")))
                                 .setSmallIcon(R.drawable.ic_stat_calendate_notification)

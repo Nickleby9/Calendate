@@ -26,13 +26,18 @@ class EventsAdapter extends FirebaseRecyclerAdapter<EventRow, EventsAdapter.Even
 
     @Override
     protected void populateViewHolder(EventsAdapter.EventViewHolder viewHolder, EventRow model, int position) {
-        if (model.getDate().equals(date)) {
-            viewHolder.tvTitle.setText(model.getTitle());
-            LocalDateTime dateTime = LocalDateTime.parse(model.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
-            viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat));
-            viewHolder.model = model;
+        if (position == 0){
+            viewHolder.tvTitle.setText("New event");
         } else {
+            if (model.getDate().equals(date)) {
+                viewHolder.tvTitle.setText(model.getTitle());
+                LocalDateTime dateTime = LocalDateTime.parse(model.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
+                viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat));
+                viewHolder.model = model;
+                viewHolder.date = date;
+            } else {
 
+            }
         }
     }
 
@@ -40,6 +45,7 @@ class EventsAdapter extends FirebaseRecyclerAdapter<EventRow, EventsAdapter.Even
         TextView tvTitle;
         TextView tvDate;
         EventRow model;
+        String date;
 
         public EventViewHolder(View itemView) {
             super(itemView);
@@ -50,7 +56,9 @@ class EventsAdapter extends FirebaseRecyclerAdapter<EventRow, EventsAdapter.Even
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
-                    intent.putExtra("model", model);
+                    intent.putExtra("eventKey", model.getEventUID());
+                    intent.putExtra("btnId", model.getBtnId());
+                    intent.putExtra("source", "calendar");
                     v.getContext().startActivity(intent);
                 }
             });

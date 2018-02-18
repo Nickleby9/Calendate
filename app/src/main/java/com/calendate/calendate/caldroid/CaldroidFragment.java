@@ -34,6 +34,7 @@ import android.widget.TextView;
 
 import com.antonyt.infiniteviewpager.InfinitePagerAdapter;
 import com.antonyt.infiniteviewpager.InfiniteViewPager;
+import com.beardedhen.androidbootstrap.BootstrapButton;
 import com.caldroid.R;
 import com.calendate.calendate.models.Event;
 import com.calendate.calendate.utils.MyUtils;
@@ -257,6 +258,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Retrieve current month
+     *
      * @return
      */
     public int getMonth() {
@@ -265,6 +267,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Retrieve current year
+     *
      * @return
      */
     public int getYear() {
@@ -841,6 +844,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Select single date
+     *
      * @author Alov Maxim <alovmax@yandex.ru>
      */
     public void setSelectedDate(Date date) {
@@ -853,6 +857,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Clear selection of the specified date
+     *
      * @author Alov Maxim <alovmax@yandex.ru>
      */
     public void clearSelectedDate(Date date) {
@@ -865,6 +870,7 @@ public class CaldroidFragment extends DialogFragment {
 
     /**
      * Checks whether the specified date is selected
+     *
      * @author Alov Maxim <alovmax@yandex.ru>
      */
     public boolean isSelectedDate(Date date) {
@@ -1210,6 +1216,7 @@ public class CaldroidFragment extends DialogFragment {
 
             // Get theme
             themeResource = args.getInt(THEME_RESOURCE, R.style.CaldroidDefault);
+
         }
         if (month == -1 || year == -1) {
             DateTime dateTime = DateTime.today(TimeZone.getDefault());
@@ -1464,6 +1471,8 @@ public class CaldroidFragment extends DialogFragment {
         final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         final RecyclerView rvEvents = (RecyclerView) view.findViewById(com.calendate.calendate.R.id.rvEvents);
+        final BootstrapButton btnNew = (BootstrapButton) view.findViewById(com.calendate.calendate.R.id.btnNew);
+        MyUtils.fixBootstrapButtonTransparent(view.getContext(), btnNew);
 
         for (int i = 0; i < NUMBER_OF_PAGES; i++) {
             DateGridFragment dateGridFragment = fragments.get(i);

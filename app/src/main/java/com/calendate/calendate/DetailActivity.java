@@ -144,7 +144,8 @@ public class DetailActivity extends AppCompatActivity {
                                     if (event != null && event.isAccessible()){
                                         Intent intent = new Intent(v.getContext(), DetailedItemActivity.class);
                                         intent.putExtra("eventKey", model.getEventUID());
-                                        intent.putExtra("btnTitle", btnTitle);
+                                        intent.putExtra("btnId", model.getBtnId());
+                                        intent.putExtra("source", "categories");
                                         v.getContext().startActivity(intent);
                                     } else {
                                         Toast.makeText(context, R.string.upload_in_progress, Toast.LENGTH_SHORT).show();

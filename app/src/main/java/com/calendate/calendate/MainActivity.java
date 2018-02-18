@@ -43,6 +43,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.StorageReference;
 
+import org.joda.time.LocalDateTime;
+
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -133,6 +135,20 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_buttons);
         navigationView.getMenu().performIdentifierAction(R.id.nav_buttons, 0);
+
+        if (getIntent().getStringExtra("source") != null){
+            switch (getIntent().getStringExtra("source")){
+                case "calendar":
+                    getIntent().getParcelableExtra("date");
+                    navigationView.setCheckedItem(R.id.nav_calendar);
+                    navigationView.getMenu().performIdentifierAction(R.id.nav_calendar,0);
+                    break;
+                case "timeline":
+                    navigationView.setCheckedItem(R.id.nav_timeline);
+                    navigationView.getMenu().performIdentifierAction(R.id.nav_timeline,0);
+                    break;
+            }
+        }
 
         mDatabase = FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
@@ -381,6 +397,11 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 DateTime dateTime = DateTime.today(TimeZone.getDefault());
                 args.putInt(CaldroidFragment.MONTH, dateTime.getMonth());
                 args.putInt(CaldroidFragment.YEAR, dateTime.getYear());
+                if (getIntent().getSerializableExtra("date") != null){
+                    LocalDateTime date = (LocalDateTime) getIntent().getSerializableExtra("date");
+                    args.putInt(CaldroidFragment.MONTH, date.getMonthOfYear());
+                    args.putInt(CaldroidFragment.YEAR, date.getYear());
+                }
                 caldroid.setArguments(args);
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, caldroid).commit();
                 break;
