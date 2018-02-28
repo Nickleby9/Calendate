@@ -158,6 +158,7 @@ public class CategoriesFragment extends BottomSheetDialogFragment {
                                                 intent.putExtra("year", year);
                                                 intent.putExtra("month", month);
                                                 intent.putExtra("day", day);
+                                                intent.putExtra("btnId", btnId);
                                                 v.getContext().startActivity(intent);
                                             }
                                         }
