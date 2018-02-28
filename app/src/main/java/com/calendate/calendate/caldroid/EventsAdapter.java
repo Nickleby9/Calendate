@@ -26,19 +26,14 @@ class EventsAdapter extends FirebaseRecyclerAdapter<EventRow, EventsAdapter.Even
 
     @Override
     protected void populateViewHolder(EventsAdapter.EventViewHolder viewHolder, EventRow model, int position) {
-        if (position == 0){
-            viewHolder.tvTitle.setText("New event");
-        } else {
+
             if (model.getDate().equals(date)) {
                 viewHolder.tvTitle.setText(model.getTitle());
                 LocalDateTime dateTime = LocalDateTime.parse(model.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
                 viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat));
                 viewHolder.model = model;
                 viewHolder.date = date;
-            } else {
-
             }
-        }
     }
 
     public static class EventViewHolder extends RecyclerView.ViewHolder {

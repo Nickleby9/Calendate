@@ -245,8 +245,10 @@ public class ButtonsFragment extends Fragment {
 
             showProgress(true, getString(R.string.loading));
 
-            getButtonsText();
-            getButtonsEventCount();
+            if (isAdded()) {
+                getButtonsText();
+                getButtonsEventCount();
+            }
 //            setButtonsImages();
 
             showProgress(false, "");
@@ -313,7 +315,7 @@ public class ButtonsFragment extends Fragment {
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                         for (DataSnapshot snap : snapshot.getChildren()) {
-                            if (snap.getKey().equals("btnId")) {
+                            if (snap.getKey().equals("btnId") && isAdded()) {
                                 String btnSnap = snap.getValue(String.class);
                                 if (btnSnap != null) {
                                     if (btnSnap.equals(IVTOPLEFT + fragNum)) {

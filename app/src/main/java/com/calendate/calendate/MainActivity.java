@@ -185,7 +185,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             }
         }
 
-        checkForInternetConnection();
+//        checkForInternetConnection();
     }
 
     private void checkForInternetConnection() {
@@ -259,6 +259,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                                             CategoriesFragment categoriesFragment = new CategoriesFragment();
                                             Bundle bundle = new Bundle();
                                             bundle.putParcelable("event", event);
+                                            bundle.putString("source", "share");
                                             categoriesFragment.setArguments(bundle);
                                             categoriesFragment.show(getSupportFragmentManager(), "categoriesFragment");
                                             dialog.dismiss();
@@ -395,12 +396,13 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                 CaldroidFragment caldroid = new CaldroidFragment();
                 Bundle args = new Bundle();
                 DateTime dateTime = DateTime.today(TimeZone.getDefault());
-                args.putInt(CaldroidFragment.MONTH, dateTime.getMonth());
-                args.putInt(CaldroidFragment.YEAR, dateTime.getYear());
                 if (getIntent().getSerializableExtra("date") != null){
                     LocalDateTime date = (LocalDateTime) getIntent().getSerializableExtra("date");
                     args.putInt(CaldroidFragment.MONTH, date.getMonthOfYear());
                     args.putInt(CaldroidFragment.YEAR, date.getYear());
+                } else {
+                    args.putInt(CaldroidFragment.MONTH, dateTime.getMonth());
+                    args.putInt(CaldroidFragment.YEAR, dateTime.getYear());
                 }
                 caldroid.setArguments(args);
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, caldroid).commit();

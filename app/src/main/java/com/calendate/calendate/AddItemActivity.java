@@ -115,6 +115,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
     Event model;
     Calendar calendar = Calendar.getInstance();
     View publicView;
+    boolean dateSet = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +126,26 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
         mDatabase = FirebaseDatabase.getInstance();
         user = FirebaseAuth.getInstance().getCurrentUser();
         btnId = getIntent().getStringExtra("btnId");
-        btnTitle = getIntent().getStringExtra("btnTitle");
+        if (getIntent().getStringExtra("btnTitle") != null) {
+            btnTitle = getIntent().getStringExtra("btnTitle");
+        } else {
+            year = getIntent().getIntExtra("year", date.getYear());
+            month = getIntent().getIntExtra("month", date.getMonthOfYear());
+            day = getIntent().getIntExtra("day", date.getDayOfMonth());
+            date = new LocalDateTime(year,month,day,0,0,0);
+            dateSet = true;
+            mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    btnTitle = dataSnapshot.getValue(String.class);
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
 
         etTitle = (EditText) findViewById(R.id.etTitle);
         etDescription = (EditText) findViewById(R.id.tvDescription);
@@ -173,7 +193,20 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             alerts.add(new Alert(1, 1, 1, true));
             adapter = new AlertsAdapter(this, getAlerts());
             rvAlerts.setAdapter(adapter);
-            onClick(btnDate);
+            if (!dateSet)
+                onClick(btnDate);
+            else {
+                date = new LocalDateTime(year, month, day, hours, minutes);
+                btnDate.setText(date.toString(MyUtils.btnDateFormat));
+                this.year = date.getYear();
+                this.month = date.getMonthOfYear() + 1;
+                this.day = date.getDayOfMonth();
+                if (first) {
+                    onClick(btnTime);
+                }
+                first = false;
+                checkForConflictDates();
+            }
         }
 
         etTitle.requestFocus();

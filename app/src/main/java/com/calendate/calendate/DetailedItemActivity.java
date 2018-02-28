@@ -77,7 +77,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
     DocsAdapter docsAdapter;
     String btnTitle = "";
     Event event;
-    String sourcePage;
+    String sourcePage = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
