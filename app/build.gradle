@@ -7,8 +7,8 @@ android {
         applicationId "com.calendate.calendate"
         minSdkVersion 17
         targetSdkVersion 25
-        versionCode 222
-        versionName "2.2.2"
+        versionCode 230
+        versionName "2.3"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true
@@ -86,7 +86,10 @@ dependencies {
     compile 'com.github.ViksaaSkool:AwesomeSplash:v1.0.0'
     compile 'com.github.apl-devs:appintro:v4.2.2'
     compile 'com.romandanylyk:pageindicatorview:0.2.0'
+    compile 'com.applandeo:material-calendar-view:1.4.0'
 }
+
+
 
 
 

@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-
     <!-- android:name=".utils.AppManager" is used for loading awesome font -->
     <application
         android:name=".utils.AppManager"
@@ -24,7 +23,7 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".LoginActivity"
             android:screenOrientation="portrait"
@@ -39,13 +38,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.calendate.calendate.MainActivity" />
         </activity>
-        <activity android:name=".intro.IntroActivity"
+        <activity
+            android:name=".intro.IntroActivity"
             android:label="Intro"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".DetailedItemActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".RegistrationActivity"
             android:screenOrientation="portrait" />
@@ -85,11 +85,12 @@
             android:exported="false">
             <intent-filter>
                 <action android:name="ALARM" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name=".BootCompletedReceiver"
+        <receiver
+            android:name=".BootCompletedReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -107,6 +108,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".CustomCalendar"></activity>
     </application>
 
 </manifest>

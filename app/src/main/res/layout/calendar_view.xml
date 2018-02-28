@@ -14,7 +14,7 @@
         <Button
             android:id="@+id/calendar_left_arrow"
             android:rotationY="@integer/locale_mirror_flip"
-            style="?styleCaldroidRightArrow" />
+            style="?styleCaldroidLeftArrow" />
 
         <TextView
             android:id="@+id/calendar_month_year_textview"
@@ -23,7 +23,7 @@
         <Button
             android:id="@+id/calendar_right_arrow"
             android:rotationY="@integer/locale_mirror_flip"
-            style="?styleCaldroidLeftArrow" />
+            style="?styleCaldroidRightArrow" />
 
     </LinearLayout>
     <LinearLayout
