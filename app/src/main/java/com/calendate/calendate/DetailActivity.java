@@ -115,7 +115,7 @@ public class DetailActivity extends AppCompatActivity {
         protected void populateViewHolder(EventViewHolder viewHolder, EventRow model, int position) {
             viewHolder.tvTitle.setText(model.getTitle());
             LocalDateTime dateTime = LocalDateTime.parse(model.getDate(), DateTimeFormat.forPattern(MyUtils.dateForamt));
-            viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat) + " - " + model.getTime());
+            viewHolder.tvDate.setText(dateTime.toString(MyUtils.btnDateFormat) + "\n" + model.getTime());
             viewHolder.model = model;
             viewHolder.context = this.context;
             viewHolder.userId = this.userId;
@@ -137,7 +137,7 @@ public class DetailActivity extends AppCompatActivity {
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(final View v) {
-                        FirebaseDatabase.getInstance().getReference("all_events/" + userId + "/" + model.getEventUID()).addValueEventListener(new ValueEventListener() {
+                        FirebaseDatabase.getInstance().getReference("all_events/" + userId + "/" + model.getEventUID()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
                                     Event event = dataSnapshot.getValue(Event.class);

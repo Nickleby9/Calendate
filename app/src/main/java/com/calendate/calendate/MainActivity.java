@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                                     .setMessage(event.getCreator() + " " + getString(R.string.share_msg) + " " + event.getTitle() + ".\n" + getString(R.string.share_msg_2))
                                     .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
                                         @Override
-                                        public void onClick(DialogInterface dialog, int which) {
+                                        public void onClick(final DialogInterface dialog, int which) {
                                             CategoriesFragment categoriesFragment = new CategoriesFragment();
                                             Bundle bundle = new Bundle();
                                             bundle.putParcelable("event", event);
@@ -263,6 +263,38 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
                                             categoriesFragment.setArguments(bundle);
                                             categoriesFragment.show(getSupportFragmentManager(), "categoriesFragment");
                                             dialog.dismiss();
+                                            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                                            builder.setMessage("Would you like to schedule an alert for your new event?")
+                                                    .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                                            FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid() + "/" + event.getEventUID()).addListenerForSingleValueEvent(new ValueEventListener() {
+                                                                @Override
+                                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                                    Event event = dataSnapshot.getValue(Event.class);
+                                                                    if (event != null && event.isAccessible()){
+                                                                        Intent intent = new Intent(MainActivity.this, DetailedItemActivity.class);
+                                                                        intent.putExtra("eventKey", event.getEventUID());
+                                                                        intent.putExtra("btnId", event.getBtnId());
+                                                                        intent.putExtra("source", "categories");
+                                                                        startActivity(intent);
+                                                                    } else {
+                                                                        Toast.makeText(MainActivity.this, R.string.upload_in_progress, Toast.LENGTH_SHORT).show();
+                                                                    }
+                                                                }
+
+                                                                @Override
+                                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                                }
+                                                            });
+                                                        }
+                                                    }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    dialogInterface.dismiss();
+                                                }
+                                            }).show();
                                         }
                                     }).setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
                                 @Override
