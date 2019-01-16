@@ -24,6 +24,13 @@
                     android:icon="@drawable/ic_friends"
                     android:title="@string/friends" />
 
+                <!--
+                <item
+                    android:id="@+id/nav_edit_profile"
+                    android:icon="@drawable/ic_edit_profile"
+                    android:title="@string/edit_profile" />
+                    -->
+
                 <item
                     android:id="@+id/nav_bind"
                     android:icon="@drawable/ic_person_add"

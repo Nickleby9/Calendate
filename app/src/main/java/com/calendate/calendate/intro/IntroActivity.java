@@ -67,6 +67,7 @@ public class IntroActivity extends AppIntro {
 
         // Hide Skip/Done button.
         showSkipButton(true);
+        setSkipText(getString(R.string.skip));
         setProgressButtonEnabled(true);
 
     }

@@ -419,6 +419,9 @@ public class MainActivity extends AppCompatActivity implements SetButtonTitleDia
             case R.id.nav_about:
                 new AboutDialog().show(getSupportFragmentManager(), "aboutFragment");
                 break;
+            /*case R.id.nav_edit_profile:
+                getSupportFragmentManager().beginTransaction().replace(R.id.frame, new EditProfileFragment()).commit();
+                break;*/
             case R.id.nav_bind:
                 getSupportFragmentManager().beginTransaction().replace(R.id.frame, new BindFragment()).commit();
                 break;

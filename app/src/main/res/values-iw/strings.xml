@@ -202,7 +202,7 @@
     <string name="intro_categories">קטגוריות מותאמות אישית</string>
     <string name="intro_categories_desc">לחיצה ארוכה על קטגוריה תאפשר הגדרת כותרת ואייקון.\n דפדפו הצידה להצגת עוד קטגוריות</string>
     <string name="intro_friends">יומן חברתי</string>
-    <string name="intro_friends_desc">תוסיפו את האנשים החושבים בחייכם לרשימת החברים.\n תגררו את האירוע הצידה על מנת לשתף אותו</string>
+    <string name="intro_friends_desc">תוסיפו את האנשים החשובים בחייכם לרשימת החברים.\n תגררו את האירוע הצידה על מנת לשתף אותו</string>
     <string name="successful_share">האירוע שותף בהצלחה!</string>
     <string name="new_event">אירוע חדש</string>
     <string name="note_minute">דקה</string>
@@ -231,4 +231,6 @@
     <string name="no_internet_msg">אין חיבור פעיל לאינטרנט.\nעל מנת ש Calendate תוכל לעבוד בצורה הטובה ביותר, נדרש חיבור לאינטרנט.\nאפשר ליצור אירועים חדשים גם בלי חיבור לאינטרנט.</string>
     <string name="go_to_setting">עבור להגדרות</string>
     <string name="empty_text_err">השם לא יכול להיות ריק</string>
+    <string name="edit_profile">עריכת פרופיל</string>
+    <string name="skip">דלג</string>
 </resources>

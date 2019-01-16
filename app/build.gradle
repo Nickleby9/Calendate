@@ -1,17 +1,23 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.calendate.calendate"
         minSdkVersion 17
-        targetSdkVersion 25
-        versionCode 240
-        versionName "2.4"
+        targetSdkVersion 26
+        versionCode 250
+        versionName "2.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary true
         multiDexEnabled true
+        lintOptions {
+            checkReleaseBuilds false
+            // Or, if you prefer, you can continue to check for errors in release builds,
+            // but continue the build even when errors are found:
+            abortOnError false
+        }
     }
 
     buildTypes {
@@ -88,6 +94,7 @@ dependencies {
     compile 'com.romandanylyk:pageindicatorview:0.2.0'
     compile 'com.applandeo:material-calendar-view:1.4.0'
 }
+
 
 
 

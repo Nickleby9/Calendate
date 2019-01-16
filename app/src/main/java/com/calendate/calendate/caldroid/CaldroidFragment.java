@@ -1328,9 +1328,11 @@ public class CaldroidFragment extends DialogFragment {
     /**
      * Setup view
      */
+    ViewGroup viewGroup = null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        viewGroup = container;
         Calendar today = Calendar.getInstance();
         setSelectedDate(new Date(today.get(Calendar.YEAR), today.get(Calendar.MONTH), today.get(Calendar.DAY_OF_MONTH)));
         
@@ -1398,10 +1400,11 @@ public class CaldroidFragment extends DialogFragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(com.calendate.calendate.R.string.calendar_view);
 
+        btnNew.setVisibility(View.GONE);
         final FirebaseDatabase mDatabase = FirebaseDatabase.getInstance();
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 //        final Drawable dot = view.getResources().getDrawable(com.calendate.calendate.R.drawable.dot);
@@ -1555,6 +1558,7 @@ public class CaldroidFragment extends DialogFragment {
         for (int i = 0; i < NUMBER_OF_PAGES; i++) {
             final DateGridFragment dateGridFragment = fragments.get(i);
             final CaldroidGridAdapter adapter = datePagerAdapters.get(i);
+
             dateGridFragment.setGridViewRes(getGridViewRes());
             dateGridFragment.setGridAdapter(adapter);
 //            dateGridFragment.setOnItemClickListener(getDateItemClickListener());
@@ -1566,9 +1570,14 @@ public class CaldroidFragment extends DialogFragment {
                     if (lastView != null && lastBackground != null) {
                         lastView.setBackground(lastBackground);
                     }
+                    if (btnNew.getVisibility() != View.VISIBLE) {
+                        btnNew.setVisibility(View.VISIBLE);
+                    }
                     lastView = view;
                     lastBackground = view.getBackground();
                     view.setBackgroundColor(getResources().getColor(com.calendate.calendate.R.color.colorPrimary));
+                    ArrayList<CaldroidGridAdapter> datePagerAdapters = getDatePagerAdapters();
+                    CaldroidGridAdapter caldroidGridAdapter = datePagerAdapters.get(0);
 
                     DateTime dateTime = dateInMonthsList.get(i);
                     selectedDay = dateTime.getDay();
