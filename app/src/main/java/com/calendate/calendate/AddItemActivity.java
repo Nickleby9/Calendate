@@ -132,7 +132,7 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             year = getIntent().getIntExtra("year", date.getYear());
             month = getIntent().getIntExtra("month", date.getMonthOfYear());
             day = getIntent().getIntExtra("day", date.getDayOfMonth());
-            date = new LocalDateTime(year,month,day,0,0,0);
+            date = new LocalDateTime(year, month, day, 0, 0, 0);
             dateSet = true;
             mDatabase.getReference("buttons/" + user.getUid() + "/" + btnId).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -618,15 +618,21 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
                         .setSmallIcon(R.drawable.ic_stat_calendate_notification)
                         .setOngoing(true)
                         .setVibrate(new long[]{0})
-                        .setSound(Uri.EMPTY)
+                        .setSound(null)
                         .setColor(Color.argb(70, 2, 136, 209)); //colorPrimaryDark
                 notificationManager.notify(longToInt(1001 + "" + file.length()), builder.build());
                 uploadTask.addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
                         int progress = (int) ((100 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount());
-                        builder.setProgress(100, progress, false);
-                        builder.setContentText(taskSnapshot.getBytesTransferred() / 1000 + "kb / " + taskSnapshot.getTotalByteCount() / 1000 + "kb");
+                        builder.setProgress(100, progress, false)
+                            .setSound(Uri.EMPTY)
+                            .setSmallIcon(R.drawable.ic_stat_calendate_notification)
+                            .setOngoing(true)
+                            .setVibrate(new long[]{0})
+                            .setSound(null)
+                            .setColor(Color.argb(70, 2, 136, 209)) //colorPrimaryDark
+                            .setContentText(taskSnapshot.getBytesTransferred() / 1000 + "kb / " + taskSnapshot.getTotalByteCount() / 1000 + "kb");
                         notificationManager.notify(longToInt(1001 + "" + file.length()), builder.build());
                     }
                 })
@@ -910,11 +916,11 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
             File file = data.get(position);
             holder.file = data.get(position);
             if (file != null) {
-                /*if (file.getPath().toLowerCase().endsWith(".jpg")) {*/
-                image = BitmapFactory.decodeFile(file.getPath());
-                holder.ivDoc.setImageBitmap(image);
-                image = null;
-                /*
+                if (file.getPath().toLowerCase().endsWith(".jpg") || file.getPath().toLowerCase().endsWith(".png")) {
+                    image = BitmapFactory.decodeFile(file.getPath());
+                    holder.ivDoc.setImageBitmap(image);
+                    image = null;
+
                     CompositeDisposable disposables = new CompositeDisposable();
 
                     disposables.add(imageDownloader(file)
@@ -937,9 +943,9 @@ public class AddItemActivity extends AppCompatActivity implements View.OnClickLi
 
                                 }
                             }));
-                /*} else {
+                } else {
                     holder.ivDoc.setImageResource(R.drawable.ic_pdf_icon);
-                }*/
+                }
             }
         }
 

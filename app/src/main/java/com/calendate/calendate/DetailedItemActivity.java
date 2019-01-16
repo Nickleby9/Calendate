@@ -428,6 +428,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                     public void onClick(final View view) {
                         int index = string.indexOf("-mini?alt");
                         final String linkWithoutMini = string.substring(0, index);
+                        /*
                         FirebaseDatabase.getInstance().getReference("all_events/" + user.getUid() + "/" + event.getEventUID() + "/documents").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -444,7 +445,7 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
 
                             }
                         });
-
+                        */
                         CompositeDisposable disposables = new CompositeDisposable();
 
                         disposables.add(imageDownloader(linkWithoutMini, view)
@@ -454,14 +455,9 @@ public class DetailedItemActivity extends AppCompatActivity implements View.OnCl
                                     @Override
                                     public void onNext(@io.reactivex.annotations.NonNull File newFile) {
                                         Intent intent = new Intent(Intent.ACTION_VIEW);
-//                                        if (string.toLowerCase().contains(".jpg")) {
-////                                            intent.setDataAndType(Uri.fromFile(file), "image/jpeg");
-//                                            ShowImageFragment s = new ShowImageFragment();
-//                                            Bundle args = new Bundle();
-//                                            args.putSerializable("image", file);
-//                                            s.setArguments(args);
-//                                            s.show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
-//                                        }
+                                        if (string.toLowerCase().contains(".jpg")) {
+                                                ShowImageFragment.newInstance(linkWithoutMini).show(((FragmentActivity) context).getSupportFragmentManager(), "tag");
+                                        }
                                         if (string.toLowerCase().contains(".pdf")) {
                                             intent.setDataAndType(Uri.fromFile(newFile), "application/pdf");
                                             try {

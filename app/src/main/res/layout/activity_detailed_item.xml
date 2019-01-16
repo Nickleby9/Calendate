@@ -172,10 +172,7 @@
                 android:layout_marginTop="16dp"
                 app:layout_constraintEnd_toEndOf="@+id/btnTime"
                 app:layout_constraintStart_toStartOf="@+id/tvAlert"
-                app:layout_constraintTop_toBottomOf="@+id/tvAlert">
-
-
-            </android.support.v7.widget.RecyclerView>
+                app:layout_constraintTop_toBottomOf="@+id/tvAlert" />
 
             <android.support.design.widget.FloatingActionButton
                 android:id="@+id/fabAdd"
